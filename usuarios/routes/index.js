@@ -1,5 +1,6 @@
 const {Router} = require('express')
 const router = Router()
+const {connectDB} = require('../database/database.config')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
@@ -16,6 +17,14 @@ const logInput = async(req, resp) => {
             query,
             params
         }
+    })
+}
+
+const pingDB = async(req, resp) => {
+    //por ahora solo uso la dependencia mysql para no tener que complicar con el orm
+    const response = await connectDB();
+    resp.status(response ? 200 : 500).json({
+        msg: response ? 'connected to database' : 'database unreachable',
     })
 }
 
@@ -41,6 +50,9 @@ router.get('/organization/:organizationId/project',[], logInput)
 
 router.get('/organization/:organizationId/project/:projectId',[], logInput)
 router.patch('/organization/:organizationId/project/:projectId',[], logInput)
+
+
+router.get('/testdb',[], pingDB)
 
 
 module.exports = router
