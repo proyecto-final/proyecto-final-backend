@@ -1,0 +1,26 @@
+version: "0.1"
+services:
+  usuarios:
+    build: ./usuarios
+    ports:
+      - "3030:3000"
+  ips:
+    build: ./ips
+    ports:
+      - "3031:3000"
+  correlacion:
+    build: ./correlacion
+    ports:
+      - "3032:3000"
+  busqueda:
+    build: ./busqueda
+    ports:
+      - "3033:3000"
+  timeline:
+    build: ./timeline
+    ports:
+      - "3034:3000"
+  mysql:
+    build: ./mysql
+    ports:
+      - "5555:3306"
