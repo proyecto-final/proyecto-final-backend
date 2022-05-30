@@ -24,3 +24,7 @@ services:
     build: ./mysql
     ports:
       - "5555:3306"
+  mongo:
+    build: ./mongo
+    ports:
+      - "6000:27017"
