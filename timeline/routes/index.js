@@ -1,5 +1,6 @@
 const {Router} = require('express')
 const router = Router()
+const {isConnectionActive} = require('../database')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
@@ -19,6 +20,19 @@ const logInput = async(req, resp) => {
     })
 }
 
+const checkDB = (req, resp) => {
+    const connection = isConnectionActive()
+    return resp.status(connection ? 200 : 500).json({
+        msg: connection ? 'sucessfully connected to Mongo DB' : 'Unable to connect with mongoDB'
+    })
+}
+
+const checkModule = (req, resp) => {
+    return resp.status(200).json({
+        msg: 'Timeline Module :)'
+    })
+}
+
 //NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.get('/project/:projectId/timeline',[], logInput)
 router.post('/project/:projectId/timeline',[], logInput)
@@ -28,6 +42,8 @@ router.patch('/project/:projectId/timeline/:timelineId',[], logInput)
 router.delete('/project/:projectId/timeline/:timelineId',[], logInput)
 
 router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',[], logInput)
+router.get('/checkDB',[], checkDB)
+router.get('/checkModule',[], checkModule)
 
 
 module.exports = router
