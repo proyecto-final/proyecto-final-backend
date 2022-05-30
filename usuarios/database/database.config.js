@@ -5,7 +5,7 @@ const { Sequelize } = require('sequelize');
 //prod
 //const sequelize = new Sequelize('mysql://SherlockRoot:SH3rl0ckR00t@database-testing.csd1nltwgzc6.us-east-1.rds.amazonaws.com:3306/test')
 //testing
-const sequelize = new Sequelize('mysql://root:root@localhost:5555/test')
+const sequelize = new Sequelize('mysql://root:root@mysql:3306/test')
 
 /* segun la docu
 const sequelize = new Sequelize('database', 'username', 'password', {

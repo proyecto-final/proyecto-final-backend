@@ -1,30 +1,61 @@
 version: "0.1"
 services:
+  mysql:
+    build: ./mysql
+    ports:
+      - "3306:3306"
+    networks: 
+      - users
+  mongo:
+    build: ./mongo
+    ports:
+      - "27017:27017"
+    networks: 
+      - business
   usuarios:
     build: ./usuarios
     ports:
       - "3030:3000"
+    depends_on:
+      - mysql
+    networks: 
+      - users
   ips:
     build: ./ips
     ports:
       - "3031:3000"
+    depends_on:
+      - mongo
+    networks: 
+      - business
   correlacion:
     build: ./correlacion
     ports:
       - "3032:3000"
+    depends_on:
+      - mongo
+    networks: 
+      - business
   busqueda:
     build: ./busqueda
     ports:
       - "3033:3000"
+    depends_on:
+      - mongo
+    networks: 
+      - business
   timeline:
     build: ./timeline
     ports:
       - "3034:3000"
-  mysql:
-    build: ./mysql
-    ports:
-      - "5555:3306"
-  mongo:
-    build: ./mongo
-    ports:
-      - "6000:27017"
+    depends_on:
+      - mongo
+    networks: 
+      - business
+networks:
+  users:
+      name: "users-network"
+      driver: bridge
+  business:
+      name: "business-network"
+      driver: bridge

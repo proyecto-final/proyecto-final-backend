@@ -1,4 +1,5 @@
 const express = require('express')
+const {connectDB} = require('../database/index')
 require('dotenv').config()
 
 class Server {
@@ -7,6 +8,7 @@ class Server {
         this.app.use(express.json())
         this.routes()
         this.start()
+        connectDB()
     }
 
     routes() {
