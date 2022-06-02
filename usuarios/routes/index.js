@@ -1,10 +1,10 @@
 const {Router} = require('express')
 const router = Router()
-const {connectDB} = require('../database/database.config')
+const User = require('../controllers/user')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
-const logInput = async(req, resp) => {
+const dummyHandle = async(req, resp) => {
     const {body, query, params} = req
     console.log('request recieved: ', req)
     console.log('body request recieved: ', body)
@@ -19,40 +19,28 @@ const logInput = async(req, resp) => {
         }
     })
 }
+router.post('/user/authenticate',User.authenticate)
+router.post('/user/authorize',dummyHandle)
+router.put('/user/logout',dummyHandle)
 
-const pingDB = async(req, resp) => {
-    //por ahora solo uso la dependencia mysql para no tener que complicar con el orm
-    const response = await connectDB();
-    resp.status(response ? 200 : 500).json({
-        msg: response ? 'connected to database' : 'database unreachable',
-    })
-}
+router.get('/organization',dummyHandle)
+router.post('/organization',dummyHandle)
 
-router.post('/user/authenticate',[], logInput)
-router.post('/user/authorize',[], logInput)
-router.put('/user/logout',[], logInput)
+//NOTE: remember that organizationId comes inside req.params as {organizationId: value}
+router.get('/organization/:organizationId',dummyHandle)
+router.put('/organization/:organizationId',dummyHandle)
 
-router.get('/organization',[], logInput)
-router.post('/organization',[], logInput)
+router.post('/organization/:organizationId/generate-link',dummyHandle)
+router.post('/organization/:organizationId/user',dummyHandle)
 
-//NOTA: cuando lo vayan a usar este organizationId recuerden que viene adentro de req.params como {organizationId: value}
-router.get('/organization/:organizationId',[], logInput)
-router.put('/organization/:organizationId',[], logInput)
+router.put('/organization/:organizationId/user/:userId',dummyHandle)
+router.delete('/organization/:organizationId/user/:userId',dummyHandle)
 
-router.post('/organization/:organizationId/generate-link',[], logInput)
-router.post('/organization/:organizationId/user',[], logInput)
+router.post('/organization/:organizationId/project',dummyHandle)
+router.get('/organization/:organizationId/project',dummyHandle)
 
-router.put('/organization/:organizationId/user/:userId',[], logInput)
-router.delete('/organization/:organizationId/user/:userId',[], logInput)
-
-router.post('/organization/:organizationId/project',[], logInput)
-router.get('/organization/:organizationId/project',[], logInput)
-
-router.get('/organization/:organizationId/project/:projectId',[], logInput)
-router.patch('/organization/:organizationId/project/:projectId',[], logInput)
-
-
-router.get('/testdb',[], pingDB)
+router.get('/organization/:organizationId/project/:projectId',dummyHandle)
+router.patch('/organization/:organizationId/project/:projectId',dummyHandle)
 
 
 module.exports = router
