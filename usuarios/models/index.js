@@ -16,7 +16,7 @@ const path = require('path')
 const Sequelize = require('sequelize')
 const basename = path.basename(__filename)
 const db = {}
-
+// TODO: change this to a config file
 const sequelize = new Sequelize('mysql://root:root@localhost:3306/test')
 fs
   .readdirSync(__dirname)
