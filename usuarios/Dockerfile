@@ -8,6 +8,10 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+RUN rm .env
+
+RUN mv .env.docker .env
+
+EXPOSE 3030
 
 CMD ["node", "index.js"]
