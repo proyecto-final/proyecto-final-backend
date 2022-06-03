@@ -14,10 +14,11 @@ const sequelize = new Sequelize('database', 'username', 'password', {
 const fs = require('fs')
 const path = require('path')
 const Sequelize = require('sequelize')
+require('dotenv').config()
 const basename = path.basename(__filename)
 const db = {}
 // TODO: change this to a config file
-const sequelize = new Sequelize('mysql://root:root@localhost:3306/test')
+const sequelize = new Sequelize(process.env.MYSQL_CONNECTION_STRING)
 fs
   .readdirSync(__dirname)
   .filter(file => {

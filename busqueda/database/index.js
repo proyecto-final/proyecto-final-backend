@@ -1,16 +1,15 @@
 const mongoose = require('mongoose');
 require('dotenv').config
 
-const mongoConnection = process.env.ENVIRONMENT === 'PROD' ? process.env.MONGODB_URI : 'mongodb://sherlock:root@mongo:27017'
-
 const isConnectionActive = async() => {
     return mongoose.connection.readyState === 1;
 }
 
+
 const connectDB = async () => {
 
     try {
-        await mongoose.connect(mongoConnection, {
+        await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedtopology: true
         })
