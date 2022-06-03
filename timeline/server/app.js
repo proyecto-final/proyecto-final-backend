@@ -1,4 +1,5 @@
 const express = require('express')
+const {connectDB} = require('../database/index')
 require('dotenv').config()
 
 class Server {
@@ -7,6 +8,9 @@ class Server {
         this.app.use(express.json())
         this.routes()
         this.start()
+        connectDB()
+        .then(() => console.log('connected with MongoDB'))
+        .catch((err) => console.log('unable to connect with MongoDB') )
     }
 
     routes() {
