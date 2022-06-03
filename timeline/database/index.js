@@ -2,10 +2,6 @@ const mongoose = require('mongoose');
 require('dotenv').config
 
 
-const isConnectionActive = async() => {
-    return mongoose.connection.readyState === 1
-}
-
 const connectDB = async () => {
 
     try {
@@ -21,6 +17,5 @@ const connectDB = async () => {
 
 
 module.exports = {
-    isConnectionActive,
     connectDB
 }

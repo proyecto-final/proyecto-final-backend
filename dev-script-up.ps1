@@ -1,7 +1,7 @@
 docker build -t mongo:dev mongo 
 docker build -t mysql:dev mysql 
 
-docker run --name mongo-dev-container -d -p 27014:27014 mongo:dev 
+docker run --name mongo-dev-container -d -p 27017:27017 mongo:dev 
 docker run --name mysql-dev-container -d -p 3306:3306 mysql:dev 
 
 
