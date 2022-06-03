@@ -1,5 +1,6 @@
 const {Router} = require('express')
 const router = Router()
+const ModelTestSchema = require('../models/modelTest')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
