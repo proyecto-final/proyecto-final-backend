@@ -22,16 +22,13 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: true,
       unique: true
     }
-  },
-  {
-    instanceMethods: {
-      toJSON: function () {
-        const values = Object.assign({}, this.get())
-        delete values.token
-        delete values.password
-        return values
-      }
-    }
   })
+  User.prototype.toJSON = function () {
+    const values = Object.assign({}, this.get())
+    console.log(values)
+    delete values.token
+    delete values.password
+    return values
+  }
   return User
 }
