@@ -11,7 +11,7 @@ app.listen(process.env.PORT, () => {
 })
 
 const connectToDatabase = async() => {
-  db.sequelize.sync({ force: true }).then(() => {
+  db.sequelize.sync({ alter: true }).then(() => {
     console.log('SUCESSFULLY CONNECTED!')
     console.log('-----------------------Database sync finish! -----------------------')
   }).catch((err) => {
