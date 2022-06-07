@@ -24,6 +24,7 @@ jobs:
   build-and-deploy-prod-with-tests:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: Set credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -32,8 +33,6 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy to prod (user module)
         run: |
-          ls
-          pwd
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios .
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
