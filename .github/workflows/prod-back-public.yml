@@ -32,9 +32,8 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy to prod (user module)
         run: |
-          cd ..
-          pwd
           echo $(ls)
+          pwd
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios .
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
