@@ -21,7 +21,7 @@ env:
   ECS_TASK_DEFINITION: ${{ secrets.AWS_DEFAULT_ECS_TASK_DEFINITION}}
   CONTAINER_NAME: ${{ secrets.AWS_DEFAULT_CONTAINER_NAME}} #this wont work, we need 5 diferent container names
 jobs:
-  build-and-deploy-prod-with-tests:
+  build-and-deploy-prod-docker-images:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -32,6 +32,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy to prod (user module)
+        id: build-image
         run: |
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
