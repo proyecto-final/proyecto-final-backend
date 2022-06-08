@@ -38,7 +38,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:usuarios"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition $USER_TASK_DEFINITION --query taskDefinition > task-definition.json
