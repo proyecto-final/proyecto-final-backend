@@ -17,8 +17,16 @@ env:
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
   USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_USER_TASK_DEFINITION}}
+  IPS_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_IPS_TASK_DEFINITION}}
+  CORRELATION_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_CORRELATION_TASK_DEFINITION}}
+  SEARCH_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_SEARCH_TASK_DEFINITION}}
+  TIMELINE_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_TIMELINE_TASK_DEFINITION}}
   CLUSTER_NAME: ${{secrets.AWS_DEFAULT_ECS_CLUSTER}}
-  SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SERVICE}}
+  USER_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SERVICE}}
+  IPS_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_IPS_SERVICE}}
+  CORRELATION_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_CORRELATION_SERVICE}}
+  SEARCH_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SEARCH_SERVICE}}
+  TIMELINE_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_TIMELINE_SERVICE}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -32,7 +40,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Deploy to prod (user module)
-        id: build-image
+        id: build-image-user
         run: |
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
@@ -43,44 +51,127 @@ jobs:
         run: |
           aws ecs describe-task-definition --task-definition $USER_TASK_DEFINITION --query taskDefinition > task-definition.json
       - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
+        id: task-def-user
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
           container-name: container-usuario-v2
-          image: ${{ steps.build-image.outputs.image }}
-
+          image: ${{ steps.build-image-user.outputs.image }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.SERVICE_NAME }} 
+          task-definition: ${{ steps.task-def-user.outputs.task-definition }}
+          service: ${{ env.USER_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
-  
+
+
+          ####IPS DEPLOY
       - name: Deploy to prod (ips module)
+        id: build-image-ips
         run: |
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
           docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-     
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips"
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition $IPS_TASK_DEFINITION --query taskDefinition > task-definition-ips.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-ips
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-ips.json
+          container-name: container-ips-v2
+          image: ${{ steps.build-image-ips.outputs.image }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-ips.outputs.task-definition }}
+          service: ${{ env.IPS_SERVICE_NAME }} 
+          cluster:  ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+          
+     ####CORELATION DEPLOY
       - name: Deploy to prod (correlation module)
+        id: build-image-correlation
         run: |
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:correlacion correlacion
           docker tag $AWS_REPOSITORY:correlacion $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion"
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition $CORRELATION_TASK_DEFINITION --query taskDefinition > task-definition-correlation.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-correlation
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-correlation.json
+          container-name: container-correlacion-v2
+          image: ${{ steps.build-image-correlation.outputs.image }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-correlation.outputs.task-definition }}
+          service: ${{ env.CORRELATION_SERVICE_NAME }} 
+          cluster:  ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+      
+      ####SEARCH DEPLOY
       - name: Deploy to prod (search module)
+        id: build-image-search
         run: |
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda"
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition $SEARCH_TASK_DEFINITION --query taskDefinition > task-definition-search.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-search
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-search.json
+          container-name: container-busqueda-v2
+          image: ${{ steps.build-image-search.outputs.image }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-search.outputs.task-definition }}
+          service: ${{ env.SEARCH_SERVICE_NAME }} 
+          cluster:  ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      ####TIMELINE DEPLOY
       - name: Deploy to prod (timeline module)
+        id: build-image-timeline
         run: |
            aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
            docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
            docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
            docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
+           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline"
+      - name: Download task definition
+        run: |
+          aws ecs describe-task-definition --task-definition $TIMELINE_TASK_DEFINITION --query taskDefinition > task-definition-timeline.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-timeline
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-timeline.json
+          container-name: container-timeline-v2
+          image: ${{ steps.build-image-timeline.outputs.image }}
+      - name: Deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-timeline.outputs.task-definition }}
+          service: ${{ env.TIMELINE_SERVICE_NAME }} 
+          cluster:  ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
       
