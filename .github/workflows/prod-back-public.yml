@@ -1,4 +1,4 @@
-name: Sherlock_PROD
+name: Sherlock_BE_PROD
 on:
   push:
     branches:
@@ -16,10 +16,7 @@ env:
   AWS_ECR_REPOSITORY_URI: ${{ secrets.AWS_DEFAULT_URI_ECR}}
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
-  ECS_SERVICE: ${{ secrets.AWS_DEFAULT_ECS_SERVICE}} #we could loop insted of repeat this but... I'm not wasting my time on this :)
-  ECS_CLUSTER: ${{ secrets.AWS_DEFAULT_ECS_CLUSTER}}
-  ECS_TASK_DEFINITION: ${{ secrets.AWS_DEFAULT_ECS_TASK_DEFINITION}}
-  CONTAINER_NAME: ${{ secrets.AWS_DEFAULT_CONTAINER_NAME}} #this wont work, we need 5 diferent container names
+ 
 jobs:
   build-and-deploy-prod-docker-images:
     runs-on: ubuntu-latest
@@ -39,96 +36,29 @@ jobs:
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
 
-     # - name: Deploy to prod (ips module)
-     #   run: |
-     #     aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-     #     docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
-     #     docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-     #     docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-     #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:ips"
-      # re run in every image-deploy
-      # - name: Fill in the new image ID in the Amazon ECS task definition
-      #   id: task-def1
-      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #   with:
-      #     task-definition: ${{ env.ECS_TASK_DEFINITION }}
-      #     container-name: ${{ env.CONTAINER_NAME }}
-      #     image: ${{ steps.build-image.outputs.image }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-      #     service: ${{ env.ECS_SERVICE }}
-      #     cluster: ${{ env.ECS_CLUSTER }}
-      #     wait-for-service-stability: true
-
-     # - name: Deploy to prod (correlation module)
-     #   run: |
-     #     aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-     #     docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:correlacion correlacion
-     #     docker tag $AWS_REPOSITORY:correlacion $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
-     #     docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
-     #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:correlacion"
-      # re run in every image-deploy
-      # - name: Fill in the new image ID in the Amazon ECS task definition
-      #   id: task-def1
-      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #   with:
-      #     task-definition: ${{ env.ECS_TASK_DEFINITION }}
-      #     container-name: ${{ env.CONTAINER_NAME }}
-      #     image: ${{ steps.build-image.outputs.image }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-      #     service: ${{ env.ECS_SERVICE }}
-      #     cluster: ${{ env.ECS_CLUSTER }}
-      #     wait-for-service-stability: true
-     # - name: Deploy to prod (search module)
-     #   run: |
-     #     aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-     #     docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
-     #     docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
-     #     docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
-     #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:busqueda"
-      # re run in every image-deploy
-      # - name: Fill in the new image ID in the Amazon ECS task definition
-      #   id: task-def1
-      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #   with:
-      #     task-definition: ${{ env.ECS_TASK_DEFINITION }}
-      #     container-name: ${{ env.CONTAINER_NAME }}
-      #     image: ${{ steps.build-image.outputs.image }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-      #     service: ${{ env.ECS_SERVICE }}
-      #     cluster: ${{ env.ECS_CLUSTER }}
-      #     wait-for-service-stability: true
-      # - name: Deploy to prod (timeline module)
-      #   run: |
-      #     aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-      #     docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
-      #     docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
-      #     docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
-      #     echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:timeline"
-      # re run in every image-deploy
-      # - name: Fill in the new image ID in the Amazon ECS task definition
-      #   id: task-def1
-      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
-      #   with:
-      #     task-definition: ${{ env.ECS_TASK_DEFINITION }}
-      #     container-name: ${{ env.CONTAINER_NAME }}
-      #     image: ${{ steps.build-image.outputs.image }}
-
-      # - name: Deploy Amazon ECS task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
-      #     service: ${{ env.ECS_SERVICE }}
-      #     cluster: ${{ env.ECS_CLUSTER }}
-      #     wait-for-service-stability: true
+      - name: Deploy to prod (ips module)
+        run: |
+          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
+          docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+     
+      - name: Deploy to prod (correlation module)
+        run: |
+          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:correlacion correlacion
+          docker tag $AWS_REPOSITORY:correlacion $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
+          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
+      - name: Deploy to prod (search module)
+        run: |
+          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
+          docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
+          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
+      - name: Deploy to prod (timeline module)
+        run: |
+           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
+           docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
+           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
+      
