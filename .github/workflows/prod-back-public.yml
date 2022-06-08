@@ -17,8 +17,9 @@ env:
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
   USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_USER_TASK_DEFINITION}}
-  CLUSTER_NAME: ${{secrets.AWS_DEFAULT_CLUSTER_NAME}}
-  SERVICE_NAME: ${{secrets.AWS_DEFAULT_SERVICE_NAME}}
+  CLUSTER_NAME: ${{secrets.AWS_DEFAULT_ECS_CLUSTER}}
+  SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SERVICE}}
+  CONTAINER_NAME: ${{secrets.AWS_DEFAULT_CONTAINER_NAME}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -38,6 +39,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:usuarios"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition $USER_TASK_DEFINITION --query taskDefinition > task-definition.json
@@ -46,7 +48,7 @@ jobs:
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition.json
-          container-name: my-container
+          container-name: $CONTAINER_NAME
           image: ${{ steps.build-image.outputs.image }}
 
       - name: Deploy Amazon ECS task definition
