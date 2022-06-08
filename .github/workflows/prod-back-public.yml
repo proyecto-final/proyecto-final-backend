@@ -16,17 +16,17 @@ env:
   AWS_ECR_REPOSITORY_URI: ${{ secrets.AWS_DEFAULT_URI_ECR}}
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
-  USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_USER_TASK_DEFINITION}}
-  IPS_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_IPS_TASK_DEFINITION}}
-  CORRELATION_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_CORRELATION_TASK_DEFINITION}}
-  SEARCH_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_SEARCH_TASK_DEFINITION}}
-  TIMELINE_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_TIMELINE_TASK_DEFINITION}}
+  USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
+  IPS_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
+  CORRELATION_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_SECOND_TASK}}
+  SEARCH_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_THIRD_TASK}}
+  TIMELINE_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_THIRD_TASK}}
   CLUSTER_NAME: ${{secrets.AWS_DEFAULT_ECS_CLUSTER}}
-  USER_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SERVICE}}
-  IPS_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_IPS_SERVICE}}
-  CORRELATION_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_CORRELATION_SERVICE}}
-  SEARCH_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SEARCH_SERVICE}}
-  TIMELINE_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_TIMELINE_SERVICE}}
+  USER_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
+  IPS_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
+  CORRELATION_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SECOND_SERVICE}}
+  SEARCH_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
+  TIMELINE_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -47,26 +47,6 @@ jobs:
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios"
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition $USER_TASK_DEFINITION --query taskDefinition > task-definition.json
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-user
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: container-usuario-v2
-          image: ${{ steps.build-image-user.outputs.image }}
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def-user.outputs.task-definition }}
-          service: ${{ env.USER_SERVICE_NAME }} 
-          cluster:  ${{ env.CLUSTER_NAME }}
-          wait-for-service-stability: true
-
-
-          ####IPS DEPLOY
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
@@ -77,23 +57,29 @@ jobs:
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips"
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition $IPS_TASK_DEFINITION --query taskDefinition > task-definition-ips.json
+          aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-user
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-user-ips.json
+          container-name: user-container-v3
+          image: ${{ steps.build-image-user.outputs.image }}
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def-ips
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-ips.json
-          container-name: container-ips-v2
+          task-definition: task-definition-user-ips.json
+          container-name: ips-container-v3
           image: ${{ steps.build-image-ips.outputs.image }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-ips.outputs.task-definition }}
-          service: ${{ env.IPS_SERVICE_NAME }} 
+          task-definition: ${{ steps.task-def-user.outputs.task-definition }}
+          service: ${{ env.USER_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
-
-          
+         
      ####CORELATION DEPLOY
       - name: Deploy to prod (correlation module)
         id: build-image-correlation
@@ -130,25 +116,6 @@ jobs:
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda"
-      - name: Download task definition
-        run: |
-          aws ecs describe-task-definition --task-definition $SEARCH_TASK_DEFINITION --query taskDefinition > task-definition-search.json
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-search
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition-search.json
-          container-name: container-busqueda-v2
-          image: ${{ steps.build-image-search.outputs.image }}
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def-search.outputs.task-definition }}
-          service: ${{ env.SEARCH_SERVICE_NAME }} 
-          cluster:  ${{ env.CLUSTER_NAME }}
-          wait-for-service-stability: true
-
-      ####TIMELINE DEPLOY
       - name: Deploy to prod (timeline module)
         id: build-image-timeline
         run: |
@@ -159,19 +126,25 @@ jobs:
            echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline"
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition $TIMELINE_TASK_DEFINITION --query taskDefinition > task-definition-timeline.json
+          aws ecs describe-task-definition --task-definition $SEARCH_TASK_DEFINITION --query taskDefinition > task-definition-search-timeline.json
+      - name: Fill in the new image ID in the Amazon ECS task definition
+        id: task-def-search
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition-search-timeline.json
+          container-name: search-container-v3
+          image: ${{ steps.build-image-search.outputs.image }}
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def-timeline
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: task-definition-timeline.json
-          container-name: container-timeline-v2
-          image: ${{ steps.build-image-timeline.outputs.image }}
+          task-definition: task-definition-search-timeline.json
+          container-name: timeline-container-v3
+          image: ${{ steps.build-image-search.outputs.image }}
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-timeline.outputs.task-definition }}
-          service: ${{ env.TIMELINE_SERVICE_NAME }} 
+          task-definition: ${{ steps.task-def-search.outputs.task-definition-search-timeline }}
+          service: ${{ env.SEARCH_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
-      
