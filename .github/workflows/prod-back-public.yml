@@ -58,14 +58,14 @@ jobs:
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Fill in the new image ID in the Amazon ECS task definition (USER)
         id: task-def-user
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: task-definition-user-ips.json
           container-name: user-container-v3
           image: ${{ steps.build-image-user.outputs.image }}
-      - name: Fill in the new image ID in the Amazon ECS task definition
+      - name: Fill in the new image ID in the Amazon ECS task definition (IPS)
         id: task-def-ips
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
