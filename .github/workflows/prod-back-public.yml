@@ -46,7 +46,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::$AWS_REPOSITORY:usuarios"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:usuarios"
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
@@ -54,7 +54,7 @@ jobs:
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
           docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-          echo "::set-output name=image::$AWS_REPOSITORY:ips"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:ips"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
@@ -88,7 +88,7 @@ jobs:
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:correlacion correlacion
           docker tag $AWS_REPOSITORY:correlacion $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
-          echo "::set-output name=image::$AWS_REPOSITORY:correlacion"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:correlacion"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition $CORRELATION_TASK_DEFINITION --query taskDefinition > task-definition-correlation.json
@@ -115,7 +115,7 @@ jobs:
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
-          echo "::set-output name=image::$AWS_REPOSITORY:busqueda"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:busqueda"
       - name: Deploy to prod (timeline module)
         id: build-image-timeline
         run: |
@@ -123,7 +123,7 @@ jobs:
            docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
            docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
            docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
-           echo "::set-output name=image::$AWS_REPOSITORY:timeline"
+           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:timeline"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition $SEARCH_TASK_DEFINITION --query taskDefinition > task-definition-search-timeline.json
