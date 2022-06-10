@@ -19,9 +19,9 @@ const dummyHandle = async(req, resp) => {
         }
     })
 }
-router.post('/user/authenticate',User.authenticate)
+router.post('/user/authenticate', User.authenticate)
+router.post('/user/logout', User.logout)
 router.post('/user/authorize',dummyHandle)
-router.put('/user/logout',dummyHandle)
 
 router.get('/organization',dummyHandle)
 router.post('/organization',dummyHandle)

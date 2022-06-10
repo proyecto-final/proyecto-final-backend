@@ -1,15 +1,20 @@
 const express = require('express')
 const db = require('./models/index')
+const cookieParser = require("cookie-parser")
 require('dotenv').config()
 
 const app = express()
+// Middlewares
 app.use(express.json())
+app.use(cookieParser())
+app.use(require('./middlewares/checkToken'))
 app.use('/api', require('./routes'))
 
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}`)
 })
 
+// Connect to DB
 const connectToDatabase = async() => {
   db.sequelize.sync({ alter: true }).then(() => {
     console.log('SUCESSFULLY CONNECTED!')
