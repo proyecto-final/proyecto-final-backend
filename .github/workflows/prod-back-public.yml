@@ -59,7 +59,6 @@ jobs:
         id: get-first-task-definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
-          echo "::set-output name=task-definition::aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition"
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
@@ -80,11 +79,11 @@ jobs:
       - name: Download task definition
         id: get-second-task-definition
         run: |
-          echo "::set-output name=task-definition::aws ecs describe-task-definition --task-definition correlation-module --query taskDefinition"
+          aws ecs describe-task-definition --task-definition correlation-module --query taskDefinition > task-definition-correlation.json
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.get-second-task-definition.outputs.task-definition }}
+          task-definition: ./task-definition-correlation.json
           service: ${{ env.CORRELATION_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
@@ -109,11 +108,11 @@ jobs:
       - name: Download task definition
         id: get-third-task-definition
         run: |
-          echo "::set-output name=task-definition::aws ecs describe-task-definition --task-definition search-timeline-module --query taskDefinition"
+          aws ecs describe-task-definition --task-definition search-timeline-module --query taskDefinition > task-definition-search-timeline.json
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.get-third-task-definition.outputs.task-definition }}
+          task-definition: ./task-definition-search-timeline.json
           service: ${{ env.CORRELATION_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
