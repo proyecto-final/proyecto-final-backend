@@ -32,7 +32,7 @@ function checkPassword (password) {
 }
 
 // DB
-function findUserOrThrowBy (params) {
+async function findUserOrThrowBy (params) {
   const user = await User.findOne({
     where: params
   })
@@ -45,9 +45,9 @@ function findUserOrThrowBy (params) {
 const authenticate = async(req, resp) => {
   const { body } = req
   try {
-    const user = findUserOrThrowBy({
-          username: body.username,
-          password: hash(body.password)
+    const user = await findUserOrThrowBy({
+      username: body.username,
+      password: hash(body.password)
     })
     const token = generateToken(user)
     await user.update({ token })
@@ -56,6 +56,7 @@ const authenticate = async(req, resp) => {
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
   } catch (err) {
+    console.log(err)
     resp.status(401).json(err.msg)
   }
 }
@@ -63,7 +64,7 @@ const authenticate = async(req, resp) => {
 const logout = async(req, resp) => {
   try {
     const token = req.token
-    const user = findUserOrThrowBy({ token })
+    const user = await findUserOrThrowBy({ token })
     await user.update({ token: null })
     resp.status(200).cookie('auth', '', {
       httpOnly: true,
@@ -85,11 +86,11 @@ const update = async(req, resp) => {
   try {
     const token = req.token
     const { password, newPassword }=  req.body
-    const user = findUserOrThrowBy({ token })
+    const user = await findUserOrThrowBy({ token })
     let data2Update = {}
     if (password) {
       if (hash(password) !== user.password) {
-        throw {code: 400, msg: 'Invalid credentials'}
+        throw {code: 403, msg: 'Invalid credentials'}
       }
       checkPassword(newPassword)
       data2Update.password = hash(newPassword)

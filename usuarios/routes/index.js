@@ -21,7 +21,7 @@ const dummyHandle = async(req, resp) => {
 }
 router.post('/user/authenticate', User.authenticate)
 router.post('/user/logout', User.logout)
-router.patch('/user/user',User.update)
+router.patch('/user',User.update)
 
 router.get('/organization',dummyHandle)
 router.post('/organization',dummyHandle)
