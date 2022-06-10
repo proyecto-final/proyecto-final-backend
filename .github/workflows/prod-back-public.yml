@@ -14,6 +14,7 @@ env:
   AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_REPOSITORY: ${{ secrets.AWS_DEFAULT_ECR }}
   AWS_ECR_REPOSITORY_URI: ${{ secrets.AWS_DEFAULT_URI_ECR}}
+  AWS_PUSH_ECR_URL: ${{ secrets.AWS_DEFAULT_URI_ECR}}/${{ secrets.AWS_DEFAULT_ECR }}
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
   USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
@@ -46,7 +47,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios"
+          echo "::set-output name=image::$AWS_PUSH_ECR_URL:usuarios"
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
@@ -54,7 +55,7 @@ jobs:
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
           docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:ips"
+          echo "::set-output name=image::$AWS_PUSH_ECR_URL:ips"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
