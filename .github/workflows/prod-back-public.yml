@@ -47,7 +47,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::public.ecr.aws/n5u0k8y8/sherlock-public-images:usuarios"
+          echo "::set-output name=image::$AWS_PUSH_ECR_URL:usuarios"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
@@ -57,7 +57,7 @@ jobs:
         with:
           task-definition: task-definition-user-ips.json
           container-name: user-container-v3
-          image: ${{ steps.build-image-user.outputs.image }}
+          image: public.ecr.aws/n5u0k8y8/sherlock-public-images:usuarios
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
@@ -72,7 +72,7 @@ jobs:
         with:
           task-definition: task-definition-user-ips.json
           container-name: ips-container-v3
-          image: ${{ steps.build-image-ips.outputs.image }}
+          image: public.ecr.aws/n5u0k8y8/sherlock-public-images:ips
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
