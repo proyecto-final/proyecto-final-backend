@@ -48,14 +48,6 @@ jobs:
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           echo "::set-output name=image::$AWS_PUSH_ECR_URL:usuarios"
-      - name: Deploy to prod (ips module)
-        id: build-image-ips
-        run: |
-          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
-          docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-          echo "::set-output name=image::$AWS_PUSH_ECR_URL:ips"
       - name: Download task definition
         run: |
           aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
@@ -66,6 +58,14 @@ jobs:
           task-definition: task-definition-user-ips.json
           container-name: user-container-v3
           image: ${{ steps.build-image-user.outputs.image }}
+      - name: Deploy to prod (ips module)
+        id: build-image-ips
+        run: |
+          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
+          docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+          echo "::set-output name=image::$AWS_PUSH_ECR_URL:ips"
       - name: Fill in the new image ID in the Amazon ECS task definition (IPS)
         id: task-def-ips
         uses: aws-actions/amazon-ecs-render-task-definition@v1
