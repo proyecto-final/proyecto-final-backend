@@ -46,7 +46,7 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:usuarios"
+          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios"
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
@@ -75,7 +75,7 @@ jobs:
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-user.outputs.task-definition }}
+          task-definition: ${{ steps.task-def-ips.outputs.task-definition }}
           service: ${{ env.USER_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
