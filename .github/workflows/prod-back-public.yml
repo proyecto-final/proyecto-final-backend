@@ -86,19 +86,13 @@ jobs:
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:correlacion"
       - name: Download task definition
+        id: get-second-task-definition
         run: |
-          aws ecs describe-task-definition --task-definition $CORRELATION_TASK_DEFINITION --query taskDefinition > task-definition-correlation.json
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-correlation
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition-correlation.json
-          container-name: container-correlacion-v2
-          image: ${{ steps.build-image-correlation.outputs.image }}
+          echo "::set-output name=task-definition::aws ecs describe-task-definition --task-definition correlation-module --query taskDefinition"
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-correlation.outputs.task-definition }}
+          task-definition: ${{ steps.get-second-task-definition.outputs.task-definition }}
           service: ${{ env.CORRELATION_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
@@ -121,26 +115,14 @@ jobs:
            docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
            echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:timeline"
       - name: Download task definition
+        id: get-third-task-definition
         run: |
-          aws ecs describe-task-definition --task-definition $SEARCH_TASK_DEFINITION --query taskDefinition > task-definition-search-timeline.json
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-search
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition-search-timeline.json
-          container-name: search-container-v3
-          image: ${{ steps.build-image-search.outputs.image }}
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def-timeline
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition-search-timeline.json
-          container-name: timeline-container-v3
-          image: ${{ steps.build-image-search.outputs.image }}
+          echo "::set-output name=task-definition::aws ecs describe-task-definition --task-definition search-timeline-module --query taskDefinition"
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-search.outputs.task-definition-search-timeline }}
-          service: ${{ env.SEARCH_SERVICE_NAME }} 
+          task-definition: ${{ steps.get-third-task-definition.outputs.task-definition }}
+          service: ${{ env.CORRELATION_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
+      
