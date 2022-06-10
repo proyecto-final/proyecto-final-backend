@@ -107,4 +107,4 @@ dist
 
 
 # Yarn lock
-.yarn.lock
+yarn.lock
