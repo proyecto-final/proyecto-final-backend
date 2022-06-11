@@ -17,17 +17,13 @@ env:
   AWS_PUSH_ECR_URL: ${{ secrets.AWS_DEFAULT_PUSH_URL }}
   MONGO_CONNECTION:  ${{secrets.MONGO_DB_CONNECTION_STRING}}
   MYSQL_CONNECTION: ${{secrets.MYSQL_CONNECTION_STRING}}
-  USER_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
-  IPS_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
-  CORRELATION_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_SECOND_TASK}}
-  SEARCH_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_THIRD_TASK}}
-  TIMELINE_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_THIRD_TASK}}
+  FIRST_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_FIRST_TASK}}
+  SECOND_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_SECOND_TASK}}
+  THIRD_TASK_DEFINITION:  ${{secrets.AWS_DEFAULT_THIRD_TASK}}
   CLUSTER_NAME: ${{secrets.AWS_DEFAULT_ECS_CLUSTER}}
-  USER_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
-  IPS_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
-  CORRELATION_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SECOND_SERVICE}}
-  SEARCH_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
-  TIMELINE_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
+  FIRST_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
+  SECOND_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SECOND_SERVICE}}
+  THIRD_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -47,23 +43,22 @@ jobs:
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
-          echo "::set-output name=image::$AWS_PUSH_ECR_URL:usuarios"
-      - name: Deploy to prod (ips module)
-        id: build-image-ips
+      - name: Deploy to prod (timeline module)
+        id: build-image-timeline
         run: |
-          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
-          docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
-          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
+           docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
+           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
       - name: Download task definition
         id: get-first-task-definition
         run: |
-          aws ecs describe-task-definition --task-definition user-ips-module --query taskDefinition > task-definition-user-ips.json
+          aws ecs describe-task-definition --task-definition user-timeline-module --query taskDefinition > task-definition-user-timeline.json
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ./task-definition-user-ips.json
-          service: ${{ env.USER_SERVICE_NAME }} 
+          task-definition: ./task-definition-user-timeline.json
+          service: ${{ env.FIRST_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
          
@@ -84,7 +79,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ./task-definition-correlation.json
-          service: ${{ env.CORRELATION_SERVICE_NAME }} 
+          service: ${{ env.SECOND_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
       
@@ -96,24 +91,22 @@ jobs:
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
-          echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:busqueda"
-      - name: Deploy to prod (timeline module)
-        id: build-image-timeline
+      - name: Deploy to prod (ips module)
+        id: build-image-ips
         run: |
-           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:timeline timeline
-           docker tag $AWS_REPOSITORY:timeline $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
-           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:timeline
-           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:timeline"
+          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
+          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:ips ips
+          docker tag $AWS_REPOSITORY:ips $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
+          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:ips
       - name: Download task definition
         id: get-third-task-definition
         run: |
-          aws ecs describe-task-definition --task-definition search-timeline-module --query taskDefinition > task-definition-search-timeline.json
+          aws ecs describe-task-definition --task-definition search-ips-module --query taskDefinition > task-definition-search-ips.json
       - name: Deploy Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ./task-definition-search-timeline.json
-          service: ${{ env.CORRELATION_SERVICE_NAME }} 
+          task-definition: ./task-definition-search-ips.json
+          service: ${{ env.THIRD_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
       
