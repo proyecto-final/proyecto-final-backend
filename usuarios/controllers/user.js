@@ -56,7 +56,6 @@ const authenticate = async(req, resp) => {
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
   } catch (err) {
-    console.log(err)
     resp.status(401).json(err.msg)
   }
 }
