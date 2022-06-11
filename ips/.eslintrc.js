@@ -1,3 +1,5 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable quotes */
 module.exports = {
     "env": {
         "commonjs": true,
