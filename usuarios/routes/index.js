@@ -58,7 +58,7 @@ const dummyHandle = async(req, resp) => {
  *         username: superCoolUsername
  */
 
- /**
+/**
   * @swagger
   * tags:
   *   name: Auth
