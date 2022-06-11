@@ -19,6 +19,83 @@ const dummyHandle = async(req, resp) => {
         }
     })
 }
+
+//swagger metadata
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     AuthenticationParams:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         password:
+ *           type: string
+ *           description: user password
+ *         username:
+ *           type: string
+ *           description: User identification name. It's setted in sign up page 
+ *       example:
+ *         password: superSecretPassword123
+ *         username: superCoolUsername
+ *     User:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The auto-generated id of the user
+ *         username:
+ *           type: string
+ *           description: User identification name. It's setted in sign up page 
+ *       example:
+ *         id: hj019dSAd181sgf79041er81Ñ23gda2
+ *         username: superCoolUsername
+ */
+
+ /**
+  * @swagger
+  * tags:
+  *   name: Auth
+  *   description: authentication for users
+  *   name: Project CRUD
+  *   description: project creation, modification and remove
+  *   name: User CRUD
+  *   description: user creation, modification and remove
+  *   name: Organization data
+  *   description: organization data retrievement
+  * 
+  */
+
+
+
+//swagger routes
+
+/**
+ * @swagger
+ * /api/user/authenticate:
+ *   post:
+ *     summary: Authenticate the information for the current user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AuthenticationParams'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/User'
+ */
 router.post('/user/authenticate',User.authenticate)
 router.post('/user/authorize',dummyHandle)
 router.put('/user/logout',dummyHandle)
