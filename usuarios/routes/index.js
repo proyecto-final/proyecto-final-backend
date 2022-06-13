@@ -26,7 +26,7 @@ const dummyHandle = async(req, resp) => {
  * @swagger
  * components:
  *   schemas:
- *     AuthenticationParams:
+ *     AuthenticationRequest:
  *       type: object
  *       required:
  *         - title
@@ -56,6 +56,17 @@ const dummyHandle = async(req, resp) => {
  *       example:
  *         id: hj019dSAd181sgf79041er81Ñ23gda2
  *         username: superCoolUsername
+ *     Message:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         msg:
+ *           type: string
+ *           description: Status message
+ *       example:
+ *         msg: User created successfully
  */
 
 /**
@@ -87,7 +98,7 @@ const dummyHandle = async(req, resp) => {
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/AuthenticationParams'
+ *             $ref: '#/components/schemas/AuthenticationRequest'
  *     responses:
  *       200:
  *         description: user information
@@ -98,6 +109,19 @@ const dummyHandle = async(req, resp) => {
  */
 router.post('/user/authenticate',User.authenticate)
 router.post('/user/authorize',dummyHandle)
+/**
+ * @swagger
+ * /api/user/logout:
+ *   post:
+ *     summary: Invalidate the token for the current user
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             $ref: '#/components/schemas/Message'
+ */
 router.put('/user/logout',dummyHandle)
 
 router.get('/organization',dummyHandle)
