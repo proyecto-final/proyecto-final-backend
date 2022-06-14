@@ -32,16 +32,31 @@ const dummyHandle = async(req, resp) => {
  *         - title
  *         - author
  *       properties:
- *         password:
- *           type: string
- *           description: user password
  *         username:
  *           type: string
  *           description: User identification name. It's setted in sign up page 
+ *         password:
+ *           type: string
+ *           description: user password
  *       example:
  *         password: superSecretPassword123
  *         username: superCoolUsername
- *     User:
+ *     UserRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         password:
+ *           type: string
+ *           description: Current user password
+ *         newPassword:
+ *           type: string
+ *           description: New password to be set on the user
+ *       example:
+ *         password: hj019dSAd181sgf79041er81Ñ23gda2
+ *         newPassword: rodriCapo123-
+ *     UserResponse:
  *       type: object
  *       required:
  *         - title
@@ -105,7 +120,7 @@ const dummyHandle = async(req, resp) => {
  *         content:
  *           application/json:
  *             schema:
- *                 $ref: '#/components/schemas/User'
+ *                 $ref: '#/components/schemas/UserResponse'
  */
 router.post('/user/authenticate',User.authenticate)
 router.post('/user/authorize',dummyHandle)
@@ -124,6 +139,26 @@ router.post('/user/authorize',dummyHandle)
  */
 router.put('/user/logout',User.logout)
 
+/**
+ * @swagger
+ * /api/user:
+ *   patch:
+ *     summary: Updates user information
+ *     tags: [User CRUD]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserRequest'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserResponse'
+ */
 router.patch('/user',User.update)
 
 router.get('/organization',dummyHandle)
