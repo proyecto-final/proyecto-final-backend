@@ -1,11 +1,14 @@
 const express = require('express')
 require('dotenv').config()
+const db = require('./models/index')
+const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
 const swaggerJSDoc = require('swagger-jsdoc')
 const app = express()
 
-const db = require('./models/index')
 app.use(express.json())
+app.use(cookieParser())
+app.use(require('./middlewares/checkToken'))
 app.use('/api', require('./routes'))
 
 app.listen(process.env.PORT, () => {

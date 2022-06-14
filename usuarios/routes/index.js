@@ -122,7 +122,7 @@ router.post('/user/authorize',dummyHandle)
  *           application/json:
  *             $ref: '#/components/schemas/Message'
  */
-router.put('/user/logout',dummyHandle)
+router.put('/user/logout',User.logout)
 
 router.get('/organization',dummyHandle)
 router.post('/organization',dummyHandle)
