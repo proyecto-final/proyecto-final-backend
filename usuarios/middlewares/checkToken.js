@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken')
 
 module.exports = function (req, res, next) {
-  const allowedPaths = ['/api/user/authenticate', '/api-docs/']
+  const allowedPaths = ['/api/user/authenticate', '/api-docs']
   if (allowedPaths.some(path => req.path.includes(path))) {
     return next()
   }

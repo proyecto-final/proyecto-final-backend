@@ -87,13 +87,13 @@ const dummyHandle = async(req, resp) => {
 /**
   * @swagger
   * tags:
-  *   name: Auth
+  * - name: Auth
   *   description: authentication for users
-  *   name: Project CRUD
+  * - name: Project CRUD
   *   description: project creation, modification and remove
-  *   name: User CRUD
+  * - name: User CRUD
   *   description: user creation, modification and remove
-  *   name: Organization data
+  * - name: Organization data
   *   description: organization data retrievement
   * 
   */
