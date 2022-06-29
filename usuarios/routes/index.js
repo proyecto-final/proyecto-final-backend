@@ -5,19 +5,19 @@ const User = require('../controllers/user')
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
 const dummyHandle = async(req, resp) => {
-    const {body, query, params} = req
-    console.log('request recieved: ', req)
-    console.log('body request recieved: ', body)
-    console.log('query request recieved: ', query)
-    console.log('params request recieved: ', params)
-    resp.status(200).json({
-        msg: 'Mocking Test',
-        request: {
-            body,
-            query,
-            params
-        }
-    })
+  const {body, query, params} = req
+  console.log('request recieved: ', req)
+  console.log('body request recieved: ', body)
+  console.log('query request recieved: ', query)
+  console.log('params request recieved: ', params)
+  resp.status(200).json({
+    msg: 'Mocking Test',
+    request: {
+      body,
+      query,
+      params
+    }
+  })
 }
 
 //swagger metadata
@@ -32,16 +32,31 @@ const dummyHandle = async(req, resp) => {
  *         - title
  *         - author
  *       properties:
- *         password:
- *           type: string
- *           description: user password
  *         username:
  *           type: string
  *           description: User identification name. It's setted in sign up page 
+ *         password:
+ *           type: string
+ *           description: user password
  *       example:
  *         password: superSecretPassword123
  *         username: superCoolUsername
- *     User:
+ *     UserRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         password:
+ *           type: string
+ *           description: Current user password
+ *         newPassword:
+ *           type: string
+ *           description: New password to be set on the user
+ *       example:
+ *         password: hj019dSAd181sgf79041er81Ñ23gda2
+ *         newPassword: rodriCapo123-
+ *     UserResponse:
  *       type: object
  *       required:
  *         - title
@@ -72,13 +87,13 @@ const dummyHandle = async(req, resp) => {
 /**
   * @swagger
   * tags:
-  *   name: Auth
+  * - name: Auth
   *   description: authentication for users
-  *   name: Project CRUD
+  * - name: Project CRUD
   *   description: project creation, modification and remove
-  *   name: User CRUD
+  * - name: User CRUD
   *   description: user creation, modification and remove
-  *   name: Organization data
+  * - name: Organization data
   *   description: organization data retrievement
   * 
   */
@@ -105,7 +120,7 @@ const dummyHandle = async(req, resp) => {
  *         content:
  *           application/json:
  *             schema:
- *                 $ref: '#/components/schemas/User'
+ *                 $ref: '#/components/schemas/UserResponse'
  */
 router.post('/user/authenticate',User.authenticate)
 router.post('/user/authorize',dummyHandle)
@@ -123,6 +138,28 @@ router.post('/user/authorize',dummyHandle)
  *             $ref: '#/components/schemas/Message'
  */
 router.put('/user/logout',User.logout)
+
+/**
+ * @swagger
+ * /api/user:
+ *   patch:
+ *     summary: Updates user information
+ *     tags: [User CRUD]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UserRequest'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserResponse'
+ */
+router.patch('/user',User.update)
 
 router.get('/organization',dummyHandle)
 router.post('/organization',dummyHandle)
