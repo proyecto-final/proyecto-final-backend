@@ -7,7 +7,6 @@ ENV MYSQL_DATABASE=test
 ENV MYSQL_USER=root
 ENV MYSQL_PASSWORD=root
 
-COPY ./init-scripts /docker-entrypoint-initdb.d/
 
 
 
