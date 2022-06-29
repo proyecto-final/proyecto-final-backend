@@ -1,6 +1,5 @@
 const {Router} = require('express')
 const router = Router()
-const {isConnectionActive} = require('../database')
 const ModelTestSchema = require('../models/modelTest')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
@@ -38,7 +37,7 @@ const checkDB = async(req, resp) => {
 
 const checkModule = (req, resp) => {
     return resp.status(200).json({
-        msg: 'Timeline Module :)'
+        msg: 'correlation Module :)'
     })
 }
 
