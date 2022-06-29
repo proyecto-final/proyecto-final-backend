@@ -36,7 +36,7 @@ const setSwagger = () => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 }
 const connectToDatabase = async () => {
-  db.sequelize.sync({ alter: true, force: true }).then(() => {
+  db.sequelize.sync({ alter: true }).then(() => {
     console.log('SUCESSFULLY CONNECTED!')
     console.log('-----------------------Database sync finish! -----------------------')
   }).catch((err) => {

@@ -1,6 +1,7 @@
 const {Router} = require('express')
 const router = Router()
 const User = require('../controllers/user')
+const Organization = require('../controllers/organization')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
@@ -161,7 +162,42 @@ router.put('/user/logout',User.logout)
  */
 router.patch('/user',User.update)
 
-router.get('/organization',dummyHandle)
+/**
+ * @swagger
+ * /api/organization:
+ *   get:
+ *     summary: Get organizations
+ *     tags: [Organization data]
+ *     parameters:
+ *      - name: offset
+ *        in: query
+ *        description: offest of the list
+ *        type: number
+ *        required: false
+ *      - name: limit
+ *        in: limit
+ *        description: amount of items to be returned
+ *        type: number
+ *        required: false
+ *      - name: name
+ *        in: name
+ *        description: name of the organization
+ *        type: string
+ *        required: false
+ *      - name: enabled
+ *        in: enabled
+ *        description: used to filter organizations by enabled status
+ *        type: boolean
+ *        required: false
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserResponse'
+ */
+router.get('/organization', Organization.get)
 router.post('/organization',dummyHandle)
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
