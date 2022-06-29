@@ -82,7 +82,7 @@ const dummyHandle = async(req, resp) => {
  *           type: string
  *           description: Status message
  *       example:
- *         msg: User created successfully
+ *         msg: OK
  */
 
 /**
@@ -201,37 +201,34 @@ router.get('/organization', Organization.get)
 /**
  * @swagger
  * /api/organization:
- *   get:
- *     summary: Get organizations
+ *   post:
+ *     summary: Post organizations
  *     tags: [Organization data]
- *     parameters:
- *      - name: offset
- *        in: query
- *        description: offest of the list
- *        type: number
- *        required: false
- *      - name: limit
- *        in: limit
- *        description: amount of items to be returned
- *        type: number
- *        required: false
- *      - name: name
- *        in: name
- *        description: name of the organization
- *        type: string
- *        required: false
- *      - name: enabled
- *        in: enabled
- *        description: used to filter organizations by enabled status
- *        type: boolean
- *        required: false
+ *     requestBody:
+ *       required: true
+ *       content:
+ *        application/json:
+ *          schema:
+ *             type: object
+ *             properties:
+ *              name: 
+ *                in: name
+ *                description: name of the organization
+ *                type: string
+ *              color:
+ *                in: color
+ *                description: color that represents the organization
+ *                type: string
+ *             example:
+ *              name: "OrganizationTest"
+ *              color: "#808080"
  *     responses:
  *       200:
  *         description: user information
  *         content:
  *           application/json:
  *             schema:
- *                 $ref: '#/components/schemas/UserResponse'
+ *                 $ref: '#/components/schemas/Message'
  */
 router.post('/organization', Organization.create)
 
