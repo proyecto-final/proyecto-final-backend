@@ -74,5 +74,19 @@ const get = async(req, resp) => {
   }
 }
 
+const create = async(req, resp) => {
+  try {
+    const colorRegex = /^#([A-Fa-f0-9]{6})$/g
+    const {name, color} = req.body
+    if (!colorRegex.test(color)){
+      throw {msg: 'invalid color'}
+    }
+    await Organization.create({ name, color })
+    resp.status(200).json({msg: 'OK'})
+  } catch (err) {
+    console.error(err)
+    resp.status(500).json({msg: err.msg})
+  }
+}
 
-module.exports = {get}
+module.exports = {get, create}

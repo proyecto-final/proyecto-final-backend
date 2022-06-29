@@ -198,7 +198,42 @@ router.patch('/user',User.update)
  *                 $ref: '#/components/schemas/UserResponse'
  */
 router.get('/organization', Organization.get)
-router.post('/organization',dummyHandle)
+/**
+ * @swagger
+ * /api/organization:
+ *   get:
+ *     summary: Get organizations
+ *     tags: [Organization data]
+ *     parameters:
+ *      - name: offset
+ *        in: query
+ *        description: offest of the list
+ *        type: number
+ *        required: false
+ *      - name: limit
+ *        in: limit
+ *        description: amount of items to be returned
+ *        type: number
+ *        required: false
+ *      - name: name
+ *        in: name
+ *        description: name of the organization
+ *        type: string
+ *        required: false
+ *      - name: enabled
+ *        in: enabled
+ *        description: used to filter organizations by enabled status
+ *        type: boolean
+ *        required: false
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserResponse'
+ */
+router.post('/organization', Organization.create)
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId',dummyHandle)
