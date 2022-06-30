@@ -16,10 +16,6 @@ RUN mv .env.docker .env
 
 RUN mv ./config/config.docker.json ./config/config.json
 
-RUN npx sequelize-cli db:seed:undo:all
-
-RUN npx sequelize-cli db:seed:all
-
 EXPOSE 3030
 
 CMD ["node", "index.js"]
