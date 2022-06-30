@@ -138,7 +138,7 @@ router.post('/user/authorize',dummyHandle)
  *           application/json:
  *             $ref: '#/components/schemas/Message'
  */
-router.put('/user/logout',User.logout)
+router.post('/user/logout',User.logout)
 
 /**
  * @swagger
