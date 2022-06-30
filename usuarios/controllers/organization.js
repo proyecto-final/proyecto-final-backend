@@ -69,8 +69,8 @@ const get = async(req, resp) => {
     })
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
-    console.error(err)
-    resp.status(500).json(err.name)
+    console.log(err)
+    resp.status(400).json({ msg: err.name })
   }
 }
 
@@ -81,11 +81,11 @@ const create = async(req, resp) => {
     if (!colorRegex.test(color)){
       throw {msg: 'invalid color'}
     }
-    await Organization.create({ name, color })
-    resp.status(200).json({msg: 'OK'})
+    const organizarionCreated = await Organization.create({ name, color })
+    resp.status(200).json(organizarionCreated)
   } catch (err) {
-    console.error(err)
-    resp.status(500).json({msg: err.msg})
+    console.log(err)
+    resp.status(400).json({msg: err.msg})
   }
 }
 
