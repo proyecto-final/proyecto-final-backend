@@ -71,7 +71,4 @@ const connectToDatabase = async () => {
 
 console.log('-----------------------Init database sync!-----------------------')
 connectToDatabase()
-
-
-
 setSwagger()
