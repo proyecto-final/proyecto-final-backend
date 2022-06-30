@@ -4,7 +4,7 @@ const db = require('./models/index')
 const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
 const swaggerJSDoc = require('swagger-jsdoc')
-const {exec} = require('child_process')
+const { exec } = require('child_process')
 const app = express()
 
 app.use(express.json())
@@ -36,7 +36,7 @@ const setSwagger = () => {
   const specs = swaggerJSDoc(options)
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 }
-const executeMigrations = async() => {
+const executeMigrations = async () => {
   return await new Promise((resolve, reject) => {
     const migrate = exec(
       'npx sequelize-cli db:seed:all',
@@ -48,10 +48,10 @@ const executeMigrations = async() => {
   })
 }
 const connectToDatabase = async () => {
-  db.sequelize.sync({ alter: true, force: true }).then(async() => {
+  db.sequelize.sync({ alter: true, force: true }).then(async () => {
     console.log('SUCESSFULLY CONNECTED!')
     console.log('EXECUTING MIGRATIONS!')
-    if(process.env.ENVIRONMENT==='DEV'){
+    if (process.env.ENVIRONMENT === 'DEV') {
       await executeMigrations()
     }
     console.log('SUCESSFULLY MIGRATED!')
