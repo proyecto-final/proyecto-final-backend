@@ -70,7 +70,7 @@ const get = async(req, resp) => {
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
     console.log(err)
-    resp.status(400).json({ msg: err.name })
+    resp.status(500).json({ msg: err.name })
   }
 }
 
@@ -78,14 +78,20 @@ const create = async(req, resp) => {
   try {
     const colorRegex = /^#([A-Fa-f0-9]{6})$/g
     const {name, color} = req.body
-    if (!colorRegex.test(color)){
-      throw {msg: 'invalid color'}
+    if (color && !colorRegex.test(color)){
+      throw {code: 400, msg: 'invalid color'}
     }
     const organizarionCreated = await Organization.create({ name, color })
     resp.status(200).json(organizarionCreated)
   } catch (err) {
     console.log(err)
-    resp.status(400).json({msg: err.msg})
+    let code = 500
+    let msgError = 'Server Error'
+    if (err.original?.code === 'ER_DUP_ENTRY' || err.code === 400) {
+      code = 400
+      msgError = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
+    }
+    resp.status(code).json({msg: msgError})
   }
 }
 
