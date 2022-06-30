@@ -47,9 +47,6 @@ const get = async(req, resp) => {
       where: {
         [Op.and]: searchQuery
       },
-      order: [
-        ['name', 'ASC']
-      ],
       attributes: {
         include: [
           [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
