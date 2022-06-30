@@ -161,6 +161,47 @@ router.put('/user/logout',User.logout)
  */
 router.patch('/user',User.update)
 
+
+/**
+ * @swagger
+ * /api/user/me:
+ *   get:
+ *     summary: Gets user information
+ *     tags: [User CRUD]
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *          application/json:
+ *            schema:
+ *               type: object
+ *               properties:
+ *                username: 
+ *                  in: username
+ *                  description: username
+ *                  type: string
+ *                name:
+ *                  in: name
+ *                  description: name
+ *                  type: string
+ *                surname:
+ *                  in: surname
+ *                  description: surname
+ *                  type: string
+ *                email:
+ *                  in: email
+ *                  description: email
+ *                  type: string
+ *               example:
+ *                username: "pepe"
+ *                name: "Jose"
+ *                surname:"Phd"
+ *                email:"userpepe@gmail.com"
+ * 
+ */
+router.get('/user/me', User.getUserData)
+
+
 router.get('/organization',dummyHandle)
 router.post('/organization',dummyHandle)
 
@@ -179,6 +220,7 @@ router.get('/organization/:organizationId/project',dummyHandle)
 
 router.get('/organization/:organizationId/project/:projectId',dummyHandle)
 router.patch('/organization/:organizationId/project/:projectId',dummyHandle)
+
 
 
 module.exports = router
