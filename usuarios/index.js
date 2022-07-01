@@ -49,6 +49,7 @@ const executeMigrations = async () => {
 }
 const connectToDatabase = async () => {
   db.sequelize.sync({ alter: true, force: true }).then(async () => {
+
     console.log('SUCESSFULLY CONNECTED!')
     console.log('EXECUTING MIGRATIONS!')
     if (process.env.ENVIRONMENT === 'DEV') {
