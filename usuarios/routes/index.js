@@ -138,7 +138,7 @@ router.post('/user/authorize',dummyHandle)
  *           application/json:
  *             $ref: '#/components/schemas/Message'
  */
-router.put('/user/logout',User.logout)
+router.post('/user/logout',User.logout)
 
 /**
  * @swagger
@@ -231,6 +231,7 @@ router.get('/organization', Organization.get)
  *                 $ref: '#/components/schemas/Message'
  */
 router.post('/organization', Organization.create)
+
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId',dummyHandle)
