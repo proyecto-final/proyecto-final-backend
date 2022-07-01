@@ -39,7 +39,7 @@ const setSwagger = () => {
 const executeMigrations = async () => {
   return await new Promise((resolve, reject) => {
     const migrate = exec(
-      'npx sequelize-cli db:seed:all',
+      'npx sequelize-cli db:seed:undo:all & npx sequelize-cli db:seed:all',
       { env: process.env },
       err => (err ? reject(err) : resolve())
     )
