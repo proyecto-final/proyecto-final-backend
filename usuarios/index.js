@@ -4,6 +4,7 @@ const db = require('./models/index')
 const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
 const swaggerJSDoc = require('swagger-jsdoc')
+const { exec } = require('child_process')
 const app = express()
 
 app.use(express.json())
@@ -35,23 +36,38 @@ const setSwagger = () => {
   const specs = swaggerJSDoc(options)
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
 }
+const executeMigrations = async () => {
+  return await new Promise((resolve, reject) => {
+    const migrate = exec(
+      'npx sequelize-cli db:seed:undo:all & npx sequelize-cli db:seed:all',
+      { env: process.env },
+      err => (err ? reject(err) : resolve())
+    )
+    migrate.stdout.pipe(process.stdout)
+    migrate.stderr.pipe(process.stderr)
+  })
+}
 const connectToDatabase = async () => {
-  db.sequelize.sync({ alter: true }).then(() => {
+  db.sequelize.sync({ alter: true, force: true }).then(async () => {
+
     console.log('SUCESSFULLY CONNECTED!')
+    console.log('EXECUTING MIGRATIONS!')
+    if (process.env.ENVIRONMENT === 'DEV') {
+      await executeMigrations()
+    }
+    console.log('SUCESSFULLY MIGRATED!')
     console.log('-----------------------Database sync finish! -----------------------')
   }).catch((err) => {
-    if (err.original.code == 'PROTOCOL_CONNECTION_LOST') {
       setTimeout(async () => {
         console.log('Database not ready yet. Trying to re-connect')
         await connectToDatabase()
       }, 3000) //wait 3 seconds before reconnect
-    } else {
       console.log('ERROR ON DATABASE SYNC')
       console.log(err)
-    }
   })
 }
-
-console.log('-----------------------Init database sync!-----------------------')
-connectToDatabase()
+if(process.env.ENVIRONMENT === 'DEV') {
+  console.log('-----------------------Init database sync!-----------------------')
+  connectToDatabase()
+}
 setSwagger()

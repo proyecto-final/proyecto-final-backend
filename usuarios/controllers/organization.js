@@ -84,12 +84,8 @@ const create = async(req, resp) => {
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
-    const code = err.code ?? 500
-    let errorMsg = 'Server Error'
-    if (err.original?.code === 'ER_DUP_ENTRY' || err.code === 400) {
-      errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
-    }
-    resp.status(code).json({ msg: errorMsg })
+    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
+    resp.status(400).json({ msg: errorMsg })
   }
 }
 
@@ -120,8 +116,8 @@ const update = async(req, resp) => {
     await organization.update(data2Update)
     resp.status(200).json(organization)
   } catch (err) {
-    console.log(err)
-    resp.status(err.code || 500).json(err.msg)
+    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
+    resp.status(400).json({ msg: errorMsg })
   }
 }
 

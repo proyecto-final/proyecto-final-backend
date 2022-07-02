@@ -8,3 +8,5 @@ docker rm mysql-dev-container
 ./kill-process.ps1 3032
 ./kill-process.ps1 3033
 ./kill-process.ps1 3034
+./kill-process.ps1 3306
+./kill-process.ps1 27017
