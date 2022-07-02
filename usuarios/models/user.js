@@ -11,6 +11,15 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true
+    }, 
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    }, 
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     password:  {
       type: DataTypes.STRING,
@@ -29,7 +38,6 @@ module.exports = (sequelize) => {
   }
   User.prototype.toJSON = function () {
     const values = Object.assign({}, this.get())
-    console.log(values)
     delete values.token
     delete values.password
     return values
