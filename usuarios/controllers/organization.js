@@ -116,8 +116,8 @@ const update = async(req, resp) => {
     await organization.update(data2Update)
     resp.status(200).json(organization)
   } catch (err) {
-    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
-    resp.status(400).json({ msg: errorMsg })
+    const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
+    resp.status(err.code || 400).json({ msg: errorMsg })
   }
 }
 
