@@ -21,6 +21,13 @@ const getIntValue = (value) => {
   }
 }
 
+const checkOrganizationColor = (color) => {
+  const colorRegex = /^#([A-Fa-f0-9]{6})$/g
+  if (color && !colorRegex.test(color)){
+    throw {code: 400, msg: 'Invalid color'}
+  }
+}
+
 const get = async(req, resp) => {
   const { query } = req
   try {
@@ -72,11 +79,8 @@ const get = async(req, resp) => {
 
 const create = async(req, resp) => {
   try {
-    const colorRegex = /^#([A-Fa-f0-9]{6})$/g
     const {name, color} = req.body
-    if (color && !colorRegex.test(color)){
-      throw {code: 400, msg: 'Invalid color'}
-    }
+    checkOrganizationColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
@@ -91,9 +95,10 @@ const create = async(req, resp) => {
 
 const update = async(req, resp) => {
   try {
-    const { id, enabled }=  req.body
-    const organization = Organization.findOne({
-      where: { id }
+    const { organizationId } = req.params
+    const { enabled, name, color }=  req.body
+    const organization = await Organization.findOne({
+      where: { id: organizationId }
     })
     if (!organization) {
       throw { code: 404, msg: 'Organization not found' }
@@ -102,10 +107,21 @@ const update = async(req, resp) => {
     if (enabled !== null) {
       data2Update.enabled = enabled
     }
+    if (name !== null) {
+      data2Update.name = name
+    }
+    if (color !== null) {	
+      checkOrganizationColor(color)
+      data2Update.color = color
+    }
+    if (Object.keys(data2Update).length === 0) {
+      throw { code: 400, msg: 'No data to update' }
+    }
     await organization.update(data2Update)
-    resp.status(200).json({ msg: 'OK' })
+    resp.status(200).json(organization)
   } catch (err) {
-    resp.status(err.code).json(err.msg)
+    console.log(err)
+    resp.status(err.code || 500).json(err.msg)
   }
 }
 
