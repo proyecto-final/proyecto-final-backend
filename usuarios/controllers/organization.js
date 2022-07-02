@@ -72,4 +72,26 @@ const get = async(req, resp) => {
 }
 
 
-module.exports = {get}
+const update = async(req, resp) => {
+  try {
+    const { id, enabled }=  req.body
+    const organization = Organization.findOne({
+      where: { id }
+    })
+    if (!organization) {
+      throw { code: 404, msg: 'Organization not found' }
+    }
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    await organization.update(data2Update)
+    resp.status(200).json({ msg: 'OK' })
+  } catch (err) {
+    resp.status(err.code).json(err.msg)
+  }
+}
+
+
+
+module.exports = {get, update}
