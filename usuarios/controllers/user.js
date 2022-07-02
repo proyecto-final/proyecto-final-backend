@@ -1,6 +1,5 @@
 const User = require('../models').user
 const crypto = require('crypto')
-const { response } = require('express')
 const jwt = require('jsonwebtoken')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
@@ -95,15 +94,15 @@ const update = async(req, resp) => {
   }
 }
 
-const getUserData = async(req, resp) => {
+const getSpecific = async(req, resp) => {
   try {
     const token = req.token
-    const {username, name, email} = await findUserOrThrowBy({ token })
-    resp.status(200).json({ username, name, email })
+    const user = await findUserOrThrowBy({ token })
+    resp.status(200).json(user)
   } catch (err) {
-    resp.status(500).json({msg: err.msg})
+    resp.status(err.code).json(err.msg)
   }
 
 }
 
-module.exports = {authenticate, logout, update, getUserData}
+module.exports = {authenticate, logout, update, getSpecific}

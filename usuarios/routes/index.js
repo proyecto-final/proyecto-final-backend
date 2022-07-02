@@ -194,7 +194,7 @@ router.patch('/user',User.update)
  *             schema:
  *                 $ref: '#/components/schemas/UserDataInfo'
  */
-router.get('/user/me', User.getUserData)
+router.get('/user/me', User.getSpecific)
 
 /**
  * @swagger
