@@ -57,6 +57,22 @@ const dummyHandle = async(req, resp) => {
  *       example:
  *         password: hj019dSAd181sgf79041er81Ñ23gda2
  *         newPassword: rodriCapo123-
+ *     UserDataInfo:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: Current user name
+ *         name:
+ *           type: string
+ *           description: user name
+ *         email:
+ *           type: string
+ *           description: user email
+ *       example:
+ *         name: pepe
+ *         email: pepe@gmail.com
+ *         username: pepe
  *     UserResponse:
  *       type: object
  *       required:
@@ -198,6 +214,24 @@ router.patch('/user',User.update)
 
 /**
  * @swagger
+ * /api/user/me:
+ *   get:
+ *     summary: Gets user information
+ *     tags: [User CRUD]
+ *     requestBody:
+ *       required: false
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserDataInfo'
+ */
+router.get('/user/me', User.getSpecific)
+
+/**
+ * @swagger
  * /api/organization:
  *   get:
  *     summary: Get organizations
@@ -227,7 +261,7 @@ router.patch('/user',User.update)
  *       200:
  *         description: user information
  *         content:
- *           application/json:
+ *          application/json:
  *             schema:
  *                 $ref: '#/components/schemas/UserResponse'
  */
@@ -295,6 +329,7 @@ router.get('/organization/:organizationId/project',dummyHandle)
 
 router.get('/organization/:organizationId/project/:projectId',dummyHandle)
 router.patch('/organization/:organizationId/project/:projectId',dummyHandle)
+
 
 
 module.exports = router

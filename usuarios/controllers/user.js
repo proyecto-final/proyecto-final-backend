@@ -94,5 +94,15 @@ const update = async(req, resp) => {
   }
 }
 
+const getSpecific = async(req, resp) => {
+  try {
+    const token = req.token
+    const user = await findUserOrThrowBy({ token })
+    resp.status(200).json(user)
+  } catch (err) {
+    resp.status(err.code).json(err.msg)
+  }
 
-module.exports = {authenticate, logout, update}
+}
+
+module.exports = {authenticate, logout, update, getSpecific}
