@@ -22,21 +22,20 @@ const dummyHandle = async (req, resp) => {
 }
 
 
-//swagger routes
+// routes
 router.post('/user/authenticate', User.authenticate)
 router.post('/user/authorize', dummyHandle)
 router.post('/user/logout', User.logout)
 router.patch('/user', User.update)
 router.get('/user/me', User.getSpecific)
 router.get('/organization', Organization.get)
+router.post('/user/authorize',dummyHandle)
 router.post('/organization', Organization.create)
 router.patch('/organization/:organizationId', Organization.update)
 
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId', dummyHandle)
-
-
 router.post('/organization/:organizationId/generate-link', dummyHandle)
 router.post('/organization/:organizationId/user', dummyHandle)
 
