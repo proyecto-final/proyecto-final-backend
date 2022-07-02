@@ -66,10 +66,23 @@ const get = async(req, resp) => {
     })
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
-    console.error(err)
-    resp.status(500).json(err.name)
+    resp.status(500).json({ msg: err.name })
   }
 }
 
+const create = async(req, resp) => {
+  try {
+    const colorRegex = /^#([A-Fa-f0-9]{6})$/g
+    const {name, color} = req.body
+    if (color && !colorRegex.test(color)){
+      throw {code: 400, msg: 'Invalid color'}
+    }
+    const createdOrganization = await Organization.create({ name, color })
+    resp.status(200).json(createdOrganization)
+  } catch (err) {
+    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
+    resp.status(400).json({ msg: errorMsg })
+  }
+}
 
-module.exports = {get}
+module.exports = {get, create}
