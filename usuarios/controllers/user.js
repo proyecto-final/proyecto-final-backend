@@ -98,13 +98,12 @@ const update = async(req, resp) => {
 const getUserData = async(req, resp) => {
   try {
     const token = req.token
-    const {username, name, surname, email} = await findUserOrThrowBy({ token })
-    resp.status(200).json({ username, name, surname, email })
+    const {username, name, email} = await findUserOrThrowBy({ token })
+    resp.status(200).json({ username, name, email })
   } catch (err) {
     resp.status(500).json({msg: err.msg})
   }
 
 }
-
 
 module.exports = {authenticate, logout, update, getUserData}
