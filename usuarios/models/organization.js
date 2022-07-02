@@ -18,7 +18,8 @@ module.exports = (sequelize) => {
     },
     enabled: {
       type: DataTypes.BOOLEAN,
-      default: true
+      allowNull: false,
+      defaultValue: true
     }
   })
   Organization.associate = (models) => {

@@ -82,7 +82,7 @@ const dummyHandle = async(req, resp) => {
  *           type: string
  *           description: Status message
  *       example:
- *         msg: User created successfully
+ *         msg: OK
  */
 
 /**
@@ -198,7 +198,40 @@ router.patch('/user',User.update)
  *                 $ref: '#/components/schemas/UserResponse'
  */
 router.get('/organization', Organization.get)
-router.post('/organization',dummyHandle)
+/**
+ * @swagger
+ * /api/organization:
+ *   post:
+ *     summary: Post organizations
+ *     tags: [Organization data]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *        application/json:
+ *          schema:
+ *             type: object
+ *             properties:
+ *              name: 
+ *                in: name
+ *                description: name of the organization
+ *                type: string
+ *              color:
+ *                in: color
+ *                description: color that represents the organization
+ *                type: string
+ *             example:
+ *              name: "OrganizationTest"
+ *              color: "#808080"
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/Message'
+ */
+router.post('/organization', Organization.create)
+
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId',dummyHandle)
