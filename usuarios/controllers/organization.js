@@ -21,7 +21,7 @@ const getIntValue = (value) => {
   }
 }
 
-const checkOrganizationColor = (color) => {
+const checkColor = (color) => {
   const colorRegex = /^#([A-Fa-f0-9]{6})$/g
   if (color && !colorRegex.test(color)){
     throw {code: 400, msg: 'Invalid color'}
@@ -80,7 +80,7 @@ const get = async(req, resp) => {
 const create = async(req, resp) => {
   try {
     const {name, color} = req.body
-    checkOrganizationColor(color)
+    checkColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
@@ -111,7 +111,7 @@ const update = async(req, resp) => {
       data2Update.name = name
     }
     if (color !== null) {	
-      checkOrganizationColor(color)
+      checkColor(color)
       data2Update.color = color
     }
     if (Object.keys(data2Update).length === 0) {
