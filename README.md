@@ -1,7 +1,7 @@
 ﻿# Proyecto final backend
 
 ## Run from docker
-* `docker-compose up -d`
+* `docker-compose up --force-recreate -d`
 * Check docker desktop in order to see the compose group running.
 * You should have the following containers running:
     * `proyecto-final-backend_mysql_1`, port: `3306`
