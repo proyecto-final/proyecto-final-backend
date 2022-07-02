@@ -57,6 +57,22 @@ const dummyHandle = async(req, resp) => {
  *       example:
  *         password: hj019dSAd181sgf79041er81Ñ23gda2
  *         newPassword: rodriCapo123-
+ *     UserDataInfo:
+ *       type: object
+ *       properties:
+ *         username:
+ *           type: string
+ *           description: Current user name
+ *         name:
+ *           type: string
+ *           description: user name
+ *         email:
+ *           type: string
+ *           description: user email
+ *       example:
+ *         name: pepe
+ *         email: pepe@gmail.com
+ *         username: pepe
  *     UserResponse:
  *       type: object
  *       required:
@@ -168,36 +184,15 @@ router.patch('/user',User.update)
  *   get:
  *     summary: Gets user information
  *     tags: [User CRUD]
+ *     requestBody:
+ *       required: false
  *     responses:
  *       200:
  *         description: user information
  *         content:
- *          application/json:
- *            schema:
- *               type: object
- *               properties:
- *                username: 
- *                  in: username
- *                  description: username
- *                  type: string
- *                name:
- *                  in: name
- *                  description: name
- *                  type: string
- *                surname:
- *                  in: surname
- *                  description: surname
- *                  type: string
- *                email:
- *                  in: email
- *                  description: email
- *                  type: string
- *               example:
- *                username: "pepe"
- *                name: "Jose"
- *                surname:"Phd"
- *                email:"userpepe@gmail.com"
- * 
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/UserDataInfo'
  */
 router.get('/user/me', User.getUserData)
 
@@ -228,7 +223,11 @@ router.get('/user/me', User.getUserData)
  *        description: used to filter organizations by enabled status
  *        type: boolean
  *        required: false
- *           application/json:
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *          application/json:
  *             schema:
  *                 $ref: '#/components/schemas/UserResponse'
  */
