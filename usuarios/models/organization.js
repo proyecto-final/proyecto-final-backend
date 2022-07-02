@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: { len: [8,32] },
+      validate: { len: [2,32] },
       unique: true
     },
     color:  {
