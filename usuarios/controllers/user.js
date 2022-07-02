@@ -71,7 +71,7 @@ const logout = async(req, resp) => {
       maxAge: 0
     }).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(err.code).json(err.msg)
+    resp.status(401).json(err.msg)
   }
 }
 

@@ -35,6 +35,11 @@ module.exports = (sequelize) => {
       unique: true
     }
   })
+  User.associate = (models) => {
+    User.belongsTo(models.organization,
+      {foreignKey: {name: 'organizationId'}}
+    )
+  }
   User.prototype.toJSON = function () {
     const values = Object.assign({}, this.get())
     console.log(values)
