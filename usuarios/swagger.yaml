@@ -115,10 +115,14 @@ components:
         color:
           type: string
           description: color that represents the organization
+        enable:
+          type: boolean
+          description: checks if the organization is enable
       example:
         id: 12345
         name: "Nombre de organización"
         color: "#FF00FF"
+        enable: true
 
 tags:
   - name: Auth
