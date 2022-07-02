@@ -21,6 +21,13 @@ const getIntValue = (value) => {
   }
 }
 
+const checkColor = (color) => {
+  const colorRegex = /^#([A-Fa-f0-9]{6})$/g
+  if (color && !colorRegex.test(color)){
+    throw {code: 400, msg: 'Invalid color'}
+  }
+}
+
 const get = async(req, resp) => {
   const { query } = req
   try {
@@ -72,11 +79,8 @@ const get = async(req, resp) => {
 
 const create = async(req, resp) => {
   try {
-    const colorRegex = /^#([A-Fa-f0-9]{6})$/g
     const {name, color} = req.body
-    if (color && !colorRegex.test(color)){
-      throw {code: 400, msg: 'Invalid color'}
-    }
+    checkColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
@@ -85,4 +89,37 @@ const create = async(req, resp) => {
   }
 }
 
-module.exports = {get, create}
+const update = async(req, resp) => {
+  try {
+    const { organizationId } = req.params
+    const { enabled, name, color }=  req.body
+    const organization = await Organization.findOne({
+      where: { id: organizationId }
+    })
+    if (!organization) {
+      throw { code: 404, msg: 'Organization not found' }
+    }
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    if (name !== null) {
+      data2Update.name = name
+    }
+    if (color !== null) {	
+      checkColor(color)
+      data2Update.color = color
+    }
+    if (Object.keys(data2Update).length === 0) {
+      throw { code: 400, msg: 'No data to update' }
+    }
+    await organization.update(data2Update)
+    resp.status(200).json(organization)
+  } catch (err) {
+    const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
+    resp.status(err.code || 400).json({ msg: errorMsg })
+  }
+}
+
+
+module.exports = {get, update, create}

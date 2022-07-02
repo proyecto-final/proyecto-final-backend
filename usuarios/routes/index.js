@@ -83,6 +83,40 @@ const dummyHandle = async(req, resp) => {
  *           description: Status message
  *       example:
  *         msg: OK
+ *     OrganizationRequest:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: name of the organization
+ *         color:
+ *           type: string
+ *           description: color that represents the organization
+ *       example:
+ *         name: "Nombre de organización"
+ *         color: "#FF00FF"
+ *     Organization:
+ *       type: object
+ *       required:
+ *         - title
+ *         - author
+ *       properties:
+ *         id:
+ *           type: number
+ *           description: id of the organization
+ *         name:
+ *           type: string
+ *           description: name of the organization
+ *         color:
+ *           type: string
+ *           description: color that represents the organization
+ *       example:
+ *         id: 12345
+ *         name: "Nombre de organización"
+ *         color: "#FF00FF"
  */
 
 /**
@@ -94,7 +128,7 @@ const dummyHandle = async(req, resp) => {
   *   description: project creation, modification and remove
   * - name: User CRUD
   *   description: user creation, modification and remove
-  * - name: Organization data
+  * - name: Organization CRUD
   *   description: organization data retrievement
   * 
   */
@@ -167,7 +201,7 @@ router.patch('/user',User.update)
  * /api/organization:
  *   get:
  *     summary: Get organizations
- *     tags: [Organization data]
+ *     tags: [Organization CRUD]
  *     parameters:
  *      - name: offset
  *        in: query
@@ -203,25 +237,13 @@ router.get('/organization', Organization.get)
  * /api/organization:
  *   post:
  *     summary: Post organizations
- *     tags: [Organization data]
+ *     tags: [Organization CRUD]
  *     requestBody:
  *       required: true
  *       content:
- *        application/json:
- *          schema:
- *             type: object
- *             properties:
- *              name: 
- *                in: name
- *                description: name of the organization
- *                type: string
- *              color:
- *                in: color
- *                description: color that represents the organization
- *                type: string
- *             example:
- *              name: "OrganizationTest"
- *              color: "#808080"
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/OrganizationRequest'
  *     responses:
  *       200:
  *         description: user information
@@ -235,7 +257,32 @@ router.post('/organization', Organization.create)
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId',dummyHandle)
-router.put('/organization/:organizationId',dummyHandle)
+/**
+ * @swagger
+ * /api/organization/{organizationId}:
+ *   patch:
+ *     summary: Patch organizations
+ *     tags: [Organization CRUD]
+ *     parameters:
+ *      - name: organizationId
+ *        in: path
+ *        description: Organization ID
+ *        required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Organization'
+ *     responses:
+ *       200:
+ *         description: user information
+ *         content:
+ *           application/json:
+ *             schema:
+ *                 $ref: '#/components/schemas/Organization'
+ */
+router.patch('/organization/:organizationId',Organization.update)
 
 router.post('/organization/:organizationId/generate-link',dummyHandle)
 router.post('/organization/:organizationId/user',dummyHandle)
