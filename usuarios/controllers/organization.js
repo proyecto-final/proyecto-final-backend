@@ -47,9 +47,6 @@ const get = async(req, resp) => {
       where: {
         [Op.and]: searchQuery
       },
-      order: [
-        ['name', 'ASC']
-      ],
       attributes: {
         include: [
           [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
@@ -83,10 +80,9 @@ const create = async(req, resp) => {
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
-    let code = 500
+    const code = err.code ?? 500
     let errorMsg = 'Server Error'
     if (err.original?.code === 'ER_DUP_ENTRY' || err.code === 400) {
-      code = 400
       errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
     }
     resp.status(code).json({ msg: errorMsg })
