@@ -228,7 +228,7 @@ paths:
                 $ref: '#/components/schemas/OrganizationRequest'
         responses:
           200:
-            description: user information
+            description: Organization information
             content:
               application/json:
                 schema:
@@ -254,7 +254,7 @@ paths:
               $ref: '#/components/schemas/Organization'
       responses:
         200:
-          description: organization information
+          description: Organization information
           content:
             application/json:
               schema:
@@ -273,7 +273,7 @@ paths:
             type: integer
       responses:
         200:
-          description: organization information
+          description: Organization information
           content:
             application/json:
               schema:
@@ -329,7 +329,7 @@ paths:
                $ref: '#/components/schemas/AuthenticationRequest'
        responses:
          200:
-           description: user information
+           description: User information
            content:
              application/json:
                schema:
@@ -341,7 +341,7 @@ paths:
       tags: [Auth]
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:
@@ -359,7 +359,7 @@ paths:
               $ref: '#/components/schemas/UserRequest'
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:
@@ -370,7 +370,7 @@ paths:
       tags: [User CRUD]
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:
