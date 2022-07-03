@@ -12,6 +12,23 @@ servers:
     description: Testing server
 
 components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
   schemas:
     AuthenticationRequest:
       type: object
@@ -71,9 +88,21 @@ components:
         username:
           type: string
           description: User identification name. It's setted in sign up page 
+        email:
+          type: string
+          description: User identification name. It's setted in sign up page 
+        name:
+          type: string
+          description: User identification name. It's setted in sign up page 
       example:
         id: hj019dSAd181sgf79041er81Ñ23gda2
         username: superCoolUsername
+        email: superCoolUsername@gmail.com
+        name: Super Cool Username
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
     Message:
       type: object
       required:
@@ -156,20 +185,8 @@ paths:
         summary: Get organizations
         tags: [Organization CRUD]
         parameters:
-        - name: offset
-          in: query
-          description: offest of the list
-          schema:
-            type: integer
-            default: 0
-          required: false
-        - name: limit
-          in: query
-          description: amount of items to be returned
-          required: false
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
         - name: name
           in: query
           description: name of the organization
@@ -186,15 +203,20 @@ paths:
           required: false
         responses:
           200:
-            description: Organization information
+            description: Organizations page
             content:
               application/json:
                 schema:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/ResponseAttrs'
-                        - $ref: '#/components/schemas/Organization'
+                  type: object
+                  properties:
+                    count:
+                     $ref: '#/components/schemas/Count'
+                    rows:
+                      type: array
+                      items:
+                        allOf:
+                          - $ref: '#/components/schemas/ResponseAttrs'
+                          - $ref: '#/components/schemas/Organization'
       post:
         summary: Post organizations
         tags: [Organization CRUD]
@@ -258,7 +280,42 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/Organization'
-    
+  /api/organization/{organizationId}/user:
+    get:
+      summary: Get organization users
+      tags: [Organization CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: name
+        in: query
+        description: "User name, email or username"
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: users page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/ResponseAttrs'
+                        - $ref: '#/components/schemas/UserResponse'
+
 
   /api/user/authenticate:
      post:
