@@ -3,8 +3,8 @@ require('dotenv').config()
 const db = require('./models/index')
 const cookieParser = require('cookie-parser')
 const swaggerUi = require('swagger-ui-express')
-const swaggerJSDoc = require('swagger-jsdoc')
 const { exec } = require('child_process')
+const YAML = require('yamljs')
 const app = express()
 
 app.use(express.json())
@@ -16,26 +16,7 @@ app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}`)
 })
 
-const setSwagger = () => {
-  const options = {
-    definition: {
-      openapi: '3.0.0',
-      info: {
-        title: 'Sherlock User Module API',
-        version: '1.0.0',
-        description: 'Sherlock security user module interface',
-      },
-      servers: [
-        {
-          url: `http://localhost:${process.env.PORT}`,
-        }
-      ],
-    },
-    apis: ['./routes/*.js']
-  }
-  const specs = swaggerJSDoc(options)
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs))
-}
+const swaggerDocument = YAML.load('./swagger.yaml')
 
 const runCommand = (stringCommand) => {
   return new Promise((resolve, reject) => {
@@ -71,8 +52,9 @@ const connectToDatabase = async () => {
     console.log(err)
   })
 }
-if(process.env.ENVIRONMENT === 'DEV') {
+if (process.env.ENVIRONMENT === 'DEV') {
   console.log('-----------------------Init database sync!-----------------------')
   connectToDatabase()
 }
-setSwagger()
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
