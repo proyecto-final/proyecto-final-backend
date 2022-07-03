@@ -143,30 +143,83 @@ paths:
         - name: offset
           in: query
           description: offest of the list
-          type: number
+          schema:
+            type: integer
+            default: 0
           required: false
         - name: limit
-          in: limit
+          in: query
           description: amount of items to be returned
-          type: number
           required: false
+          schema:
+            type: integer
+            default: 10
         - name: name
-          in: name
+          in: query
           description: name of the organization
-          type: string
           required: false
+          schema:
+            type: string
+            default: ""
         - name: enabled
-          in: enabled
+          in: query
           description: used to filter organizations by enabled status
-          type: boolean
+          schema:
+            type: boolean
+            default: null
           required: false
+        responses:
+          200:
+            description: Organization information
+            content:
+              application/json:
+                schema:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Organization'
+      post:
+        summary: Post organizations
+        tags: [Organization CRUD]
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationRequest'
         responses:
           200:
             description: user information
             content:
-            application/json:
+              application/json:
                 schema:
-                    $ref: '#/components/schemas/UserResponse'
+                    $ref: '#/components/schemas/Organization'
+  /api/organization/{organizationId}:
+    patch:
+      summary: Patch organizations
+      tags: [Organization CRUD]
+      parameters:
+       - name: organizationId
+         in: path
+         description: "Organization ID"
+         required: true
+         schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Organization'
+      responses:
+        200:
+          description: user information
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Organization'
+
+
+
   /api/user/authenticate:
      post:
        summary: Authenticate the information for the current user
@@ -194,7 +247,8 @@ paths:
           description: user information
           content:
             application/json:
-              $ref: '#/components/schemas/Message'
+              schema:
+                $ref: '#/components/schemas/Message'
 
   /api/user:
     patch:
@@ -213,53 +267,10 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/UserResponse'
-
-  /api/organization:
-    post:
-      summary: Post organizations
-      tags: [Organization CRUD]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OrganizationRequest'
-      responses:
-        200:
-          description: user information
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/Message'
-
-  /api/organization/{organizationId}:
-    patch:
-      summary: Patch organizations
-      tags: [Organization CRUD]
-      parameters:
-       - name: organizationId
-         in: path
-         description: Organization ID
-         required: true
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Organization'
-      responses:
-        200:
-          description: user information
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/Organization'
   /api/user/me:
     get:
       summary: Gets user information
       tags: [User CRUD]
-      requestBody:
-        required: false
       responses:
         200:
           description: user information
