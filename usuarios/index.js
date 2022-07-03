@@ -18,16 +18,20 @@ app.listen(process.env.PORT, () => {
 
 const swaggerDocument = YAML.load('./swagger.yaml')
 
-const executeMigrations = async () => {
-  return await new Promise((resolve, reject) => {
+const runCommand = (stringCommand) => {
+  return new Promise((resolve, reject) => {
     const migrate = exec(
-      'npx sequelize-cli db:seed:undo:all & npx sequelize-cli db:seed:all',
+      stringCommand,
       { env: process.env },
       err => (err ? reject(err) : resolve())
     )
     migrate.stdout.pipe(process.stdout)
     migrate.stderr.pipe(process.stderr)
   })
+}
+const executeMigrations = async () => {
+  await runCommand('npx sequelize-cli db:seed:undo:all')
+  await runCommand('npx sequelize-cli db:seed:all')
 }
 const connectToDatabase = async () => {
   db.sequelize.sync({ alter: true, force: true }).then(async () => {
