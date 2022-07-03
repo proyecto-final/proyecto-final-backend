@@ -106,23 +106,39 @@ components:
         - title
         - author
       properties:
-        id:
-          type: number
-          description: id of the organization
         name:
           type: string
           description: name of the organization
         color:
           type: string
           description: color that represents the organization
-        enable:
+        enabled:
           type: boolean
           description: checks if the organization is enable
       example:
-        id: 12345
         name: "Nombre de organización"
         color: "#FF00FF"
-        enable: true
+        enabled: true
+    ResponseAttrs:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        id:
+          type: number
+          description: id of the resource
+        createdAt:
+          type: string
+          description: date of creation of the resource
+        updatedAt:
+          type: string
+          description: date of last update of the resource
+      example:
+        id: 12345
+        createdAt: "2022-07-03T22:04:34.000Z"
+        updatedAt: "2022-07-03T22:04:34.000Z"
+
 
 tags:
   - name: Auth
@@ -176,7 +192,9 @@ paths:
                 schema:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Organization'
+                      allOf:
+                        - $ref: '#/components/schemas/ResponseAttrs'
+                        - $ref: '#/components/schemas/Organization'
       post:
         summary: Post organizations
         tags: [Organization CRUD]
@@ -192,10 +210,12 @@ paths:
             content:
               application/json:
                 schema:
-                    $ref: '#/components/schemas/Organization'
+                  allOf:
+                    - $ref: '#/components/schemas/ResponseAttrs'
+                    - $ref: '#/components/schemas/Organization'
   /api/organization/{organizationId}:
     patch:
-      summary: Patch organizations
+      summary: Patch organization
       tags: [Organization CRUD]
       parameters:
        - name: organizationId
@@ -212,13 +232,33 @@ paths:
               $ref: '#/components/schemas/Organization'
       responses:
         200:
-          description: user information
+          description: organization information
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/Organization'
-
-
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Organization'
+    get:
+      summary: Get organization
+      tags: [Organization CRUD]
+      parameters:
+       - name: organizationId
+         in: path
+         description: "Organization ID"
+         required: true
+         schema:
+            type: integer
+      responses:
+        200:
+          description: organization information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Organization'
+    
 
   /api/user/authenticate:
      post:
