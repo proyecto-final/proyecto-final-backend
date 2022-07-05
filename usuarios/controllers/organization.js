@@ -51,12 +51,70 @@ const getIntValue = (value) => {
   }
 }
 
+// VALIDATIONS 
 const checkColor = (color) => {
   const colorRegex = /^#([A-Fa-f0-9]{6})$/g
   if (color && !colorRegex.test(color)){
     throw {code: 400, msg: 'Invalid color'}
   }
 }
+
+// QUERIES
+const findAllBy = (searchQuery, offset, limit) =>{
+  return Organization.findAll({
+    offset,
+    limit,
+    where: {
+      [Op.and]: searchQuery
+    },
+    attributes: {
+      include: [
+        [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
+      ]
+    },
+    include: [{
+      model: User,
+      attributes: [],
+      duplicating: false
+    }],
+    group: ['id']
+  })
+}
+
+const findOneBy = (searchQuery) =>{
+  return Organization.findOne({
+    where: {
+      [Op.and]: searchQuery
+    },
+    attributes: {
+      include: [
+        [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
+      ]
+    },
+    include: [{
+      model: User,
+      attributes: [],
+      duplicating: false
+    }],
+    group: ['id']
+  })
+}
+
+const getSpecific = async(req, resp) => {
+  try {
+    const { organizationId } = req.params
+    const organization = await findOneBy({
+      where: organizationId
+    })
+    if (!organization) {
+      throw { code: 404, msg: 'Organization not found' }
+    }
+    resp.status(200).json(organization)
+  } catch (err) {
+    resp.status(500).json({ msg: err.name })
+  }
+}
+
 
 const get = async(req, resp) => {
   const { query } = req
@@ -78,24 +136,7 @@ const get = async(req, resp) => {
         enabled: enabled
       })
     }
-    const organizations = await Organization.findAll({
-      offset,
-      limit,
-      where: {
-        [Op.and]: searchQuery
-      },
-      attributes: {
-        include: [
-          [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
-        ]
-      },
-      include: [{
-        model: User,
-        attributes: [],
-        duplicating: false
-      }],
-      group: ['id']
-    })
+    const organizations = await findAllBy(searchQuery, offset, limit)
     const count = await Organization.count({
       where: {
         [Op.and]: searchQuery
@@ -156,4 +197,4 @@ const update = async(req, resp) => {
 }
 
 
-module.exports = {get, update, create}
+module.exports = {get, update, create, getSpecific}
