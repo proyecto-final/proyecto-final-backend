@@ -3,6 +3,36 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 
+const translateDatabaseError = (error) => {
+  console.log(error)
+  //TODO: translate database error
+  switch (error.validatorKey){
+  case 'not_unique':
+    return `El campo '${error.path}' debe ser unico`
+  case 'is_null':
+    return `El campo '${error.path}' no puede ser null`
+  case 'is_not_null':
+    return `El campo '${error.path}' debe ser null`
+  case 'is_unique':
+    return `El campo '${error.path}' debe estar registrado`
+  default:
+    return error.message
+  }
+}
+
+const handleError = (error) => {
+  if (error.code === 400) {
+  //CUSTOM ERROR HANDLING
+    return { code: 400, msg: [error.msg] }
+  }
+  if (error){
+    //DATABASE ERROR HANDLING
+    return { code: 400, msg: error.errors.map(error => translateDatabaseError(error))}
+  }
+  //DEFAULT ERROR HANDLING
+  return { code: 500, msg: 'Internal server error' }
+}
+
 const getBooleanValue = (value) => {
   if (value === 'true') {
     return true
@@ -73,7 +103,9 @@ const get = async(req, resp) => {
     })
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
-    resp.status(500).json({ msg: err.name })
+    const { code, msg } = handleError(err)
+    resp.status(code).json({ msg }) //quizas aca hardcodear el 500
+    //que pasa si el count es negativo
   }
 }
 
@@ -84,8 +116,8 @@ const create = async(req, resp) => {
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
-    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
-    resp.status(400).json({ msg: errorMsg })
+    const { code, msg } = handleError(err)
+    resp.status(code).json({ msg })
   }
 }
 
@@ -116,8 +148,10 @@ const update = async(req, resp) => {
     await organization.update(data2Update)
     resp.status(200).json(organization)
   } catch (err) {
-    const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
-    resp.status(err.code || 400).json({ msg: errorMsg })
+    const {code, msg} = handleError(err)
+    resp.status(code).json({ msg })
+    //const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
+    //resp.status(err.code || 400).json({ msg: errorMsg })
   }
 }
 
