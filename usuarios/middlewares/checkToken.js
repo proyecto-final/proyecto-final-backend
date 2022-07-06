@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
+const User = require('../models').user
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res, next) {
   const allowedPaths = ['/api/user/authenticate', '/api-docs']
   if (allowedPaths.some(path => req.path.includes(path))) {
     return next()
@@ -13,6 +14,9 @@ module.exports = function (req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
     req.user = decoded
     req.token = token
+    if (!(await User.findOne({ where: { token }}))) {
+      return res.status(401).send({ msg: 'Access denied. No token provided.' })
+    }
     next()
   } catch (ex) {
     res.status(401).send({ msg: 'Invalid token.' })
