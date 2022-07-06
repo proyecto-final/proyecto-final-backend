@@ -69,9 +69,11 @@ const findAllBy = (searchQuery, offset, limit) =>{
   })
 }
 
-const findOneBy = (searchWhere) =>{
+const findOneBy = (searchQuery) =>{
   return Organization.findOne({
-    where: searchWhere,
+    where: {
+      [Op.and]: searchQuery
+    },
     attributes: {
       include: [
         [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
