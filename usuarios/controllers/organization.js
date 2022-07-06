@@ -69,11 +69,9 @@ const findAllBy = (searchQuery, offset, limit) =>{
   })
 }
 
-const findOneBy = (searchQuery) =>{
+const findOneBy = (searchWhere) =>{
   return Organization.findOne({
-    where: {
-      [Op.and]: searchQuery
-    },
+    where: searchWhere,
     attributes: {
       include: [
         [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
@@ -88,21 +86,66 @@ const findOneBy = (searchQuery) =>{
   })
 }
 
+const getUsers = async(req, resp) => {
+  const { query } = req
+  const { organizationId } = req.params
+  try {
+    const offset = getIntValue(query.offset) || 0
+    const limit = getIntValue(query.limit) || 10
+    const name = query.name || ''
+    const enabled = getBooleanValue(query.enabled)
+    const searchQuery = [{
+      organizationId
+    }]
+    if (name !== null) {
+      searchQuery.push({
+        [Op.or]: [
+          {
+            username: {
+              [Op.like]: `%${name}%`
+            }
+          },
+          {
+            name: {
+              [Op.like]: `%${name}%`
+            }
+          },
+          {
+            email: {
+              [Op.like]: `%${name}%`
+            }
+          }]
+      })
+    }
+    if (enabled !== null) {
+      searchQuery.push({
+        enabled: enabled
+      })
+    }
+    const users = await User.findAndCountAll({
+      offset,
+      limit,
+      where: {
+        [Op.and]: searchQuery,
+      }
+    })
+    resp.status(200).json(users)
+  }catch (err) {
+    resp.status(err.code || 500).json({ msg: err.name })
+  }
+}
 const getSpecific = async(req, resp) => {
   try {
     const { organizationId } = req.params
-    const organization = await findOneBy({
-      where: organizationId
-    })
+    const organization = await findOneBy({ id: getIntValue(organizationId) })
     if (!organization) {
       throw { code: 404, msg: 'Organization not found' }
     }
     resp.status(200).json(organization)
   } catch (err) {
-    resp.status(500).json({ msg: err.name })
+    resp.status(err.code || 500).json({ msg: err.name })
   }
 }
-
 
 const get = async(req, resp) => {
   const { query } = req
@@ -182,4 +225,4 @@ const update = async(req, resp) => {
 }
 
 
-module.exports = {get, update, create, getSpecific}
+module.exports = {get, update, create, getSpecific, getUsers}
