@@ -3,34 +3,22 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 
-const translateDatabaseError = (error) => {
-  console.log(error)
-  //TODO: translate database error
-  switch (error.validatorKey){
-  case 'not_unique':
-    return `El campo '${error.path}' debe ser unico`
-  case 'is_null':
-    return `El campo '${error.path}' no puede ser null`
-  case 'is_not_null':
-    return `El campo '${error.path}' debe ser null`
-  case 'is_unique':
-    return `El campo '${error.path}' debe estar registrado`
-  default:
-    return error.message
-  }
-}
-
+const errorMsg = {
+  not_unique: (field) => `El campo '${field}' debe ser unico`,
+  is_null:  (field) => `El campo '${field}' debe tener datos`
+  //TODO add more validatorKey from sequelize
+} 
 const handleError = (error) => {
-  if (error.code === 400) {
-  //CUSTOM ERROR HANDLING
+  if (error?.code === 400) {
+    //CUSTOM ERROR HANDLING
     return { code: 400, msg: [error.msg] }
   }
-  if (error){
+  if (error?.errors){
     //DATABASE ERROR HANDLING
-    return { code: 400, msg: error.errors.map(error => translateDatabaseError(error))}
+    return { code: 400, msg: error.errors.map(error => errorMsg[error.validatorKey](error.path) || error.message)}
   }
   //DEFAULT ERROR HANDLING
-  return { code: 500, msg: 'Internal server error' }
+  return { code: 500, msg: ['Internal server error'] }
 }
 
 const getBooleanValue = (value) => {
@@ -145,8 +133,7 @@ const get = async(req, resp) => {
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
     const { code, msg } = handleError(err)
-    resp.status(code).json({ msg }) //quizas aca hardcodear el 500
-    //que pasa si el count es negativo
+    resp.status(code).json({ msg })
   }
 }
 
@@ -191,8 +178,6 @@ const update = async(req, resp) => {
   } catch (err) {
     const {code, msg} = handleError(err)
     resp.status(code).json({ msg })
-    //const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
-    //resp.status(err.code || 400).json({ msg: errorMsg })
   }
 }
 
