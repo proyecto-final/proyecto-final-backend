@@ -69,11 +69,9 @@ const findAllBy = (searchQuery, offset, limit) =>{
   })
 }
 
-const findOneBy = (searchQuery) =>{
+const findOneBy = (searchWhere) =>{
   return Organization.findOne({
-    where: {
-      [Op.and]: searchQuery
-    },
+    where: searchWhere,
     attributes: {
       include: [
         [sequelize.fn('COUNT', sequelize.col('users.id')), 'userCount']
@@ -135,6 +133,7 @@ const getUsers = async(req, resp) => {
   }catch (err) {
     const { code, msg } = handleError(err)
     resp.status(code).json({ msg })
+
   }
 }
 const getSpecific = async(req, resp) => {
@@ -148,6 +147,7 @@ const getSpecific = async(req, resp) => {
   } catch (err) {
     const { code, msg } = handleError(err)
     resp.status(code).json({ msg })
+
   }
 }
 

@@ -56,7 +56,7 @@ const authenticate = async(req, resp) => {
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
   } catch (err) {
-    resp.status(401).json(err.msg)
+    resp.status(403).json(err.msg)
   }
 }
 
@@ -70,7 +70,7 @@ const logout = async(req, resp) => {
       maxAge: 0
     }).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(401).json(err.msg)
+    resp.status(403).json(err.msg)
   }
 }
 
@@ -90,7 +90,7 @@ const update = async(req, resp) => {
     await user.update(data2Update)
     resp.status(200).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(err.code).json(err.msg)
+    resp.status(err.code).json({ msg: [err.msg] })
   }
 }
 
