@@ -9,7 +9,7 @@ const errorMsg = {
   //TODO add more validatorKey from sequelize
 } 
 const handleError = (error) => {
-  if (error?.code === 400) {
+  if (error?.code >= 400 && error?.code < 500) {
     //CUSTOM ERROR HANDLING
     return { code: 400, msg: [error.msg] }
   }
@@ -131,7 +131,8 @@ const getUsers = async(req, resp) => {
     })
     resp.status(200).json(users)
   }catch (err) {
-    resp.status(err.code || 500).json({ msg: err.name })
+    const { code, msg } = handleError(err)
+    resp.status(code).json({ msg })
   }
 }
 const getSpecific = async(req, resp) => {
@@ -143,7 +144,8 @@ const getSpecific = async(req, resp) => {
     }
     resp.status(200).json(organization)
   } catch (err) {
-    resp.status(err.code || 500).json({ msg: err.name })
+    const { code, msg } = handleError(err)
+    resp.status(code).json({ msg })
   }
 }
 
