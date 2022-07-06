@@ -90,7 +90,7 @@ const update = async(req, resp) => {
     await user.update(data2Update)
     resp.status(200).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(err.code).json({ msg: err.msg })
+    resp.status(err.code).json({ msg: [err.msg] })
   }
 }
 
