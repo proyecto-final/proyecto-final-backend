@@ -12,6 +12,23 @@ servers:
     description: Testing server
 
 components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
   schemas:
     AuthenticationRequest:
       type: object
@@ -71,9 +88,21 @@ components:
         username:
           type: string
           description: User identification name. It's setted in sign up page 
+        email:
+          type: string
+          description: User identification name. It's setted in sign up page 
+        name:
+          type: string
+          description: User identification name. It's setted in sign up page 
       example:
         id: hj019dSAd181sgf79041er81Ñ23gda2
         username: superCoolUsername
+        email: superCoolUsername@gmail.com
+        name: Super Cool Username
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
     Message:
       type: object
       required:
@@ -106,23 +135,39 @@ components:
         - title
         - author
       properties:
-        id:
-          type: number
-          description: id of the organization
         name:
           type: string
           description: name of the organization
         color:
           type: string
           description: color that represents the organization
-        enable:
+        enabled:
           type: boolean
           description: checks if the organization is enable
       example:
-        id: 12345
         name: "Nombre de organización"
         color: "#FF00FF"
-        enable: true
+        enabled: true
+    ResponseAttrs:
+      type: object
+      required:
+        - title
+        - author
+      properties:
+        id:
+          type: number
+          description: id of the resource
+        createdAt:
+          type: string
+          description: date of creation of the resource
+        updatedAt:
+          type: string
+          description: date of last update of the resource
+      example:
+        id: 12345
+        createdAt: "2022-07-03T22:04:34.000Z"
+        updatedAt: "2022-07-03T22:04:34.000Z"
+
 
 tags:
   - name: Auth
@@ -140,20 +185,8 @@ paths:
         summary: Get organizations
         tags: [Organization CRUD]
         parameters:
-        - name: offset
-          in: query
-          description: offest of the list
-          schema:
-            type: integer
-            default: 0
-          required: false
-        - name: limit
-          in: query
-          description: amount of items to be returned
-          required: false
-          schema:
-            type: integer
-            default: 10
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/limitParam'
         - name: name
           in: query
           description: name of the organization
@@ -170,13 +203,20 @@ paths:
           required: false
         responses:
           200:
-            description: Organization information
+            description: Organizations page
             content:
               application/json:
                 schema:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Organization'
+                  type: object
+                  properties:
+                    count:
+                     $ref: '#/components/schemas/Count'
+                    rows:
+                      type: array
+                      items:
+                        allOf:
+                          - $ref: '#/components/schemas/ResponseAttrs'
+                          - $ref: '#/components/schemas/Organization'
       post:
         summary: Post organizations
         tags: [Organization CRUD]
@@ -188,14 +228,16 @@ paths:
                 $ref: '#/components/schemas/OrganizationRequest'
         responses:
           200:
-            description: user information
+            description: Organization information
             content:
               application/json:
                 schema:
-                    $ref: '#/components/schemas/Organization'
+                  allOf:
+                    - $ref: '#/components/schemas/ResponseAttrs'
+                    - $ref: '#/components/schemas/Organization'
   /api/organization/{organizationId}:
     patch:
-      summary: Patch organizations
+      summary: Patch organization
       tags: [Organization CRUD]
       parameters:
        - name: organizationId
@@ -212,12 +254,67 @@ paths:
               $ref: '#/components/schemas/Organization'
       responses:
         200:
-          description: user information
+          description: Organization information
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/Organization'
-
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Organization'
+    get:
+      summary: Get organization
+      tags: [Organization CRUD]
+      parameters:
+       - name: organizationId
+         in: path
+         description: "Organization ID"
+         required: true
+         schema:
+            type: integer
+      responses:
+        200:
+          description: Organization information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Organization'
+  /api/organization/{organizationId}/user:
+    get:
+      summary: Get organization users
+      tags: [Organization CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: name
+        in: query
+        description: "User name, email or username"
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: users page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/ResponseAttrs'
+                        - $ref: '#/components/schemas/UserResponse'
 
 
   /api/user/authenticate:
@@ -232,7 +329,7 @@ paths:
                $ref: '#/components/schemas/AuthenticationRequest'
        responses:
          200:
-           description: user information
+           description: User information
            content:
              application/json:
                schema:
@@ -244,7 +341,7 @@ paths:
       tags: [Auth]
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:
@@ -262,7 +359,7 @@ paths:
               $ref: '#/components/schemas/UserRequest'
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:
@@ -273,7 +370,7 @@ paths:
       tags: [User CRUD]
       responses:
         200:
-          description: user information
+          description: User information
           content:
             application/json:
               schema:

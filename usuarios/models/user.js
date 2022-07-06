@@ -29,6 +29,11 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
       unique: true
+    },
+    enabled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true
     }
   })
   User.associate = (models) => {

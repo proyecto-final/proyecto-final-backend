@@ -36,7 +36,7 @@ router.patch('/organization/:organizationId', Organization.update)
 
 //NOTE: remember that organizationId comes inside req.params as {organizationId: value}
 router.get('/organization/:organizationId', Organization.getSpecific)
-router.get('/organization/:organizationId/user', dummyHandle)
+router.get('/organization/:organizationId/user', Organization.getUsers)
 router.post('/organization/:organizationId/generate-link', dummyHandle)
 router.post('/organization/:organizationId/user', dummyHandle)
 
