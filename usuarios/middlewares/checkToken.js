@@ -7,7 +7,7 @@ module.exports = function (req, res, next) {
   }
   const token = req.cookies?.auth
   if (!token) {
-    return res.status(403).send({ msg: 'Access denied. No token provided.' })
+    return res.status(401).send({ msg: 'Access denied. No token provided.' })
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
@@ -15,6 +15,6 @@ module.exports = function (req, res, next) {
     req.token = token
     next()
   } catch (ex) {
-    res.status(403).send({ msg: 'Invalid token.' })
+    res.status(401).send({ msg: 'Invalid token.' })
   }
 }
