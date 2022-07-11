@@ -13,7 +13,7 @@ const handleError = (resp, error) => {
     return resp.status(400).json({msg: error.errors.map(error => errorMsg[error.validatorKey](error.path) || error.message)})
   }
   //DEFAULT ERROR HANDLING
-  return resp.status(500).json({msg: ['Internal server error']})
+  return resp.status(500).json({msg: [`Internal server error ${error?.message}`] })
 }
 
 
