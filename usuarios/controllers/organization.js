@@ -2,25 +2,7 @@ const Organization = require('../models').organization
 const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
-
-const errorMsg = {
-  not_unique: (field) => `El campo '${field}' debe ser unico`,
-  is_null:  (field) => `El campo '${field}' debe tener datos`
-  //TODO add more validatorKey from sequelize
-} 
-const handleError = (error) => {
-  if (error?.code >= 400 && error?.code < 500) {
-    //CUSTOM ERROR HANDLING
-    return { code: 400, msg: [error.msg] }
-  }
-  if (error?.errors){
-    //DATABASE ERROR HANDLING
-    return { code: 400, msg: error.errors.map(error => errorMsg[error.validatorKey](error.path) || error.message)}
-  }
-  //DEFAULT ERROR HANDLING
-  return { code: 500, msg: ['Internal server error'] }
-}
-
+const {handleError} = require('./utils/errors')
 const getBooleanValue = (value) => {
   if (value === 'true') {
     return true
@@ -131,8 +113,7 @@ const getUsers = async(req, resp) => {
     })
     resp.status(200).json(users)
   }catch (err) {
-    const { code, msg } = handleError(err)
-    resp.status(code).json({ msg })
+    handleError(resp,err)
 
   }
 }
@@ -145,8 +126,7 @@ const getSpecific = async(req, resp) => {
     }
     resp.status(200).json(organization)
   } catch (err) {
-    const { code, msg } = handleError(err)
-    resp.status(code).json({ msg })
+    handleError(resp,err)
 
   }
 }
@@ -179,8 +159,7 @@ const get = async(req, resp) => {
     })
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
-    const { code, msg } = handleError(err)
-    resp.status(code).json({ msg })
+    handleError(resp,err)
   }
 }
 
@@ -191,8 +170,7 @@ const create = async(req, resp) => {
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
-    const { code, msg } = handleError(err)
-    resp.status(code).json({ msg })
+    handleError(resp,err)
   }
 }
 
@@ -223,8 +201,7 @@ const update = async(req, resp) => {
     await organization.update(data2Update)
     resp.status(200).json(organization)
   } catch (err) {
-    const {code, msg} = handleError(err)
-    resp.status(code).json({ msg })
+    handleError(resp,err)
   }
 }
 

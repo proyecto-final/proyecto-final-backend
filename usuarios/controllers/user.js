@@ -1,6 +1,7 @@
 const User = require('../models').user
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
+const {handleError} = require('./utils/errors')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
 const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
@@ -12,7 +13,11 @@ function generateToken(user) {
 }
 
 function hash (password) {
-  return crypto.createHash('sha256').update(password).digest('hex')
+  try{
+    return crypto.createHash('sha256').update(password).digest('hex')
+  }catch(err){
+    throw {code: 403, msg: 'Invalid credentials'}
+  }
 }
 
 function checkPassword (password) {
@@ -56,7 +61,7 @@ const authenticate = async(req, resp) => {
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
   } catch (err) {
-    resp.status(403).json(err.msg)
+    handleError(resp,err)
   }
 }
 
@@ -70,7 +75,7 @@ const logout = async(req, resp) => {
       maxAge: 0
     }).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(403).json(err.msg)
+    handleError(resp,err)
   }
 }
 
@@ -90,7 +95,7 @@ const update = async(req, resp) => {
     await user.update(data2Update)
     resp.status(200).json({ msg: 'OK' })
   } catch (err) {
-    resp.status(err.code).json({ msg: [err.msg] })
+    handleError(resp,err)
   }
 }
 
@@ -100,7 +105,7 @@ const getSpecific = async(req, resp) => {
     const user = await findUserOrThrowBy({ token })
     resp.status(200).json(user)
   } catch (err) {
-    resp.status(err.code).json(err.msg)
+    handleError(resp,err)
   }
 
 }
