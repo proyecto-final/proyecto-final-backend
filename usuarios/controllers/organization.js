@@ -2,7 +2,7 @@ const Organization = require('../models').organization
 const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
-
+const {handleError} = require('./utils/errors')
 const getBooleanValue = (value) => {
   if (value === 'true') {
     return true
@@ -113,7 +113,8 @@ const getUsers = async(req, resp) => {
     })
     resp.status(200).json(users)
   }catch (err) {
-    resp.status(err.code || 500).json({ msg: err.name })
+    handleError(resp,err)
+
   }
 }
 const getSpecific = async(req, resp) => {
@@ -125,7 +126,8 @@ const getSpecific = async(req, resp) => {
     }
     resp.status(200).json(organization)
   } catch (err) {
-    resp.status(err.code || 500).json({ msg: err.name })
+    handleError(resp,err)
+
   }
 }
 
@@ -157,19 +159,19 @@ const get = async(req, resp) => {
     })
     resp.status(200).json({ rows: organizations, count })
   } catch (err) {
-    resp.status(500).json({ msg: err.name })
+    handleError(resp,err)
   }
 }
 
 const create = async(req, resp) => {
   try {
-    const {name, color} = req.body
+    const {name} = req.body
+    const color =   req.body.color || undefined
     checkColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
   } catch (err) {
-    const errorMsg = err.code === 400 ? [err.msg] : err.errors.map(error => error.message)
-    resp.status(400).json({ msg: errorMsg })
+    handleError(resp,err)
   }
 }
 
@@ -190,7 +192,7 @@ const update = async(req, resp) => {
     if (name !== null) {
       data2Update.name = name
     }
-    if (color !== null) {	
+    if (color) {
       checkColor(color)
       data2Update.color = color
     }
@@ -200,8 +202,7 @@ const update = async(req, resp) => {
     await organization.update(data2Update)
     resp.status(200).json(organization)
   } catch (err) {
-    const errorMsg = err.code ? [err.msg] : err.errors.map(error => error.message)
-    resp.status(err.code || 400).json({ msg: errorMsg })
+    handleError(resp,err)
   }
 }
 
