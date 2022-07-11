@@ -165,7 +165,8 @@ const get = async(req, resp) => {
 
 const create = async(req, resp) => {
   try {
-    const {name, color} = req.body
+    const {name} = req.body
+    const color =   req.body.color || undefined
     checkColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
@@ -191,7 +192,7 @@ const update = async(req, resp) => {
     if (name !== null) {
       data2Update.name = name
     }
-    if (color !== null) {	
+    if (color) {
       checkColor(color)
       data2Update.color = color
     }

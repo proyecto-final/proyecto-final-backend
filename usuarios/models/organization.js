@@ -15,8 +15,8 @@ module.exports = (sequelize) => {
     },
     color:  {
       type: DataTypes.STRING,
-      validate: { len: [1,7] },
-      allowNull: false
+      defaultValue: '#6492E6',
+      allowNull: false,
     },
     enabled: {
       type: DataTypes.BOOLEAN,
