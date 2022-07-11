@@ -1,5 +1,6 @@
 const {handleError} = require('./errors')
 const {validationResult} = require('express-validator')
+const { check } = require('express-validator')
 
 
 const fieldsValidator = (req,res,next) => {
@@ -13,12 +14,27 @@ const fieldsValidator = (req,res,next) => {
 }
 
 class ControllerHandler {
-  constructor (handler, ...validations) {
+  constructor (...validations) {
+    this.validations = validations
+  }
+
+  handlePagination () {
+    this.validations.push(
+      check('limit', 'El limit debe ser un numero mayor a cero').isNumeric(),
+      check('offset', 'El offset debe ser un numero mayor a cero').isNumeric()
+    )
+    return this
+  }
+
+  setHandler (handler) {
     this.handler = handler
-    this.validations = [...validations, fieldsValidator]
+    return this
   }
 
   wrap () {
+    if (!this.handler) {
+      throw 'You called wrap without setting a handler'
+    }
     const wrappedHandler = async (req, res, ...args) => {
       try {
         await this.handler(req, res, ...args)
@@ -26,7 +42,7 @@ class ControllerHandler {
         handleError(res, err)
       }
     }
-    return [...this.validations, wrappedHandler]
+    return [...this.validations, fieldsValidator, wrappedHandler]
   }
 }
 

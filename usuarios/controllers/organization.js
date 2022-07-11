@@ -3,6 +3,8 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const {handleError} = require('./utils/errors')
+const ControllerHandler = require('../controllers/utils/requestWrapper')
+
 const getBooleanValue = (value) => {
   if (value === 'true') {
     return true
@@ -127,13 +129,13 @@ const getSpecific = async(req, resp) => {
     resp.status(200).json(organization)
   } catch (err) {
     handleError(resp,err)
-
   }
 }
 
-const get = async(req, resp) => {
-  const { query } = req
-  try {
+const get = new ControllerHandler()
+  .handlePagination()
+  .setHandler(async(req, resp) => {
+    const { query } = req
     const offset = getIntValue(query.offset) || 0
     const limit = getIntValue(query.limit) || 10
     const name = query.name || ''
@@ -158,10 +160,7 @@ const get = async(req, resp) => {
       }
     })
     resp.status(200).json({ rows: organizations, count })
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+  }).wrap()
 
 const create = async(req, resp) => {
   try {

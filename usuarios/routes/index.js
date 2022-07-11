@@ -2,8 +2,6 @@ const { Router } = require('express')
 const router = Router()
 const User = require('../controllers/user')
 const Organization = require('../controllers/organization')
-const ControllerHandler = require('../controllers/utils/requestWrapper')
-const {check} = require('express-validator')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
@@ -30,7 +28,7 @@ router.post('/user/authorize', dummyHandle)
 router.post('/user/logout', User.logout)
 router.patch('/user', User.update)
 router.get('/user/me', User.getSpecific)
-router.get('/organization', new ControllerHandler(Organization.get,check('limit', 'El limit debe ser un numero mayor a cero').isNumeric(),check('offset', 'El offset debe ser un numero mayor a cero').isNumeric() ).wrap())
+router.get('/organization', Organization.get)
 router.post('/user/authorize',dummyHandle)
 router.post('/organization', Organization.create)
 router.patch('/organization/:organizationId', Organization.update)
