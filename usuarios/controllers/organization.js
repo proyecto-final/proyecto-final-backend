@@ -191,10 +191,10 @@ const update = new ControllerHandler().hasId('organizationId').setHandler(async(
 const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
     const { organizationId, userId} = req.params
     const { enabled, role } = req.body
-     const token = req.token
-    const requestUser = await findUserOrThrowBy({ token })
-    //TODO check request user permissions
-    const user = await findUserOrThrowBy({ id: userId, organizationId })
+    const user = await User.findOne({ id: userId, organizationId })
+    if (!user) {
+      throw { code: 400, msg: 'El usuario no existe o no está asociado a esta organización' }
+    }
     let data2Update = {}
     if (enabled !== null) {
       data2Update.enabled = enabled
