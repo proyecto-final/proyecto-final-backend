@@ -1,6 +1,7 @@
 const {handleError} = require('./errors')
 const {validationResult} = require('express-validator')
 const { check } = require('express-validator')
+const User = require('../models').user
 
 
 const fieldsValidator = (req,res,next) => {
@@ -16,6 +17,28 @@ const fieldsValidator = (req,res,next) => {
 class ControllerHandler {
   constructor (...validations) {
     this.validations = validations
+    this.securityValidations = []
+  }
+
+  checkIsAdmin (){
+    this.securityValidations.push(async (req, resp, next) => {
+      const user =  await this.getAndCacheUser(req)
+      if (!user.isAdmin){
+        resp.status(403).send({ msg:'You don\'t have permissions to perform this action' })
+        return
+      }
+      next()
+    })
+    return this
+  }
+
+  async getAndCacheUser(req){
+    if (!req.user){
+      req.user = await User.findOne({
+        where: { token: req.token}
+      })
+    }
+    return req.user
   }
 
   hasId(field) {
@@ -24,6 +47,7 @@ class ControllerHandler {
     )
     return this
   }
+
   handlePagination () {
     this.validations.push(
       check('limit', 'El limit debe ser un numero mayor a cero').isInt({min: 1}),
@@ -48,7 +72,7 @@ class ControllerHandler {
         handleError(res, err)
       }
     }
-    return [...this.validations, fieldsValidator, wrappedHandler]
+    return [...this.securityValidations ,...this.validations, fieldsValidator, wrappedHandler]
   }
 }
 
