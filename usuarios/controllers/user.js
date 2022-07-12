@@ -4,7 +4,7 @@ const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {generateToken} = require('../controllers/utils')
 
 // Business
-
+const TOKEN_LIFETIME_IN_MILISECONDS = 60 * 60 * 24 * 7 * 1000
 
 function hash (password) {
   try{
@@ -47,7 +47,7 @@ const authenticate = new ControllerHandler().setHandler(async(req, resp) => {
       username: body.username,
       password: hash(body.password)
     })
-    const token = generateToken(user)
+    const token = generateToken(user.id)
     await user.update({ token })
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
