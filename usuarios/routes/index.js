@@ -43,7 +43,7 @@ router.post('/organization/:organizationId/user', dummyHandle)
 router.get('/organization/:organizationId/project', Project.get)
 router.post('/organization/:organizationId/project', Project.create)
 router.get('/organization/:organizationId/project/:projectId', dummyHandle)
-router.patch('/organization/:organizationId/project/:projectId', dummyHandle)
+router.patch('/organization/:organizationId/project/:projectId', Project.update)
 
 router.put('/organization/:organizationId/user/:userId', dummyHandle)
 router.delete('/organization/:organizationId/user/:userId', dummyHandle)
