@@ -1,16 +1,13 @@
 const User = require('../models').user
 const crypto = require('crypto')
-const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const {generateToken} = require('../controllers/utils')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
 const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
 
 // Business
-function generateToken(user) {
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {expiresIn: TOKEN_LIFETIME_IN_SECONDS}).toString()
-  return token
-}
+
 
 function hash (password) {
   try{

@@ -2,8 +2,8 @@ const Organization = require('../models').organization
 const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
-const {handleError} = require('./utils/errors')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const {generateToken,isExpired} = require('../controllers/utils')
 
 const getBooleanValue = (value) => {
   if (value === 'true') {
@@ -190,4 +190,20 @@ const update = new ControllerHandler().hasId('organizationId').setHandler(async(
 }).wrap()
 
 
-module.exports = {get, update, create, getSpecific, getUsers}
+const generateInvitationToken = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
+  const { organizationId } = req.params
+  const organization = Organization.findOne({id: organizationId})
+  const token = generateToken(organizationId)
+  organization.update({invitationToken: token})
+  resp.status(200).json(organization)
+}).wrap()
+
+const validateToken = new ControllerHandler().setHandler(async(req, resp) => {
+  const token = req.body.token
+  const organization = findOneBy({invitationToken: token})
+  if(organization) throw {code: 404, msg: 'No existe el token'}
+  if(isExpired(token)) throw {code: 400, msg: 'El token esta vencido'}
+  resp.status(200).json({valid: true})
+})
+
+module.exports = {get, update, create, getSpecific, getUsers, generateInvitationToken, validateToken}

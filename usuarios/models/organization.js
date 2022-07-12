@@ -22,6 +22,10 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    invitationToken: {
+      type: DataTypes.STRING,
+      unique: true
     }
   })
   Organization.associate = (models) => {
