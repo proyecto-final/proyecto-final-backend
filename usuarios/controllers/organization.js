@@ -200,10 +200,10 @@ const generateInvitationToken = new ControllerHandler().hasId('organizationId').
 
 const validateToken = new ControllerHandler().setHandler(async(req, resp) => {
   const token = req.body.token
-  const organization = findOneBy({invitationToken: token})
+  const organization = findOneBy({where: {invitationToken: token}})
   if(organization) throw {code: 404, msg: 'No existe el token'}
   if(isExpired(token)) throw {code: 400, msg: 'El token esta vencido'}
   resp.status(200).json({valid: true})
-})
+}).wrap()
 
 module.exports = {get, update, create, getSpecific, getUsers, generateInvitationToken, validateToken}

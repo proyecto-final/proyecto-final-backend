@@ -3,9 +3,6 @@ const crypto = require('crypto')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {generateToken} = require('../controllers/utils')
 
-const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
-const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
-
 // Business
 
 
