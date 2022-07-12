@@ -4,24 +4,7 @@ const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const {handleError} = require('./utils/errors')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
-
-const getBooleanValue = (value) => {
-  if (value === 'true') {
-    return true
-  }
-  if (value === 'false') {
-    return false
-  }
-  return null
-}
-
-const getIntValue = (value) => {
-  try {
-    return parseInt(value)
-  } catch {
-    return null
-  }
-}
+const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
 
 // VALIDATIONS 
 const checkColor = (color) => {
@@ -136,8 +119,8 @@ const get = new ControllerHandler()
   .handlePagination()
   .setHandler(async(req, resp) => {
     const { query } = req
-    const offset = getIntValue(query.offset) || 0
-    const limit = getIntValue(query.limit) || 10
+    const offset = getIntValue(query.offset)
+    const limit = getIntValue(query.limit)
     const name = query.name || ''
     const enabled = getBooleanValue(query.enabled)
     const searchQuery = []

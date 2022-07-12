@@ -29,6 +29,9 @@ module.exports = (sequelize) => {
     Project.belongsTo(models.organization,
       {foreignKey: {name: 'organizationId'}}
     )
+    Project.belongsToMany(models.user,
+      { through: 'project_users' }
+    )
   }
   return Project
 }
