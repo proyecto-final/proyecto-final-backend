@@ -1,4 +1,5 @@
 const User = require('../models').user
+const Project = require('../models').project
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
 const {handleError} = require('./utils/errors')
@@ -37,9 +38,17 @@ function checkPassword (password) {
 }
 
 // DB
-async function findUserOrThrowBy (params) {
+async function findUserOrThrowBy (params, withProjects = false) {
+  const include = withProjects ? [{
+    model: Project,
+    attributes: ['name', 'prefix', 'color', 'id'],
+    through: {
+      attributes: []
+    }
+  }] : []
   const user = await User.findOne({
-    where: params
+    where: params,
+    include
   })
   if (!user) {
     throw { msg: 'Invalid credentials', code: 403 }
@@ -53,7 +62,7 @@ const authenticate = async(req, resp) => {
     const user = await findUserOrThrowBy({
       username: body.username,
       password: hash(body.password)
-    })
+    }, true)
     const token = generateToken(user)
     await user.update({ token })
     resp.status(200).cookie('auth', token, {
@@ -102,7 +111,7 @@ const update = async(req, resp) => {
 const getSpecific = async(req, resp) => {
   try {
     const token = req.token
-    const user = await findUserOrThrowBy({ token })
+    const user = await findUserOrThrowBy({ token }, true)
     resp.status(200).json(user)
   } catch (err) {
     handleError(resp,err)

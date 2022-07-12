@@ -99,7 +99,7 @@ const getUsers = async(req, resp) => {
       },
       include: [{
         model: Project,
-        attributes: ['name', 'prefix', 'color'],
+        attributes: ['id','name', 'prefix', 'color'],
         through: {
           attributes: []
         }
