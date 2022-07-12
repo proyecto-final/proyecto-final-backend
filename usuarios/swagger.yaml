@@ -75,6 +75,9 @@ components:
         role:
           type: string
           description: user role
+        isAdmin:
+          type: boolean
+          description: check if the current user is administrator
       example:
         name: pepe
         email: pepe@gmail.com
@@ -100,6 +103,9 @@ components:
         role:
           type: string
           description: User role. It's setted in sign up page 
+        isAdmin:
+          type: boolean
+          description: User admin flag. It's setted by another administrator
       example:
         id: hj019dSAd181sgf79041er81Ñ23gda2
         username: superCoolUsername
