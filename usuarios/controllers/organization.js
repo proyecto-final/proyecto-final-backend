@@ -30,11 +30,6 @@ const checkColor = (color) => {
     throw {code: 400, msg: 'Invalid color'}
   }
 }
-const hasPermitionOverOrganization = (user, organizationId) => {
-if (user.organizationId !== organizationId && user.role !== 'Owner' && !user.isAdmin) {
-      throw {code: 403, msg: 'Invalid credentials'}
-    }
-}
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
   return Organization.findAll({
@@ -198,7 +193,7 @@ const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId
     const { enabled, role } = req.body
      const token = req.token
     const requestUser = await findUserOrThrowBy({ token })
-    hasPermitionOverOrganization(requestUser, organizationId)
+    //TODO check request user permissions
     const user = await findUserOrThrowBy({ id: userId, organizationId })
     let data2Update = {}
     if (enabled !== null) {
