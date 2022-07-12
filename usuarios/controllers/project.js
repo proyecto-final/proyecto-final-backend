@@ -5,6 +5,7 @@ const ControllerHandler = require('./utils/requestWrapper')
 const sequelize = require('sequelize')
 const {getIntValue} = require('../controllers/utils/dataHelpers')
 const { param } = require('express-validator')
+const {checkColor} = require('../controllers/utils/rules')
 
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
@@ -59,5 +60,16 @@ const get = new ControllerHandler(
     resp.status(200).json({ rows: projects, count })
   }).wrap()
 
+const create = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric()
+).setHandler(async(req, resp) => {
+  const { organizationId } = req.params
+  const project = req.body
+  const color =   req.body.color || undefined
+  checkColor(color)
+  const createdProject = await Project.create({ ...project, color, organizationId })
+  resp.status(200).json(createdProject)
+}).wrap()
 
-module.exports = {get}
+
+module.exports = { get, create}
