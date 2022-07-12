@@ -26,8 +26,8 @@ class ControllerHandler {
   }
   handlePagination () {
     this.validations.push(
-      check('limit', 'El limit debe ser un numero mayor a cero').isInt({min:1}),
-      check('offset', 'El offset debe ser un numero mayor a cero').isInt({min:1})
+      check('limit', 'El limit debe ser un numero mayor a cero').isInt({min: 1}),
+      check('offset', 'El offset debe ser un numero mayor a cero').isInt({min: 0})
     )
     return this
   }
