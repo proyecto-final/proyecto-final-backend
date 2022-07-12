@@ -369,7 +369,7 @@ paths:
   /api/organization/{organizationId}/project:
     get:
       summary: Get organization projects
-      tags: [Organization CRUD]
+      tags: [Project CRUD]
       parameters:
       - name: organizationId
         in: path
@@ -381,7 +381,7 @@ paths:
       - $ref: '#/components/parameters/limitParam'
       - name: name
         in: query
-        description: "User name, email or username"
+        description: "Project name"
         schema:
           type: string
           default: ""
@@ -402,6 +402,31 @@ paths:
                         - $ref: '#/components/schemas/ResponseAttrs'
                         - $ref: '#/components/schemas/Project'
                         - $ref: '#/components/schemas/UserCount'
+    post:
+      summary: Crate organization project
+      tags: [Project CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        200:
+          description: Organization information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Project'
 
 
   /api/user/authenticate:

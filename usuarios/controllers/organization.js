@@ -5,13 +5,7 @@ const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
-// VALIDATIONS 
-const checkColor = (color) => {
-  const colorRegex = /^#([A-Fa-f0-9]{6})$/g
-  if (color && !colorRegex.test(color)){
-    throw {code: 400, msg: 'Invalid color'}
-  }
-}
+const {checkColor} = require('../controllers/utils/rules')
 
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
