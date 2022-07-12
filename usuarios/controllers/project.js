@@ -71,5 +71,43 @@ const create = new ControllerHandler(
   resp.status(200).json(createdProject)
 }).wrap()
 
+const update = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric(),
+  param('projectId', 'El id debe ser un numero valido').isNumeric()
+).setHandler(async(req, resp) => {
+  const { organizationId, projectId } = req.params
+  const project = req.body
+  const existingProject = await Project.findOne({id: projectId, organizationId})
+  let data2Update = {}
+  if (project.name) {
+    data2Update.name = project.name
+  }
+  if (project.color) {
+    checkColor(project.color)
+    data2Update.color = project.color
+  }
+  if (project.prefix) {
+    data2Update.prefix = project.prefix
+  }
+  await existingProject.update(data2Update)
+  resp.status(200).json(existingProject)
+}).wrap()
 
-module.exports = { get, create}
+const destroy = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric(),
+  param('projectId', 'El id debe ser un numero valido').isNumeric()
+).setHandler(async(req, resp) => {
+  const { organizationId, projectId } = req.params
+  const deletedProjects = await Project.destroy({
+    where: {
+      id: projectId, organizationId
+    }
+  })
+  if (deletedProjects === 0){
+    throw { code: 404, msg: 'Project not found' }
+  }
+  resp.status(200).json({ msg: 'OK' })
+}).wrap()
+
+
+module.exports = { get, create, update, destroy}

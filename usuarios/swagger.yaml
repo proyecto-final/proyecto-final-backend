@@ -436,7 +436,7 @@ paths:
                         - $ref: '#/components/schemas/Project'
                         - $ref: '#/components/schemas/UserCount'
     post:
-      summary: Crate organization project
+      summary: Create organization project
       tags: [Project CRUD]
       parameters:
       - name: organizationId
@@ -453,13 +453,69 @@ paths:
               $ref: '#/components/schemas/Project'
       responses:
         200:
-          description: Organization information
+          description: Project information
           content:
             application/json:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/Project'
+  /api/organization/{organizationId}/project/{projectId}:
+    patch:
+      summary: Update organization project
+      tags: [Project CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        200:
+          description: Project information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Project'
+    delete:
+      summary: Delete organization project
+      tags: [Project CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Deleted project
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Message'
 
 
   /api/user/authenticate:

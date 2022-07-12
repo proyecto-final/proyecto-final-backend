@@ -5,7 +5,6 @@ const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
-
 const {checkColor} = require('../controllers/utils/rules')
 
 // QUERIES
