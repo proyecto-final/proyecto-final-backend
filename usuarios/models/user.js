@@ -40,6 +40,9 @@ module.exports = (sequelize) => {
     User.belongsTo(models.organization,
       {foreignKey: {name: 'organizationId'}}
     )
+    User.belongsToMany(models.project,
+      { through: 'project_users' }
+    )
   }
   User.prototype.toJSON = function () {
     const values = Object.assign({}, this.get())

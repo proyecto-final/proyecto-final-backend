@@ -1,10 +1,12 @@
 const Organization = require('../models').organization
+const Project = require('../models').project
 const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const {handleError} = require('./utils/errors')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
+const project = require('../models/project')
 
 // VALIDATIONS 
 const checkColor = (color) => {
@@ -18,7 +20,7 @@ const checkColor = (color) => {
 const findAllBy = (searchQuery, offset, limit) =>{
   return Organization.findAll({
     offset,
-    limit,
+    limit, 
     where: {
       [Op.and]: searchQuery
     },
@@ -94,7 +96,14 @@ const getUsers = async(req, resp) => {
       limit,
       where: {
         [Op.and]: searchQuery,
-      }
+      },
+      include: [{
+        model: Project,
+        attributes: ['name', 'prefix', 'color'],
+        through: {
+          attributes: []
+        }
+      }]
     })
     resp.status(200).json(users)
   }catch (err) {
