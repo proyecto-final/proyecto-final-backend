@@ -2,6 +2,7 @@ const User = require('../models').user
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const {handleError} = require('./utils/errors')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
 const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
@@ -60,6 +61,7 @@ const authenticate = new ControllerHandler().setHandler(async(req, resp) => {
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
 }).wrap()
+
 
 const logout = new ControllerHandler().setHandler(async(req, resp) => {
     const token = req.token
