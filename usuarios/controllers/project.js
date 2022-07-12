@@ -34,10 +34,15 @@ const get = new ControllerHandler(
 ).handlePagination()
   .setHandler(async(req, resp) => {
     const { query } = req
+    const { organizationId } = req.params
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
     const name = query.name || ''
-    const searchQuery = []
+    const searchQuery = [
+      {
+        organizationId
+      }
+    ]
     if (name) {
       searchQuery.push({
         name: {
