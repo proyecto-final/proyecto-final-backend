@@ -2,7 +2,7 @@ const User = require('../models').user
 const Project = require('../models').project
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
-const {handleError} = require('./utils/errors')
+const ControllerHandler = require('../controllers/utils/requestWrapper')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
 const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
@@ -56,9 +56,8 @@ async function findUserOrThrowBy (params, withProjects = false) {
   return user
 }
 
-const authenticate = async(req, resp) => {
+const authenticate = new ControllerHandler().setHandler(async(req, resp) => {
   const { body } = req
-  try {
     const user = await findUserOrThrowBy({
       username: body.username,
       password: hash(body.password)
@@ -69,13 +68,9 @@ const authenticate = async(req, resp) => {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+}).wrap()
 
-const logout = async(req, resp) => {
-  try {
+const logout = new ControllerHandler().setHandler(async(req, resp) => {
     const token = req.token
     const user = await findUserOrThrowBy({ token })
     await user.update({ token: null })
@@ -83,13 +78,9 @@ const logout = async(req, resp) => {
       httpOnly: true,
       maxAge: 0
     }).json({ msg: 'OK' })
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+}).wrap()
 
-const update = async(req, resp) => {
-  try {
+const update = new ControllerHandler().setHandler(async(req, resp) => {
     const token = req.token
     const { password, newPassword }=  req.body
     const user = await findUserOrThrowBy({ token })
@@ -103,20 +94,12 @@ const update = async(req, resp) => {
     }
     await user.update(data2Update)
     resp.status(200).json({ msg: 'OK' })
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+}).wrap()
 
-const getSpecific = async(req, resp) => {
-  try {
+const getSpecific = new ControllerHandler().setHandler(async(req, resp) => {
     const token = req.token
     const user = await findUserOrThrowBy({ token }, true)
     resp.status(200).json(user)
-  } catch (err) {
-    handleError(resp,err)
-  }
-
-}
+}).wrap()
 
 module.exports = {authenticate, logout, update, getSpecific}

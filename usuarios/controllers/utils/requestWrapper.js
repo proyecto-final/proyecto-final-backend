@@ -18,10 +18,16 @@ class ControllerHandler {
     this.validations = validations
   }
 
+  hasId(field) {
+    this.validations.push(
+      check(field, `El ${field} debe ser un numero mayor a cero`).isInt({min: 1}),
+      )
+    return this
+  }
   handlePagination () {
     this.validations.push(
-      check('limit', 'El limit debe ser un numero mayor a cero').isNumeric(),
-      check('offset', 'El offset debe ser un numero mayor a cero').isNumeric()
+      check('limit', 'El limit debe ser un numero mayor a cero').isInt({min: 1}),
+      check('offset', 'El offset debe ser un numero mayor a cero').isInt({min: 0})
     )
     return this
   }

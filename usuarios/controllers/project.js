@@ -31,7 +31,7 @@ const findAllBy = (searchQuery, offset, limit) =>{
 
 const get = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric()
-  ).handlePagination()
+).handlePagination()
   .setHandler(async(req, resp) => {
     const { query } = req
     const offset = getIntValue(query.offset)
