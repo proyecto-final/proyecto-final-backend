@@ -192,10 +192,11 @@ const update = new ControllerHandler().hasId('organizationId').setHandler(async(
 
 const generateInvitationToken = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
   const { organizationId } = req.params
-  const organization = Organization.findOne({id: organizationId})
+  const organization = await Organization.findOne({where: {id: organizationId}})
   const token = generateToken(organizationId)
-  organization.update({invitationToken: token})
-  resp.status(200).json(organization)
+  const invitationTokenCreationDate = new Date()
+  organization.update({invitationToken: token, invitationTokenCreationDate})
+  resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
 }).wrap()
 
 const validateToken = new ControllerHandler().setHandler(async(req, resp) => {
