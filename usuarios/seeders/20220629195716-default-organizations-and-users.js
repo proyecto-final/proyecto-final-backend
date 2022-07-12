@@ -58,7 +58,7 @@ module.exports = {
         password: '321cb76b7d6e43ef6917ee54fd8fa0e7fa99ba97c7e0b6fc7866139e7cb8c9c3',
         email: 'email2@gmail.com',
         name: 'pepa',
-        role: 'User',
+        role: 'Owner',
         enabled: true,
         createdAt: new Date(),
         updatedAt: new Date(),

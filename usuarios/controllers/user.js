@@ -95,24 +95,4 @@ const getSpecific = new ControllerHandler().setHandler(async(req, resp) => {
     resp.status(200).json(user)
 }).wrap()
 
-const updateSpecific = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
-    const { organizationId, userId} = req.params
-    const { enabled, role } = req.body
-     const token = req.token
-    const requestUser = await findUserOrThrowBy({ token })
-    if (requestUser.organizationId !== organizationId && requestUser.role !== 'Owner' && !requestUser.isAdmin) {
-      throw {code: 403, msg: 'Invalid credentials'}
-    }
-    const user = await findUserOrThrowBy({ id: userId, organizationId })
-    let data2Update = {}
-    if (enabled !== null) {
-      data2Update.enabled = enabled
-    }
-    if(role) {
-      data2Update.role = role 
-    }
-    await user.update(data2Update)
-    resp.status(200).json(user)
-}).wrap()
-
-module.exports = {authenticate, logout, update, getSpecific, updateSpecific}
+module.exports = {authenticate, logout, update, getSpecific}

@@ -30,7 +30,11 @@ const checkColor = (color) => {
     throw {code: 400, msg: 'Invalid color'}
   }
 }
-
+const hasPermitionOverOrganization = (user, organizationId) => {
+if (user.organizationId !== organizationId && user.role !== 'Owner' && !user.isAdmin) {
+      throw {code: 403, msg: 'Invalid credentials'}
+    }
+}
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
   return Organization.findAll({
@@ -90,11 +94,6 @@ const getUsers = new ControllerHandler().handlePagination().hasId('organizationI
           },
           {
             name: {
-              [Op.like]: `%${name}%`
-            }
-          },
-          {
-            role: {
               [Op.like]: `%${name}%`
             }
           },
@@ -194,5 +193,23 @@ const update = new ControllerHandler().hasId('organizationId').setHandler(async(
     resp.status(200).json(organization)
 }).wrap()
 
+const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
+    const { organizationId, userId} = req.params
+    const { enabled, role } = req.body
+     const token = req.token
+    const requestUser = await findUserOrThrowBy({ token })
+    hasPermitionOverOrganization(requestUser, organizationId)
+    const user = await findUserOrThrowBy({ id: userId, organizationId })
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    if(role) {
+      data2Update.role = role 
+    }
+    await user.update(data2Update)
+    resp.status(200).json(user)
+}).wrap()
 
-module.exports = {get, update, create, getSpecific, getUsers}
+
+module.exports = {get, update, create, getSpecific, getUsers, updateUser}
