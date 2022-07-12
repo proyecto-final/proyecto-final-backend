@@ -94,6 +94,11 @@ const getUsers = new ControllerHandler().handlePagination().hasId('organizationI
             }
           },
           {
+            role: {
+              [Op.like]: `%${name}%`
+            }
+          },
+          {
             email: {
               [Op.like]: `%${name}%`
             }

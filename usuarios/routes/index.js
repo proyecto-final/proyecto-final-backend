@@ -40,7 +40,7 @@ router.get('/organization/:organizationId/user', Organization.getUsers)
 router.post('/organization/:organizationId/generate-link', dummyHandle)
 router.post('/organization/:organizationId/user', dummyHandle)
 
-router.put('/organization/:organizationId/user/:userId', dummyHandle)
+router.patch('/organization/:organizationId/user/:userId', User.updateSpecific)
 router.delete('/organization/:organizationId/user/:userId', dummyHandle)
 
 router.post('/organization/:organizationId/project', dummyHandle)

@@ -15,8 +15,23 @@ module.exports = (sequelize) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: {
+          msg: 'El email no es válido'
+        }
+      }
     }, 
+    role: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate:{
+        isIn: {
+          args:['Owner', 'User'],
+          msg: 'El rol no es válido'
+        },
+      }
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
