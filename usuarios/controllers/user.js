@@ -97,7 +97,7 @@ const getSpecific = new ControllerHandler().setHandler(async(req, resp) => {
 
 const updateSpecific = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
     const { organizationId, userId} = req.params
-    const { enabled, role, username, name, } = req.body
+    const { enabled, role } = req.body
      const token = req.token
     const requestUser = await findUserOrThrowBy({ token })
     if (requestUser.organizationId !== organizationId && requestUser.role !== 'Owner' && !requestUser.isAdmin) {
@@ -105,17 +105,11 @@ const updateSpecific = new ControllerHandler().hasId('organizationId').hasId('us
     }
     const user = await findUserOrThrowBy({ id: userId, organizationId })
     let data2Update = {}
-    if (enabled!==null) {
+    if (enabled !== null) {
       data2Update.enabled = enabled
     }
     if(role) {
       data2Update.role = role 
-    }
-    if(username) {
-      data2Update.username = username 
-    }
-    if(name) {
-      data2Update.name = name 
     }
     await user.update(data2Update)
     resp.status(200).json(user)
