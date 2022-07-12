@@ -1,7 +1,7 @@
 const {handleError} = require('./errors')
 const {validationResult} = require('express-validator')
 const { check } = require('express-validator')
-const User = require('../models').user
+const User = require('../../models').user
 
 
 const fieldsValidator = (req,res,next) => {
@@ -24,6 +24,19 @@ class ControllerHandler {
     this.securityValidations.push(async (req, resp, next) => {
       const user =  await this.getAndCacheUser(req)
       if (!user.isAdmin){
+        resp.status(403).send({ msg:'You don\'t have permissions to perform this action' })
+        return
+      }
+      next()
+    })
+    return this
+  }
+
+  checkHasAccessToOrganization (){
+    this.securityValidations.push(async (req, resp, next) => {
+      const { organizationId } = req.params
+      const user =  await this.getAndCacheUser(req)
+      if (user.organizationId !== organizationId){
         resp.status(403).send({ msg:'You don\'t have permissions to perform this action' })
         return
       }
