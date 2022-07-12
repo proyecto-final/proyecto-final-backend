@@ -41,7 +41,7 @@ router.post('/organization/:organizationId/generate-link', dummyHandle)
 router.post('/organization/:organizationId/user', dummyHandle)
 // projects
 router.get('/organization/:organizationId/project', Project.get)
-router.post('/organization/:organizationId/project', dummyHandle)
+router.post('/organization/:organizationId/project', Project.create)
 router.get('/organization/:organizationId/project/:projectId', dummyHandle)
 router.patch('/organization/:organizationId/project/:projectId', dummyHandle)
 
