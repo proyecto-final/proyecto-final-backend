@@ -178,5 +178,23 @@ const update = new ControllerHandler().hasId('organizationId').setHandler(async(
   resp.status(200).json(organization)
 }).wrap()
 
+const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
+    const { organizationId, userId} = req.params
+    const { enabled, role } = req.body
+    const user = await User.findOne({where: { id: userId, organizationId }})
+    if (!user) {
+      throw { code: 400, msg: 'El usuario no existe o no está asociado a esta organización' }
+    }
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    if(role) {
+      data2Update.role = role 
+    }
+    await user.update(data2Update)
+    resp.status(200).json(user)
+}).wrap()
 
-module.exports = {get, update, create, getSpecific, getUsers}
+
+module.exports = {get, update, create, getSpecific, getUsers, updateUser}
