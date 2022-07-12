@@ -82,6 +82,25 @@ components:
         name: pepe
         email: pepe@gmail.com
         username: pepe
+        isAdmin: true
+        role: User
+        enable: true
+    UserPatchBody:
+      type: object
+      properties:
+        enable:
+          type: boolean
+          description: user is active
+        role:
+          type: string
+          description: user role
+        isAdmin:
+          type: boolean
+          description: check if the current user is administrator
+      example:
+        role: User
+        isAdmin: false
+        enable: true
     UserResponse:
       type: object
       required:
@@ -409,7 +428,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserDataInfo'
+              $ref: '#/components/schemas/UserPatchBody'
       responses:
         200:
           description: User information
