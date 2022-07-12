@@ -96,6 +96,11 @@ const getSpecific = new ControllerHandler().setHandler(async(req, resp) => {
 const updateSpecific = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
     const { organizationId, userId} = req.params
     const { enabled, role, username, name, } = req.body
+     const token = req.token
+    const requestUser = await findUserOrThrowBy({ token })
+    if (requestUser.organizationId !== organizationId && requestUser.role !== 'Owner' && !requestUser.isAdmin) {
+      throw {code: 403, msg: 'Invalid credentials'}
+    }
     const user = await findUserOrThrowBy({ id: userId, organizationId })
     let data2Update = {}
     if (enabled!==null) {
