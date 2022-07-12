@@ -78,17 +78,20 @@ components:
         isAdmin:
           type: boolean
           description: check if the current user is administrator
+        enabled:
+          type: boolean
+          description: check if the current user is enabled
       example:
         name: pepe
         email: pepe@gmail.com
         username: pepe
         isAdmin: true
         role: User
-        enable: true
+        enabled: true
     UserPatchBody:
       type: object
       properties:
-        enable:
+        enabled:
           type: boolean
           description: user is active
         role:
@@ -100,7 +103,7 @@ components:
       example:
         role: User
         isAdmin: false
-        enable: true
+        enabled: true
     UserResponse:
       type: object
       required:
@@ -125,6 +128,9 @@ components:
         isAdmin:
           type: boolean
           description: User admin flag. It's setted by another administrator
+        enabled:
+          type: boolean
+          description: Active user flag. It's setted by administrator
       example:
         id: hj019dSAd181sgf79041er81Ñ23gda2
         username: superCoolUsername
