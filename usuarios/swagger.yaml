@@ -181,14 +181,10 @@ components:
         color:
           type: string
           description: color that represents the organization
-        organizationId:
-          type: number
-          description: id of the organization
       example:
         name: "Nombre de organización"
         prefix: "Prefix2"
         color: "#FF00FF"
-        organizationId: 12
     ResponseAttrs:
       type: object
       properties:
@@ -213,6 +209,14 @@ components:
           description: number of users in the organization
       example:
         userCount: 10
+    OrganizationId:
+      type: object
+      properties:
+        organizationId:
+          type: number
+          description: id of the organization
+      example:
+        organizationId: 10
 
 tags:
   - name: Auth
@@ -397,9 +401,10 @@ paths:
                       allOf:
                         - $ref: '#/components/schemas/ResponseAttrs'
                         - $ref: '#/components/schemas/Project'
+                        - $ref: '#/components/schemas/OrganizationId'
                         - $ref: '#/components/schemas/UserCount'
     post:
-      summary: Crate organization project
+      summary: Create organization project
       tags: [Project CRUD]
       parameters:
       - name: organizationId
@@ -455,6 +460,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/Project'
+                  - $ref: '#/components/schemas/OrganizationId'
 
 
   /api/user/authenticate:
