@@ -182,7 +182,7 @@ components:
           type: string
           description: color that represents the organization
       example:
-        name: "Nombre de organización"
+        name: "Nombre de proyecto"
         prefix: "Prefix2"
         color: "#FF00FF"
     ResponseAttrs:
