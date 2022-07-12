@@ -3,6 +3,8 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const {handleError} = require('./utils/errors')
+const ControllerHandler = require('../controllers/utils/requestWrapper')
+
 const getBooleanValue = (value) => {
   if (value === 'true') {
     return true
@@ -68,10 +70,9 @@ const findOneBy = (searchWhere) =>{
   })
 }
 
-const getUsers = async(req, resp) => {
+const getUsers = new ControllerHandler().handlePagination().hasId('organizationId').setHandler(async(req, resp) => {
   const { query } = req
   const { organizationId } = req.params
-  try {
     const offset = getIntValue(query.offset) || 0
     const limit = getIntValue(query.limit) || 10
     const name = query.name || ''
@@ -112,28 +113,21 @@ const getUsers = async(req, resp) => {
       }
     })
     resp.status(200).json(users)
-  }catch (err) {
-    handleError(resp,err)
+  }).wrap()
 
-  }
-}
-const getSpecific = async(req, resp) => {
-  try {
+const getSpecific = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
     const { organizationId } = req.params
     const organization = await findOneBy({ id: getIntValue(organizationId) })
     if (!organization) {
       throw { code: 404, msg: 'Organization not found' }
     }
     resp.status(200).json(organization)
-  } catch (err) {
-    handleError(resp,err)
+  }).wrap()
 
-  }
-}
-
-const get = async(req, resp) => {
-  const { query } = req
-  try {
+const get = new ControllerHandler()
+  .handlePagination()
+  .setHandler(async(req, resp) => {
+    const { query } = req
     const offset = getIntValue(query.offset) || 0
     const limit = getIntValue(query.limit) || 10
     const name = query.name || ''
@@ -158,25 +152,17 @@ const get = async(req, resp) => {
       }
     })
     resp.status(200).json({ rows: organizations, count })
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+  }).wrap()
 
-const create = async(req, resp) => {
-  try {
+const create = new ControllerHandler().setHandler(async(req, resp) => {
     const {name} = req.body
     const color =   req.body.color || undefined
     checkColor(color)
     const createdOrganization = await Organization.create({ name, color })
     resp.status(200).json(createdOrganization)
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+}).wrap()
 
-const update = async(req, resp) => {
-  try {
+const update = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
     const { organizationId } = req.params
     const { enabled, name, color }=  req.body
     const organization = await Organization.findOne({
@@ -201,10 +187,7 @@ const update = async(req, resp) => {
     }
     await organization.update(data2Update)
     resp.status(200).json(organization)
-  } catch (err) {
-    handleError(resp,err)
-  }
-}
+}).wrap()
 
 
 module.exports = {get, update, create, getSpecific, getUsers}
