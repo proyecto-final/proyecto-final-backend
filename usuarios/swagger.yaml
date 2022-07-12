@@ -72,10 +72,38 @@ components:
         email:
           type: string
           description: user email
+        role:
+          type: string
+          description: user role
+        isAdmin:
+          type: boolean
+          description: check if the current user is administrator
+        enabled:
+          type: boolean
+          description: check if the current user is enabled
       example:
         name: pepe
         email: pepe@gmail.com
         username: pepe
+        isAdmin: true
+        role: User
+        enabled: true
+    UserPatchBody:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          description: user is active
+        role:
+          type: string
+          description: user role
+        isAdmin:
+          type: boolean
+          description: check if the current user is administrator
+      example:
+        role: User
+        isAdmin: false
+        enabled: true
     UserResponse:
       type: object
       properties:
@@ -90,7 +118,16 @@ components:
           description: User identification name. It's setted in sign up page
         name:
           type: string
-          description: User identification name. It's setted in sign up page
+          description: User identification name. It's setted in sign up page 
+        role:
+          type: string
+          description: User role. It's setted in sign up page 
+        isAdmin:
+          type: boolean
+          description: User admin flag. It's setted by another administrator
+        enabled:
+          type: boolean
+          description: Active user flag. It's setted by administrator
         projects:
           type: array
           description: List of projects that the user is assigned to
@@ -539,3 +576,35 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/UserDataInfo'
+  /api/organization/{organizationId}/user/{userId}:
+    patch:
+      summary: Patch specific user
+      tags: [Organization CRUD]
+      parameters:
+       - name: organizationId
+         in: path
+         description: "Organization ID"
+         required: true
+         schema:
+            type: integer
+       - name: userId
+         in: path
+         description: "User ID"
+         required: true
+         schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPatchBody'
+      responses:
+        200:
+          description: User information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/UserDataInfo'
