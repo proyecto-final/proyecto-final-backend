@@ -93,4 +93,21 @@ const update = new ControllerHandler(
   resp.status(200).json(existingProject)
 }).wrap()
 
-module.exports = { get, create, update}
+const destroy = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric(),
+  param('projectId', 'El id debe ser un numero valido').isNumeric()
+).setHandler(async(req, resp) => {
+  const { organizationId, projectId } = req.params
+  const deletedProjects = await Project.destroy({
+    where: {
+      id: projectId, organizationId
+    }
+  })
+  if (deletedProjects === 0){
+    throw { code: 404, msg: 'Project not found' }
+  }
+  resp.status(200).json({ msg: 'OK' })
+}).wrap()
+
+
+module.exports = { get, create, update, destroy}
