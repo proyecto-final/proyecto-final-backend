@@ -181,9 +181,6 @@ components:
         color:
           type: string
           description: color that represents the organization
-        enabled:
-          type: boolean
-          description: checks if the organization is enable
         organizationId:
           type: number
           description: id of the organization
@@ -192,7 +189,6 @@ components:
         prefix: "Prefix2"
         color: "#FF00FF"
         organizationId: 12
-        enabled: true
     ResponseAttrs:
       type: object
       properties:
