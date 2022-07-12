@@ -106,19 +106,16 @@ components:
         enabled: true
     UserResponse:
       type: object
-      required:
-        - title
-        - author
       properties:
         id:
           type: string
           description: The auto-generated id of the user
         username:
           type: string
-          description: User identification name. It's setted in sign up page 
+          description: User identification name. It's setted in sign up page
         email:
           type: string
-          description: User identification name. It's setted in sign up page 
+          description: User identification name. It's setted in sign up page
         name:
           type: string
           description: User identification name. It's setted in sign up page 
@@ -131,11 +128,38 @@ components:
         enabled:
           type: boolean
           description: Active user flag. It's setted by administrator
+        projects:
+          type: array
+          description: List of projects that the user is assigned to
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+                description: Project id
+              name:
+                type: string
+                description: Project name
+              prefix:
+                type: string
+                description: Project prefix
+              color:
+                type: string
+                description: Project color
       example:
         id: hj019dSAd181sgf79041er81Ñ23gda2
         username: superCoolUsername
         email: superCoolUsername@gmail.com
         name: Super Cool Username
+        projects:
+          - id: 1
+            name: Project 1
+            prefix: P1
+            color: "#ff0000"
+          - id: 2
+            name: Project 2
+            prefix: P2
+            color: "#00ff00"
     Count:
       type: number
       description: Number of results in the database
@@ -168,9 +192,6 @@ components:
         color: "#FF00FF"
     Organization:
       type: object
-      required:
-        - title
-        - author
       properties:
         name:
           type: string
@@ -185,11 +206,32 @@ components:
         name: "Nombre de organización"
         color: "#FF00FF"
         enabled: true
+    Project:
+      type: object
+      properties:
+        name:
+          type: string
+          description: name of the organization
+        prefix:
+          type: string
+          description: prefix of the organization
+        color:
+          type: string
+          description: color that represents the organization
+        enabled:
+          type: boolean
+          description: checks if the organization is enable
+        organizationId:
+          type: number
+          description: id of the organization
+      example:
+        name: "Nombre de organización"
+        prefix: "Prefix2"
+        color: "#FF00FF"
+        organizationId: 12
+        enabled: true
     ResponseAttrs:
       type: object
-      required:
-        - title
-        - author
       properties:
         id:
           type: number
@@ -204,7 +246,14 @@ components:
         id: 12345
         createdAt: "2022-07-03T22:04:34.000Z"
         updatedAt: "2022-07-03T22:04:34.000Z"
-
+    UserCount:
+      type: object
+      properties:
+        userCount:
+          type: number
+          description: number of users in the organization
+      example:
+        userCount: 10
 
 tags:
   - name: Auth
@@ -254,6 +303,7 @@ paths:
                         allOf:
                           - $ref: '#/components/schemas/ResponseAttrs'
                           - $ref: '#/components/schemas/Organization'
+                          - $ref: '#/components/schemas/UserCount'
       post:
         summary: Post organizations
         tags: [Organization CRUD]
@@ -317,6 +367,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/Organization'
+
   /api/organization/{organizationId}/user:
     get:
       summary: Get organization users
@@ -352,6 +403,42 @@ paths:
                       allOf:
                         - $ref: '#/components/schemas/ResponseAttrs'
                         - $ref: '#/components/schemas/UserResponse'
+  /api/organization/{organizationId}/project:
+    get:
+      summary: Get organization projects
+      tags: [Organization CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: name
+        in: query
+        description: "User name, email or username"
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: projects page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/ResponseAttrs'
+                        - $ref: '#/components/schemas/Project'
+                        - $ref: '#/components/schemas/UserCount'
 
 
   /api/user/authenticate:
