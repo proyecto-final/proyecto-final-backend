@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate:{
         isIn: {
-          args:['Owner', 'User'],
+          args:[['Owner', 'User']],
           msg: 'El rol no es válido'
         },
       }
