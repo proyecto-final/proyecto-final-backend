@@ -77,7 +77,10 @@ const update = new ControllerHandler(
 ).setHandler(async(req, resp) => {
   const { organizationId, projectId } = req.params
   const project = req.body
-  const existingProject = await Project.findOne({id: projectId, organizationId})
+  const existingProject = await Project.findOne({ where: {id: projectId, organizationId }})
+  if (!existingProject) {
+    throw { msg: 'Project not found', code: 404 }
+  }
   let data2Update = {}
   if (project.name) {
     data2Update.name = project.name

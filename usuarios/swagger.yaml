@@ -222,7 +222,7 @@ components:
           type: number
           description: id of the organization
       example:
-        name: "Nombre de organización"
+        name: "Nombre de proyecto"
         prefix: "Prefix2"
         color: "#FF00FF"
         organizationId: 12
@@ -250,6 +250,14 @@ components:
           description: number of users in the organization
       example:
         userCount: 10
+    OrganizationId:
+      type: object
+      properties:
+        organizationId:
+          type: number
+          description: id of the organization
+      example:
+        organizationId: 10
 
 tags:
   - name: Auth
@@ -434,6 +442,7 @@ paths:
                       allOf:
                         - $ref: '#/components/schemas/ResponseAttrs'
                         - $ref: '#/components/schemas/Project'
+                        - $ref: '#/components/schemas/OrganizationId'
                         - $ref: '#/components/schemas/UserCount'
     post:
       summary: Create organization project
