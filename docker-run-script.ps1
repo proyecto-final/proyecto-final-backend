@@ -1,3 +1,5 @@
+param([String[]] $modules = "all")
 docker-compose stop
 docker-compose rm -f
-docker-compose up --build -d
+Write-Host $modules
+docker-compose --profile $modules up --build -d

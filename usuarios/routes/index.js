@@ -38,7 +38,6 @@ router.get('/organization/:organizationId', Organization.getSpecific)
 router.get('/organization/:organizationId/user', Organization.getUsers)
 router.post('/organization/:organizationId/invitation-token', Organization.generateInvitationToken)
 router.post('/organization/validate-invitation-token', Organization.validateToken)
-router.post('/organization/:organizationId/generate-link', dummyHandle)
 router.post('/organization/user', User.create) 
 // projects
 router.get('/organization/:organizationId/project', Project.get)
