@@ -209,12 +209,12 @@ const validateToken = new ControllerHandler().notEmptyValue('token').setHandler(
   const token = req.body.token
   const organization = await Organization.findOne({where: {invitationToken: token}})
   if(!organization) {
-    throw {code: 404, msg: 'No existe el token'}
+    throw {code: 403, msg: 'No existe el token'}
   }
   const EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 1 // 1 day
   const currentDateMinusExpirationTime = new Date(new Date().getTime() - EXPIRATION_TIME)
   if(organization.invitationTokenCreationDate < currentDateMinusExpirationTime){
-    throw {code: 400, msg: 'El token esta vencido'}
+    throw {code: 403, msg: 'El token está vencido'}
   } 
   resp.status(200).json({valid: true})
 }).wrap()
