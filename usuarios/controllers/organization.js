@@ -6,7 +6,7 @@ const sequelize = require('sequelize')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
 const {checkColor} = require('../controllers/utils/rules')
-
+const {generateToken} = require('../controllers/utils')
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
   return Organization.findAll({
@@ -196,5 +196,27 @@ const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId
   resp.status(200).json(user)
 }).wrap()
 
+const generateInvitationToken = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
+  const { organizationId } = req.params
+  const organization = await Organization.findOne({where: {id: organizationId}})
+  const token = generateToken(organizationId)
+  const invitationTokenCreationDate = new Date()
+  organization.update({invitationToken: token, invitationTokenCreationDate})
+  resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
+}).wrap()
 
-module.exports = {get, update, create, getSpecific, getUsers, updateUser}
+const validateToken = new ControllerHandler().notEmptyValue('token').setHandler(async(req, resp) => {
+  const token = req.body.token
+  const organization = await Organization.findOne({where: {invitationToken: token}})
+  if(!organization) {
+    throw {code: 403, msg: 'No existe el token'}
+  }
+  const EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 1 // 1 day
+  const currentDateMinusExpirationTime = new Date(new Date().getTime() - EXPIRATION_TIME)
+  if(organization.invitationTokenCreationDate < currentDateMinusExpirationTime){
+    throw {code: 403, msg: 'El token está vencido'}
+  } 
+  resp.status(200).json({valid: true})
+}).wrap()
+
+module.exports = {get, update, create, getSpecific, getUsers,updateUser, generateInvitationToken, validateToken}
