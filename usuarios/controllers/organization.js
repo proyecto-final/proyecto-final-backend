@@ -3,7 +3,7 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
-const {generateToken,isExpired} = require('../controllers/utils')
+const {generateToken} = require('../controllers/utils')
 
 const getBooleanValue = (value) => {
   if (value === 'true') {
@@ -199,11 +199,17 @@ const generateInvitationToken = new ControllerHandler().hasId('organizationId').
   resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
 }).wrap()
 
-const validateToken = new ControllerHandler().setHandler(async(req, resp) => {
+const validateToken = new ControllerHandler().notEmptyValue('token').setHandler(async(req, resp) => {
   const token = req.body.token
-  const organization = findOneBy({where: {invitationToken: token}})
-  if(organization) throw {code: 404, msg: 'No existe el token'}
-  if(isExpired(token)) throw {code: 400, msg: 'El token esta vencido'}
+  const organization = await Organization.findOne({where: {invitationToken: token}})
+  if(!organization) {
+    throw {code: 404, msg: 'No existe el token'}
+  }
+  const EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 1 // 1 day
+  const currentDateMinusExpirationTime = new Date(new Date().getTime() - EXPIRATION_TIME)
+  if(organization.invitationTokenCreationDate < currentDateMinusExpirationTime){
+    throw {code: 400, msg: 'El token esta vencido'}
+  } 
   resp.status(200).json({valid: true})
 }).wrap()
 

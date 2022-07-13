@@ -8,9 +8,4 @@ function generateToken(id) {
   return token
 }
 
-const isExpired = (token) => {
-    return !jwt.verify(token)
-}
-
-
-module.exports = {generateToken,isExpired}
+module.exports = {generateToken}
