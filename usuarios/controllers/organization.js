@@ -4,6 +4,7 @@ const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const { permission } = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
 const {checkColor} = require('../controllers/utils/rules')
 
@@ -49,6 +50,8 @@ const findOneBy = (searchWhere) =>{
 const getUsers = new ControllerHandler()
   .handlePagination()
   .hasId('organizationId')
+  .setSecurityValidations(permission.
+    or(permission.isAdmin(), permission.and(permission.isOwner(), permission.hasAccessToOrganization())))
   .setHandler(async(req, resp) => {
     const { query } = req
     const { organizationId } = req.params
