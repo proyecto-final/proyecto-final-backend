@@ -28,7 +28,7 @@ class ControllerHandler {
   hasId(field) {
     this.validations.push(
       check(field, `El ${field} debe ser un numero mayor a cero`).isInt({min: 1}),
-      )
+    )
     return this
   }
   handlePagination () {

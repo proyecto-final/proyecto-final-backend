@@ -1,4 +1,5 @@
 const User = require('../models').user
+const Project = require('../models').project
 const crypto = require('crypto')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const {generateToken} = require('../controllers/utils')
@@ -31,9 +32,17 @@ function checkPassword (password) {
 }
 
 // DB
-async function findUserOrThrowBy (params) {
+async function findUserOrThrowBy (params, withProjects = false) {
+  const include = withProjects ? [{
+    model: Project,
+    attributes: ['name', 'prefix', 'color', 'id'],
+    through: {
+      attributes: []
+    }
+  }] : []
   const user = await User.findOne({
-    where: params
+    where: params,
+    include
   })
   if (!user) {
     throw { msg: 'Invalid credentials', code: 403 }
@@ -41,8 +50,9 @@ async function findUserOrThrowBy (params) {
   return user
 }
 
-const authenticate = new ControllerHandler().setHandler(async(req, resp) => {
-  const { body } = req
+const authenticate = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const { body } = req
     const user = await findUserOrThrowBy({
       username: body.username,
       password: hash(body.password)
@@ -53,9 +63,10 @@ const authenticate = new ControllerHandler().setHandler(async(req, resp) => {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
-}).wrap()
+  }).wrap()
 
-const logout = new ControllerHandler().setHandler(async(req, resp) => {
+const logout = new ControllerHandler()
+  .setHandler(async(req, resp) => {
     const token = req.token
     const user = await findUserOrThrowBy({ token })
     await user.update({ token: null })
@@ -63,9 +74,10 @@ const logout = new ControllerHandler().setHandler(async(req, resp) => {
       httpOnly: true,
       maxAge: 0
     }).json({ msg: 'OK' })
-}).wrap()
+  }).wrap()
 
-const update = new ControllerHandler().setHandler(async(req, resp) => {
+const update = new ControllerHandler()
+  .setHandler(async(req, resp) => {
     const token = req.token
     const { password, newPassword }=  req.body
     const user = await findUserOrThrowBy({ token })
@@ -79,12 +91,13 @@ const update = new ControllerHandler().setHandler(async(req, resp) => {
     }
     await user.update(data2Update)
     resp.status(200).json({ msg: 'OK' })
-}).wrap()
+  }).wrap()
 
-const getSpecific = new ControllerHandler().setHandler(async(req, resp) => {
+const getSpecific = new ControllerHandler()
+  .setHandler(async(req, resp) => {
     const token = req.token
-    const user = await findUserOrThrowBy({ token })
+    const user = await findUserOrThrowBy({ token }, true)
     resp.status(200).json(user)
-}).wrap()
+  }).wrap()
 
 module.exports = {authenticate, logout, update, getSpecific}
