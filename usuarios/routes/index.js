@@ -38,7 +38,7 @@ router.get('/organization/:organizationId', Organization.getSpecific)
 router.get('/organization/:organizationId/user', Organization.getUsers)
 
 router.post('/organization/:organizationId/generate-link', dummyHandle)
-router.post('/organization/:organizationId/user', dummyHandle)
+router.post('/organization/user', User.create) 
 // projects
 router.get('/organization/:organizationId/project', Project.get)
 router.post('/organization/:organizationId/project', Project.create)

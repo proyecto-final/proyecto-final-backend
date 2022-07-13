@@ -3,6 +3,7 @@ const Project = require('../models').project
 const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const Organization = require('./organization')
 
 const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
 const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
@@ -106,4 +107,18 @@ const getSpecific = new ControllerHandler()
     resp.status(200).json(user)
   }).wrap()
 
-module.exports = {authenticate, logout, update, getSpecific}
+const create = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const {username, password, name, email, token} = req.body
+    checkPassword(password)
+    const organization = await Organization.findOne({where: {invitationToken: token}})
+    if(organization){
+      throw {code: 400, msg: 'Token inválido'}
+    }
+    const organizationId = organization.id
+    const user = new User({username, password, name, email, role:'User', organizationId})
+    user.save()
+    resp.status(200).json(user)
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create}
