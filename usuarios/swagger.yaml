@@ -42,7 +42,7 @@ components:
       example:
         password: superSecretPassword123
         username: superCoolUsername
-    tokenWithCreationDateResponse:
+    TokenUserResponse:
       type: object
       properties:
         invitationToken:
@@ -54,7 +54,7 @@ components:
       example:
         invitationToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJpYXQiOjE2NTc2NzM4OTgsImV4cCI6MTY1ODI3ODY5OH0.RUfU_SpWaP-LI1fQ9mpeliNPkkA-YPxYap5Jid-Sc18
         invitationTokenCreationDate: 2022-07-13T00:58:18.923Z
-    token:
+    Token:
       type: object
       properties:
         token:
@@ -62,7 +62,7 @@ components:
           description: token
       example:
         token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJpYXQiOjE2NTc2NzM4OTgsImV4cCI6MTY1ODI3ODY5OH0.RUfU_SpWaP-LI1fQ9mpeliNPkkA-YPxYap5Jid-Sc18
-    tokenValidationResult:
+    ValidationResult:
       type: object
       properties:
         valid:
@@ -645,14 +645,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/token'
+              $ref: '#/components/schemas/Token'
       responses:
         200:
           description: Token validation response
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/tokenValidationResult'
+                  $ref: '#/components/schemas/ValidationResult'
   /organization/generate-invitation-token:
     post:
       summary: Creates organization token
@@ -663,4 +663,4 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/tokenWithCreationDateResponse'
+                  $ref: '#/components/schemas/TokenUserResponse'
