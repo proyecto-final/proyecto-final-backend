@@ -653,7 +653,7 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/ValidationResult'
-  /organization/generate-invitation-token:
+  /organization/invitation-token:
     post:
       summary: Creates organization token
       tags: [Organization CRUD]
