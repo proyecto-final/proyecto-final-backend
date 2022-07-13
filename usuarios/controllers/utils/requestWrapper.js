@@ -18,9 +18,9 @@ class ControllerHandler {
     this.validations = validations
   }
 
-  notEmptyValue (field) {
+  notEmptyValues (fields) {
     this.validations.push(
-      check(field, `El ${field} no puede ser vacio`).not().isEmpty()
+      fields.map(field => check(field, `El ${field} debe tener un valor`).not().isEmpty())
     )
     return this
   }
