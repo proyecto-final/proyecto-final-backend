@@ -32,7 +32,8 @@ module.exports = (sequelize) => {
           args:[['Owner', 'User']],
           msg: 'El rol no es válido'
         },
-      }
+      },
+      defaultValue: 'User'
     },
     name: {
       type: DataTypes.STRING,

@@ -636,10 +636,17 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/UserDataInfo'
-  /organization/validate-invitation-token:
+  /api/organization/:organizationId/validate-invitation-token:
     post:
       summary: Validates organization token
       tags: [Organization CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
       requestBody:
         required: true
         content:
@@ -653,10 +660,17 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/ValidationResult'
-  /organization/invitation-token:
+  /api/organization/:organizationId/invitation-token:
     post:
       summary: Creates organization token
       tags: [Organization CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
       responses:
         200:
           description: Invitation Token

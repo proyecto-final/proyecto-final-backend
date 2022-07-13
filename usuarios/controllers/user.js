@@ -110,7 +110,7 @@ const create = new ControllerHandler().notEmptyValues(['username','password','em
       throw {code: 403, msg: 'Token inválido'}
     }
     const organizationId = organization.id
-    const user = await new User({username, password, name, email, role:'User', organizationId})
+    const user = await new User({username, password, name, email, organizationId})
     await user.save()
     resp.status(200).json(user)
   }).wrap()
