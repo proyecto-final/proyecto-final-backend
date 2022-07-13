@@ -205,7 +205,7 @@ const generateInvitationToken = new ControllerHandler().hasId('organizationId').
   resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
 }).wrap()
 
-const validateToken = new ControllerHandler().notEmptyValue('token').setHandler(async(req, resp) => {
+const validateToken = new ControllerHandler().notEmptyValues(['token']).setHandler(async(req, resp) => {
   const token = req.body.token
   const organization = await Organization.findOne({where: {invitationToken: token}})
   if(!organization) {

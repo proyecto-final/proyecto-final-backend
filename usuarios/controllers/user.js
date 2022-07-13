@@ -2,6 +2,7 @@ const User = require('../models').user
 const Project = require('../models').project
 const crypto = require('crypto')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
+const Organization = require('../models').organization
 const {generateToken} = require('../controllers/utils')
 
 // Business
@@ -100,4 +101,18 @@ const getSpecific = new ControllerHandler()
     resp.status(200).json(user)
   }).wrap()
 
-module.exports = {authenticate, logout, update, getSpecific}
+const create = new ControllerHandler().notEmptyValues(['username','password','email','token','name'])
+  .setHandler(async(req, resp) => {
+    const {username, password, name, email, token} = req.body
+    checkPassword(password)
+    const organization = await Organization.findOne({where: {invitationToken: token}})
+    if(!organization){
+      throw {code: 403, msg: 'Token inválido'}
+    }
+    const organizationId = organization.id
+    const user = await new User({username, password, name, email, organizationId})
+    await user.save()
+    resp.status(200).json(user)
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create}
