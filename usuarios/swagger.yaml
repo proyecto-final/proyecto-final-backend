@@ -32,9 +32,6 @@ components:
   schemas:
     AuthenticationRequest:
       type: object
-      required:
-        - title
-        - author
       properties:
         username:
           type: string
@@ -45,6 +42,34 @@ components:
       example:
         password: superSecretPassword123
         username: superCoolUsername
+    TokenUserResponse:
+      type: object
+      properties:
+        invitationToken:
+          type: string
+          description: invitation token 
+        invitationTokenCreationDate:
+          type: string
+          description: invitation token creation date
+      example:
+        invitationToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJpYXQiOjE2NTc2NzM4OTgsImV4cCI6MTY1ODI3ODY5OH0.RUfU_SpWaP-LI1fQ9mpeliNPkkA-YPxYap5Jid-Sc18
+        invitationTokenCreationDate: 2022-07-13T00:58:18.923Z
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          description: token
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEiLCJpYXQiOjE2NTc2NzM4OTgsImV4cCI6MTY1ODI3ODY5OH0.RUfU_SpWaP-LI1fQ9mpeliNPkkA-YPxYap5Jid-Sc18
+    ValidationResult:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          description: checks if token is valid 
+      example:
+        valid: true
     UserRequest:
       type: object
       required:
@@ -601,12 +626,6 @@ paths:
          description: "User ID"
          required: true
          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
               $ref: '#/components/schemas/UserPatchBody'
       responses:
         200:
@@ -617,3 +636,31 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/UserDataInfo'
+  /organization/validate-invitation-token:
+    post:
+      summary: Validates organization token
+      tags: [Organization CRUD]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Token'
+      responses:
+        200:
+          description: Token validation response
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ValidationResult'
+  /organization/invitation-token:
+    post:
+      summary: Creates organization token
+      tags: [Organization CRUD]
+      responses:
+        200:
+          description: Invitation Token
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/TokenUserResponse'
