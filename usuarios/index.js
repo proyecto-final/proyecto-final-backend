@@ -11,6 +11,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(require('./middlewares/checkToken'))
 app.use('/api', require('./routes'))
+app.use('/api', require('./routes/external'))
 
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}`)
