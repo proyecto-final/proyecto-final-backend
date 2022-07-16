@@ -2,7 +2,6 @@ const User = require('../models').user
 const Project = require('../models').project
 const crypto = require('crypto')
 const { permission } = require('../controllers/utils/requestWrapper')
-const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 const Organization = require('../models').organization
 const {generateToken} = require('../controllers/utils')

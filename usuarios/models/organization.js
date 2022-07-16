@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
       defaultValue: true
     },
     invitationToken: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(512),
       unique: true
     },
     invitationTokenCreationDate: {
