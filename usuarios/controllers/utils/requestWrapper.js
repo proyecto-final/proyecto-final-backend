@@ -25,6 +25,13 @@ class ControllerHandler {
     return this
   }
 
+  notEmptyValues (fields) {
+    this.validations.push(
+      fields.map(field => check(field, `El ${field} debe tener un valor`).not().isEmpty())
+    )
+    return this
+  }
+
   hasId(field) {
     this.validations.push(
       check(field, `El ${field} debe ser un numero mayor a cero`).isInt({min: 1}),

@@ -4,15 +4,11 @@ const crypto = require('crypto')
 const { permission } = require('../controllers/utils/requestWrapper')
 const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
-
-const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
-const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
+const Organization = require('../models').organization
+const {generateToken} = require('../controllers/utils')
 
 // Business
-function generateToken(user) {
-  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {expiresIn: TOKEN_LIFETIME_IN_SECONDS}).toString()
-  return token
-}
+const TOKEN_LIFETIME_IN_MILISECONDS = 60 * 60 * 24 * 7 * 1000
 
 function hash (password) {
   try{
@@ -95,7 +91,7 @@ const update = new ControllerHandler()
     let data2Update = {}
     if (password) {
       if (hash(password) !== user.password) {
-        throw {code: 403, msg: 'Invalid credentials'}
+        throw {code: 401, msg: 'Invalid credentials'}
       }
       checkPassword(newPassword)
       data2Update.password = hash(newPassword)
@@ -112,4 +108,18 @@ const getSpecific = new ControllerHandler()
     resp.status(200).json(user)
   }).wrap()
 
-module.exports = {authenticate, logout, update, getSpecific}
+const create = new ControllerHandler().notEmptyValues(['username','password','email','token','name'])
+  .setHandler(async(req, resp) => {
+    const {username, password, name, email, token} = req.body
+    checkPassword(password)
+    const organization = await Organization.findOne({where: {invitationToken: token}})
+    if(!organization){
+      throw {code: 403, msg: 'Token inválido'}
+    }
+    const organizationId = organization.id
+    const user = await new User({username, password, name, email, organizationId})
+    await user.save()
+    resp.status(200).json(user)
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create}

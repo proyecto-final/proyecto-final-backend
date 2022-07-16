@@ -5,7 +5,10 @@ const ControllerHandler = require('./utils/requestWrapper')
 const sequelize = require('sequelize')
 const {getIntValue} = require('../controllers/utils/dataHelpers')
 const { param } = require('express-validator')
+<<<<<<< HEAD
 const { permission } = require('../controllers/utils/requestWrapper')
+=======
+>>>>>>> develop
 const {checkColor} = require('../controllers/utils/rules')
 
 // QUERIES
@@ -66,6 +69,7 @@ const get = new ControllerHandler(
 
 const create = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric()
+<<<<<<< HEAD
 ).setSecurityValidations(permission.isEnabled(), permission.
   or(permission.isAdmin(), permission
     .and(permission.isOwner(), permission.hasAccessToOrganization())))
@@ -77,10 +81,21 @@ const create = new ControllerHandler(
     const createdProject = await Project.create({ ...project, color, organizationId })
     resp.status(200).json(createdProject)
   }).wrap()
+=======
+).setHandler(async(req, resp) => {
+  const { organizationId } = req.params
+  const project = req.body
+  const color =   req.body.color || undefined
+  checkColor(color)
+  const createdProject = await Project.create({ ...project, color, organizationId })
+  resp.status(200).json(createdProject)
+}).wrap()
+>>>>>>> develop
 
 const update = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric(),
   param('projectId', 'El id debe ser un numero valido').isNumeric()
+<<<<<<< HEAD
 )
   .setSecurityValidations(permission.isEnabled(), permission.
     or(permission.isAdmin(), permission
@@ -103,10 +118,34 @@ const update = new ControllerHandler(
     await existingProject.update(data2Update)
     resp.status(200).json(existingProject)
   }).wrap()
+=======
+).setHandler(async(req, resp) => {
+  const { organizationId, projectId } = req.params
+  const project = req.body
+  const existingProject = await Project.findOne({ where: {id: projectId, organizationId }})
+  if (!existingProject) {
+    throw { msg: 'Project not found', code: 404 }
+  }
+  let data2Update = {}
+  if (project.name) {
+    data2Update.name = project.name
+  }
+  if (project.color) {
+    checkColor(project.color)
+    data2Update.color = project.color
+  }
+  if (project.prefix) {
+    data2Update.prefix = project.prefix
+  }
+  await existingProject.update(data2Update)
+  resp.status(200).json(existingProject)
+}).wrap()
+>>>>>>> develop
 
 const destroy = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric(),
   param('projectId', 'El id debe ser un numero valido').isNumeric()
+<<<<<<< HEAD
 )
   .setSecurityValidations(permission.isEnabled(), permission.
     or(permission.isAdmin(), permission
@@ -123,6 +162,20 @@ const destroy = new ControllerHandler(
     }
     resp.status(200).json({ msg: 'OK' })
   }).wrap()
+=======
+).setHandler(async(req, resp) => {
+  const { organizationId, projectId } = req.params
+  const deletedProjects = await Project.destroy({
+    where: {
+      id: projectId, organizationId
+    }
+  })
+  if (deletedProjects === 0){
+    throw { code: 404, msg: 'Project not found' }
+  }
+  resp.status(200).json({ msg: 'OK' })
+}).wrap()
+>>>>>>> develop
 
 
 module.exports = { get, create, update, destroy}

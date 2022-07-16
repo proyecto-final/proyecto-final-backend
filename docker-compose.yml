@@ -1,60 +1,70 @@
 services:
   mysql:
+    profiles: [ "all", "mysql" ]
     build: ./mysql
     ports:
       - "3306:3306"
-    networks: 
+    networks:
       - users
   mongo:
+    profiles: [ "all", "mongo" ]
     build: ./mongo
     ports:
       - "27017:27017"
-    networks: 
+    networks:
       - business
   usuarios:
+    profiles: [ "all", "usuarios" ]
     build: ./usuarios
     ports:
       - "3030:3030"
     depends_on:
       - mysql
-    networks: 
+    networks:
       - users
   ips:
+    profiles: [ "all", "ips" ]
     build: ./ips
     ports:
       - "3031:3031"
     depends_on:
       - mongo
-    networks: 
+    networks:
       - business
   correlacion:
+
+    profiles: [ "all", "correlacion" ]
     build: ./correlacion
     ports:
       - "3032:3032"
     depends_on:
       - mongo
-    networks: 
+    networks:
       - business
   busqueda:
+
+    profiles: [ "all", "busqueda" ]
     build: ./busqueda
     ports:
       - "3033:3033"
     depends_on:
       - mongo
-    networks: 
+    networks:
       - business
   timeline:
+
+    profiles: [ "all", "timeline" ]
     build: ./timeline
     ports:
       - "3034:3034"
     depends_on:
       - mongo
-    networks: 
+    networks:
       - business
 networks:
   users:
-      name: "users-network"
-      driver: bridge
+    name: "users-network"
+    driver: bridge
   business:
-      name: "business-network"
-      driver: bridge
+    name: "business-network"
+    driver: bridge

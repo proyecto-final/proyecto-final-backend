@@ -3,6 +3,7 @@
 ## Run from docker
 
 - Run the script called: `docker-run-script.ps1` (powershell)
+- You can run with powershell as `./docker-run-script.ps1 moduleName databaseName` for custom module to set up (modules: usuarios, ips, timeline, busqueda, correlacion) (database: mysql, mongo)
 - Check docker desktop in order to see the compose group running.
 - You should have the following containers running:
   - `proyecto-final-backend_mysql_1`, port: `3306`
@@ -31,6 +32,7 @@
 - Before you start make sure docker is running
 - `./dev-script-down.ps1` - This one should clean every resource that you need to run the application.
 - `./dev-script-up.ps1` - It gives you a cmd console to see execution for each module that is running.
+- You can run with powershell as `./dev-script-up.ps1 moduleName` for custom module to set up (modules: usuarios, ips, timeline, busqueda, correlacion)
 - You should have the following containers running:
   - `mysql-dev-container`, port: `3306`
   - `mongo-dev-container`, port: `27017`

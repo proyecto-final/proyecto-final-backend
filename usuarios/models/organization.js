@@ -22,12 +22,24 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: true
+    },
+    invitationToken: {
+      type: DataTypes.STRING,
+      unique: true
+    },
+    invitationTokenCreationDate: {
+      type: DataTypes.DATE
     }
   })
   Organization.associate = (models) => {
     Organization.hasMany(models.user, {
       foreignKey: 'organizationId'
     })
+  }
+  Organization.prototype.toJSON = function () {
+    const values = Object.assign({}, this.get())
+    delete values.invitationToken
+    return values
   }
   return Organization
 }

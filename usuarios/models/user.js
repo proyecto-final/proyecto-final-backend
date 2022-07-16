@@ -10,7 +10,9 @@ module.exports = (sequelize) => {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: { len: [2,32] },
       unique: true
+
     }, 
     email: {
       type: DataTypes.STRING,
@@ -30,14 +32,17 @@ module.exports = (sequelize) => {
           args:[['Owner', 'User']],
           msg: 'El rol no es válido'
         },
-      }
+      },
+      defaultValue: 'User'
     },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: { len: [2,32] }
     },
     password:  {
       type: DataTypes.STRING,
+      validate: { len: [8,32] },
       allowNull: false
     },
     token: {

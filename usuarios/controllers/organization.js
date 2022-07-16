@@ -7,7 +7,7 @@ const ControllerHandler = require('../controllers/utils/requestWrapper')
 const { permission } = require('../controllers/utils/requestWrapper')
 const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
 const {checkColor} = require('../controllers/utils/rules')
-
+const {generateToken} = require('../controllers/utils')
 // QUERIES
 const findAllBy = (searchQuery, offset, limit) =>{
   return Organization.findAll({
@@ -215,5 +215,45 @@ const updateUser = new ControllerHandler()
     resp.status(200).json(user)
   }).wrap()
 
+const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
+  const { organizationId, userId} = req.params
+  const { enabled, role } = req.body
+  const user = await User.findOne({where: { id: userId, organizationId }})
+  if (!user) {
+    throw { code: 400, msg: 'El usuario no existe o no está asociado a esta organización' }
+  }
+  let data2Update = {}
+  if (enabled !== null) {
+    data2Update.enabled = enabled
+  }
+  if(role) {
+    data2Update.role = role 
+  }
+  await user.update(data2Update)
+  resp.status(200).json(user)
+}).wrap()
 
-module.exports = {get, update, create, getSpecific, getUsers, updateUser}
+const generateInvitationToken = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
+  const { organizationId } = req.params
+  const organization = await Organization.findOne({where: {id: organizationId}})
+  const token = generateToken(organizationId)
+  const invitationTokenCreationDate = new Date()
+  organization.update({invitationToken: token, invitationTokenCreationDate})
+  resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
+}).wrap()
+
+const validateToken = new ControllerHandler().notEmptyValues(['token']).setHandler(async(req, resp) => {
+  const token = req.body.token
+  const organization = await Organization.findOne({where: {invitationToken: token}})
+  if(!organization) {
+    throw {code: 403, msg: 'No existe el token'}
+  }
+  const EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 1 // 1 day
+  const currentDateMinusExpirationTime = new Date(new Date().getTime() - EXPIRATION_TIME)
+  if(organization.invitationTokenCreationDate < currentDateMinusExpirationTime){
+    throw {code: 403, msg: 'El token está vencido'}
+  } 
+  resp.status(200).json({valid: true})
+}).wrap()
+
+module.exports = {get, update, create, getSpecific, getUsers,updateUser, generateInvitationToken, validateToken}
