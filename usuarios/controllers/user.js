@@ -64,7 +64,7 @@ const authenticate = new ControllerHandler()
       username: body.username,
       password: hash(body.password)
     }, true)
-    if (user.enabled) {
+    if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
     }
     const token = generateToken(user)
