@@ -85,7 +85,7 @@ const update = new ControllerHandler()
     let data2Update = {}
     if (password) {
       if (hash(password) !== user.password) {
-        throw {code: 403, msg: 'Invalid credentials'}
+        throw {code: 401, msg: 'Invalid credentials'}
       }
       checkPassword(newPassword)
       data2Update.password = hash(newPassword)
