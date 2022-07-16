@@ -18,6 +18,9 @@ class ControllerHandler {
   constructor (...validations) {
     this.validations = validations
     this.securityValidations = []
+    this.handler = (req, resp) => {
+      resp.status(200).send({ msg: 'Passed' })
+    }
   }
 
   setSecurityValidations (...securityValidations) {
@@ -58,7 +61,6 @@ class ControllerHandler {
     }
     const wrappedSecurityValidation = async (req, res, next) => {
       const ruleChecks = await Promise.all(this.securityValidations.map(securityValidation => securityValidation(req, res)))
-      console.log('RULE CHECKS', ruleChecks)
       if (ruleChecks.every(check => check)){
         next()
       } else {
@@ -90,14 +92,12 @@ const permission = {
   or (...rules) {
     return async (req) => {
       const ruleCheck = await Promise.all([...rules.map(rule => rule(req))])
-      console.log('OR WITH', ruleCheck)
       return ruleCheck.some(check => check)
     }
   },
   and (...rules) {
     return async (req) => {
       const ruleCheck = await Promise.all([...rules.map(rule => rule(req))])
-      console.log('AND WITH', ruleCheck)
       return ruleCheck.every(check => check)
     }
   },
@@ -110,7 +110,6 @@ const permission = {
   isAdmin () {
     return async (req) => {
       const user =  await getAndCacheUser(req)
-      console.log('IS ADMIN', user.isAdmin)
       return user.isAdmin
     }
   },
@@ -118,7 +117,6 @@ const permission = {
     return async (req) => {
       const { organizationId } = req.params
       const user =  await getAndCacheUser(req)
-      console.log('Has access to org', user.organizationId, organizationId)
       return user.organizationId == organizationId
     }
   },  
