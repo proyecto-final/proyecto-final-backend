@@ -72,9 +72,6 @@ components:
         valid: true
     UserRequest:
       type: object
-      required:
-        - title
-        - author
       properties:
         password:
           type: string
@@ -85,6 +82,26 @@ components:
       example:
         password: hj019dSAd181sgf79041er81Ñ23gda2
         newPassword: rodriCapo123-
+    UserCreationData:
+      type: object
+        properties:
+          username:
+            type: string
+            description: Current user name
+          name:
+            type: string
+            description: user name
+          email:
+            type: string
+            description: user email
+          password:
+            type: string
+            description: user password
+      example:
+        name: pepe
+        email: pepe@gmail.com
+        username: pepe
+        password: superSecretPassword123
     UserDataInfo:
       type: object
       properties:
@@ -677,4 +694,27 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/TokenUserResponse'
+                allOf:
+                  - $ref: '#/components/schemas/TokenUserResponse'
+                  - $ref: '#/components/schemas/ValidationResult'
+  /api/organization/user:
+    post:
+      summary: Creates user in organization by token token
+      tags: [Organization CRUD]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Token'
+                - $ref: '#/components/schemas/UserCreationData'
+      responses:
+        200:
+          description: user created
+          content:
+            application/json:
+              schema:
+                  allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/UserDataInfo'
