@@ -625,7 +625,7 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
                   - $ref: '#/components/schemas/UserResponse'
-  /api/organization//validate-invitation-token:
+  /api/organization/validate-invitation-token:
     post:
       summary: Validates organization token
       tags: [Organization CRUD]
