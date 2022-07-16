@@ -82,7 +82,7 @@ components:
       example:
         password: hj019dSAd181sgf79041er81Ñ23gda2
         newPassword: rodriCapo123-
-    UserCreationData:
+    UserCreationRequest:
       type: object
         properties:
           username:
@@ -102,34 +102,6 @@ components:
         email: pepe@gmail.com
         username: pepe
         password: superSecretPassword123
-    UserDataInfo:
-      type: object
-      properties:
-        username:
-          type: string
-          description: Current user name
-        name:
-          type: string
-          description: user name
-        email:
-          type: string
-          description: user email
-        role:
-          type: string
-          description: user role
-        isAdmin:
-          type: boolean
-          description: check if the current user is administrator
-        enabled:
-          type: boolean
-          description: check if the current user is enabled
-      example:
-        name: pepe
-        email: pepe@gmail.com
-        username: pepe
-        isAdmin: true
-        role: User
-        enabled: true
     UserPatchBody:
       type: object
       properties:
@@ -626,7 +598,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/UserDataInfo'
+                  $ref: '#/components/schemas/UserResponse'
   /api/organization/{organizationId}/user/{userId}:
     patch:
       summary: Patch specific user
@@ -652,7 +624,7 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
-                  - $ref: '#/components/schemas/UserDataInfo'
+                  - $ref: '#/components/schemas/UserResponse'
   /api/organization/:organizationId/validate-invitation-token:
     post:
       summary: Validates organization token
@@ -708,7 +680,7 @@ paths:
             schema:
               allOf:
                 - $ref: '#/components/schemas/Token'
-                - $ref: '#/components/schemas/UserCreationData'
+                - $ref: '#/components/schemas/UserCreationRequest'
       responses:
         200:
           description: user created
@@ -717,4 +689,4 @@ paths:
               schema:
                   allOf:
                   - $ref: '#/components/schemas/ResponseAttrs'
-                  - $ref: '#/components/schemas/UserDataInfo'
+                  - $ref: '#/components/schemas/UserResponse'
