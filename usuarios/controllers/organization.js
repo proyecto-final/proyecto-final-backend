@@ -51,7 +51,8 @@ const getUsers = new ControllerHandler()
   .handlePagination()
   .hasId('organizationId')
   .setSecurityValidations(permission.
-    or(permission.isAdmin(), permission.and(permission.isOwner(), permission.hasAccessToOrganization())))
+    or(permission.isAdmin(), permission
+      .and(permission.isOwner(), permission.hasAccessToOrganization())))
   .setHandler(async(req, resp) => {
     const { query } = req
     const { organizationId } = req.params
@@ -106,6 +107,8 @@ const getUsers = new ControllerHandler()
 
 const getSpecific = new ControllerHandler()
   .hasId('organizationId')
+  .setSecurityValidations(permission.isEnabled(), permission.
+    or(permission.isAdmin(), permission.hasAccessToOrganization()))
   .setHandler(async(req, resp) => {
     const { organizationId } = req.params
     const organization = await findOneBy({ id: getIntValue(organizationId) })
@@ -117,6 +120,7 @@ const getSpecific = new ControllerHandler()
 
 const get = new ControllerHandler()
   .handlePagination()
+  .setSecurityValidations(permission.isEnabled(), permission.isAdmin())
   .setHandler(async(req, resp) => {
     const { query } = req
     const offset = getIntValue(query.offset)
@@ -146,6 +150,7 @@ const get = new ControllerHandler()
   }).wrap()
 
 const create = new ControllerHandler()
+  .setSecurityValidations(permission.isEnabled(), permission.isAdmin())
   .setHandler(async(req, resp) => {
     const {name} = req.body
     const color =   req.body.color || undefined
@@ -154,50 +159,61 @@ const create = new ControllerHandler()
     resp.status(200).json(createdOrganization)
   }).wrap()
 
-const update = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
-  const { organizationId } = req.params
-  const { enabled, name, color }=  req.body
-  const organization = await Organization.findOne({
-    where: { id: organizationId }
-  })
-  if (!organization) {
-    throw { code: 404, msg: 'Organization not found' }
-  }
-  let data2Update = {}
-  if (enabled !== null) {
-    data2Update.enabled = enabled
-  }
-  if (name !== null) {
-    data2Update.name = name
-  }
-  if (color) {
-    checkColor(color)
-    data2Update.color = color
-  }
-  if (Object.keys(data2Update).length === 0) {
-    throw { code: 400, msg: 'No data to update' }
-  }
-  await organization.update(data2Update)
-  resp.status(200).json(organization)
-}).wrap()
+const update = new ControllerHandler()
+  .hasId('organizationId')
+  .setSecurityValidations(permission.isEnabled(), permission.
+    or(permission.isAdmin(), permission
+      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+  .setHandler(async(req, resp) => {
+    const { organizationId } = req.params
+    const { enabled, name, color }=  req.body
+    const organization = await Organization.findOne({
+      where: { id: organizationId }
+    })
+    if (!organization) {
+      throw { code: 404, msg: 'Organization not found' }
+    }
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    if (name !== null) {
+      data2Update.name = name
+    }
+    if (color) {
+      checkColor(color)
+      data2Update.color = color
+    }
+    if (Object.keys(data2Update).length === 0) {
+      throw { code: 400, msg: 'No data to update' }
+    }
+    await organization.update(data2Update)
+    resp.status(200).json(organization)
+  }).wrap()
 
-const updateUser = new ControllerHandler().hasId('organizationId').hasId('userId').setHandler(async(req, resp) => {
-  const { organizationId, userId} = req.params
-  const { enabled, role } = req.body
-  const user = await User.findOne({where: { id: userId, organizationId }})
-  if (!user) {
-    throw { code: 400, msg: 'El usuario no existe o no está asociado a esta organización' }
-  }
-  let data2Update = {}
-  if (enabled !== null) {
-    data2Update.enabled = enabled
-  }
-  if(role) {
-    data2Update.role = role 
-  }
-  await user.update(data2Update)
-  resp.status(200).json(user)
-}).wrap()
+const updateUser = new ControllerHandler()
+  .hasId('organizationId')
+  .hasId('userId')
+  .setSecurityValidations(permission.isEnabled(), permission.
+    or(permission.isAdmin(), permission
+      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+  .setHandler(async(req, resp) => {
+    const { organizationId, userId} = req.params
+    const { enabled, role } = req.body
+    const user = await User.findOne({where: { id: userId, organizationId }})
+    if (!user) {
+      throw { code: 400, msg: 'El usuario no existe o no está asociado a esta organización' }
+    }
+    let data2Update = {}
+    if (enabled !== null) {
+      data2Update.enabled = enabled
+    }
+    if(role) {
+      data2Update.role = role 
+    }
+    await user.update(data2Update)
+    resp.status(200).json(user)
+  }).wrap()
 
 
 module.exports = {get, update, create, getSpecific, getUsers, updateUser}

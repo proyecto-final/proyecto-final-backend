@@ -1,6 +1,7 @@
 const User = require('../models').user
 const Project = require('../models').project
 const crypto = require('crypto')
+const { permission } = require('../controllers/utils/requestWrapper')
 const jwt = require('jsonwebtoken')
 const ControllerHandler = require('../controllers/utils/requestWrapper')
 
@@ -63,6 +64,9 @@ const authenticate = new ControllerHandler()
       username: body.username,
       password: hash(body.password)
     }, true)
+    if (user.enabled) {
+      throw { msg: 'User is disabled', code: 403 }
+    }
     const token = generateToken(user)
     await user.update({ token })
     resp.status(200).cookie('auth', token, {
@@ -83,6 +87,7 @@ const logout = new ControllerHandler()
   }).wrap()
 
 const update = new ControllerHandler()
+  .setSecurityValidations(permission.isEnabled())
   .setHandler(async(req, resp) => {
     const token = req.token
     const { password, newPassword }=  req.body
@@ -100,6 +105,7 @@ const update = new ControllerHandler()
   }).wrap()
 
 const getSpecific = new ControllerHandler()
+  .setSecurityValidations(permission.isEnabled())
   .setHandler(async(req, resp) => {
     const token = req.token
     const user = await findUserOrThrowBy({ token }, true)

@@ -55,7 +55,7 @@ class ControllerHandler {
       if (ruleChecks.every(check => check)){
         next()
       } else {
-        res.status(403).send({ msg:'You don\'t have permissions to perform this action' })
+        res.status(403).send({ msg: ['You don\'t have permissions to perform this action'] })
       }
     }
     const wrappedHandler = async (req, res, ...args) => {
