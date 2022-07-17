@@ -4,7 +4,7 @@ const { Op } = require('sequelize')
 const ControllerHandler = require('./utils/requestWrapper')
 const sequelize = require('sequelize')
 const {getIntValue} = require('../controllers/utils/dataHelpers')
-const { param } = require('express-validator')
+const { param, body } = require('express-validator')
 const { permission } = require('../controllers/utils/requestWrapper')
 const {checkColor} = require('../controllers/utils/rules')
 
@@ -122,5 +122,50 @@ const destroy = new ControllerHandler(
     resp.status(200).json({ msg: 'OK' })
   }).wrap()
 
+const getSpecific = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric(),
+  param('projectId', 'El id debe ser un numero valido').isNumeric()
+).setSecurityValidations(permission.isEnabled(), permission.
+  or(permission.isAdmin(), permission
+    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+  .setHandler(async(req, resp) => {
+    const { organizationId, projectId } = req.params
+    const project = await Project.findOne({
+      where: {
+        id: projectId, organizationId
+      },
+      include: [{
+        model: User,
+        duplicating: false,
+        through: {attributes: []}
+      }]
+    })
+    if (!project) {
+      throw { code: 404, msg: 'Project not found' }
+    }
+    resp.status(200).json(project)
+  }).wrap()
 
-module.exports = { get, create, update, destroy}
+const setUsers = new ControllerHandler(
+  param('organizationId', 'El id debe ser un numero valido').isNumeric(),
+  param('projectId', 'El id debe ser un numero valido').isNumeric(),
+  body('users', 'Los usuarios deben ser un array').isArray()
+).setSecurityValidations(permission.isEnabled(), permission.
+  or(permission.isAdmin(), permission
+    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+  .setHandler(async(req, resp) => {
+    const { organizationId, projectId } = req.params
+    const project = await Project.findOne({
+      where: {
+        id: projectId, organizationId
+      }
+    })
+    if (!project) {
+      throw { code: 404, msg: 'Project not found' }
+    }
+    const userIds = req.body.users.map(user => user.id)
+    await project.setUsers(userIds)
+    resp.status(200).json(project)
+  }).wrap()
+
+module.exports = { get, create, update, destroy, getSpecific, setUsers}
