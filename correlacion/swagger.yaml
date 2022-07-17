@@ -1,0 +1,41 @@
+
+
+openapi: 3.0.0
+info:
+  title: Sherlock User Module API
+  description: Sherlock security user module interface
+  version: 0.1.9
+servers:
+  - url: http://localhost:3032/
+    description: development server
+  - url: http://localhost:3032/
+    description: Testing server
+
+components:
+  schemas:
+    AuthenticationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: User identification name. It's setted in sign up page 
+        password:
+          type: string
+          description: user password
+      example:
+        password: superSecretPassword123
+        username: superCoolUsername
+paths:
+  /users:
+    get:
+      summary: Returns a list of users.
+      description: Optional extended description in CommonMark or HTML.
+      responses:
+        '200':    # status code
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  type: string
