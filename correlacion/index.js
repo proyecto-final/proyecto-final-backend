@@ -5,10 +5,14 @@ const fileUpload = require('express-fileupload')
 const YAML = require('yamljs')
 require('dotenv').config()
 
+const MEGABYTES_5 = 5 * 1024 * 1024
 const app = express()
 app.use(express.json())
 app.use(fileUpload({
-  createParentPath: true
+  createParentPath: true,
+  limits: {
+    fileSize: MEGABYTES_5
+  }
 }))
 app.use('/api', require('./routes'))
 app.listen(process.env.PORT, () => {
