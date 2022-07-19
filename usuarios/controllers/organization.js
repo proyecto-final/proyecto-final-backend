@@ -216,14 +216,19 @@ const updateUser = new ControllerHandler()
   }).wrap()
 
 
-const generateInvitationToken = new ControllerHandler().hasId('organizationId').setHandler(async(req, resp) => {
-  const { organizationId } = req.params
-  const organization = await Organization.findOne({where: {id: organizationId}})
-  const token = generateToken(organizationId)
-  const invitationTokenCreationDate = new Date()
-  organization.update({invitationToken: token, invitationTokenCreationDate})
-  resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
-}).wrap()
+const generateInvitationToken = new ControllerHandler()
+  .hasId('organizationId')
+  .setSecurityValidations(permission.isEnabled(), permission.
+    or(permission.isAdmin(), permission
+      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+  .setHandler(async(req, resp) => {
+    const { organizationId } = req.params
+    const organization = await Organization.findOne({where: {id: organizationId}})
+    const token = generateToken(organizationId)
+    const invitationTokenCreationDate = new Date()
+    organization.update({invitationToken: token, invitationTokenCreationDate})
+    resp.status(200).json({invitationToken: token, invitationTokenCreationDate})
+  }).wrap()
 
 const validateToken = new ControllerHandler().notEmptyValues(['token']).setHandler(async(req, resp) => {
   const token = req.body.token
