@@ -35,6 +35,7 @@ router.get('/organization', Organization.get)
 router.post('/organization', Organization.create)
 router.patch('/organization/:organizationId', Organization.update)
 router.get('/organization/:organizationId', Organization.getSpecific)
+//users
 router.get('/organization/:organizationId/user', Organization.getUsers)
 router.post('/organization/:organizationId/invitation-token', Organization.generateInvitationToken)
 router.post('/organization/validate-invitation-token', Organization.validateToken)
@@ -42,7 +43,8 @@ router.post('/organization/user', User.create)
 // projects
 router.get('/organization/:organizationId/project', Project.get)
 router.post('/organization/:organizationId/project', Project.create)
-router.get('/organization/:organizationId/project/:projectId', dummyHandle)
+router.get('/organization/:organizationId/project/:projectId', Project.getSpecific)
+router.put('/organization/:organizationId/project/:projectId/users', Project.setUsers)
 router.patch('/organization/:organizationId/project/:projectId', Project.update)
 router.delete('/organization/:organizationId/project/:projectId', Project.destroy)
 

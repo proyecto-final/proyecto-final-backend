@@ -62,7 +62,7 @@ const authenticate = new ControllerHandler()
     if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
     }
-    const token = generateToken(user)
+    const token = generateToken(user.id)
     await user.update({ token })
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
