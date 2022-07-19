@@ -64,11 +64,7 @@ module.exports = (sequelize) => {
   })
 
   User.beforeCreate((user) => {
-    try {
-      user.password = crypto.createHash('sha256').update(user.password).digest('hex')
-    } catch (err){
-      throw { code: 400, msg: 'Error al encriptar la contraseña' }
-    }
+    user.password = crypto.createHash('sha256').update(user.password).digest('hex')
   })
 
   User.associate = (models) => {
