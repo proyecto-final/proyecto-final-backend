@@ -33,5 +33,15 @@ module.exports = (sequelize) => {
       { through: 'project_users' }
     )
   }
+  Project.prototype.toJSON = function () {
+    const values = Object.assign({}, this.get())
+    if (values.users) {
+      values.users.forEach(user => {
+        delete user.password
+        delete user.token
+      })
+    }
+    return values
+  }
   return Project
 }
