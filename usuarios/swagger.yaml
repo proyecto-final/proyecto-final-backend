@@ -84,19 +84,19 @@ components:
         newPassword: rodriCapo123-
     UserCreationRequest:
       type: object
-        properties:
-          username:
-            type: string
-            description: Current user name
-          name:
-            type: string
-            description: user name
-          email:
-            type: string
-            description: user email
-          password:
-            type: string
-            description: user password
+      properties:
+        username:
+          type: string
+          description: Current user name
+        name:
+          type: string
+          description: user name
+        email:
+          type: string
+          description: user email
+        password:
+          type: string
+          description: user password
       example:
         name: pepe
         email: pepe@gmail.com
@@ -240,6 +240,18 @@ components:
         prefix: "Prefix2"
         color: "#FF00FF"
         organizationId: 12
+    ProjectUsers:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'  
+      example:
+        users:
+          - id: hj019dSAd181sgf79041er81Ñ23gda2
+            username: superCoolUsername
+            email: mail@mial.com
     ResponseAttrs:
       type: object
       properties:
@@ -539,7 +551,72 @@ paths:
               schema:
                 allOf:
                   - $ref: '#/components/schemas/Message'
-
+    get:
+      summary: Get organization project
+      tags: [Project CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Project information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Project'
+                  - $ref: '#/components/schemas/ProjectUsers'
+  /api/organization/{organizationId}/project/{projectId}/users:
+    put:
+      summary: Update organization project users by adding or deleting them
+      tags: [Project CRUD]
+      parameters:
+      - name: organizationId
+        in: path
+        description: "Organization ID"
+        required: true
+        schema:
+          type: integer
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+      responses:
+        200:
+          description: Project information
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ResponseAttrs'
+                  - $ref: '#/components/schemas/Project'
 
   /api/user/authenticate:
      post:
@@ -615,6 +692,12 @@ paths:
          description: "User ID"
          required: true
          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
               $ref: '#/components/schemas/UserPatchBody'
       responses:
         200:
@@ -642,10 +725,8 @@ paths:
             application/json:
               schema:
                   $ref: '#/components/schemas/ValidationResult'
-  /api/organization/:organizationId/invitation-token:
+  /api/organization/{organizationId}/invitation-token:
     post:
-      summary: Creates organization token
-      tags: [Organization CRUD]
       parameters:
       - name: organizationId
         in: path
