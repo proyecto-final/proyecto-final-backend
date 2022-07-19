@@ -241,7 +241,7 @@ const validateToken = new ControllerHandler().notEmptyValues(['token']).setHandl
   if(organization.invitationTokenCreationDate < currentDateMinusExpirationTime){
     throw {code: 403, msg: 'El token está vencido'}
   } 
-  resp.status(200).json({valid: true})
+  resp.status(200).json(organization)
 }).wrap()
 
 module.exports = {get, update, create, getSpecific, getUsers,updateUser, generateInvitationToken, validateToken}
