@@ -615,6 +615,12 @@ paths:
          description: "User ID"
          required: true
          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
               $ref: '#/components/schemas/UserPatchBody'
       responses:
         200:

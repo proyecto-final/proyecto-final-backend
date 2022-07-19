@@ -1,7 +1,7 @@
 'use strict'
 
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up (queryInterface) {
     const organizationIds = (await queryInterface.sequelize.query(
       'SELECT id from organizations;'))[0].map(org => org.id)
     await queryInterface.bulkInsert('users', [{
@@ -13,6 +13,7 @@ module.exports = {
       enabled: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      isAdmin: true,
       organizationId: organizationIds[0]
     },
     {
@@ -24,6 +25,7 @@ module.exports = {
       enabled: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      isAdmin: false,
       organizationId: organizationIds[0]
     },
     {
@@ -35,10 +37,11 @@ module.exports = {
       enabled: true,
       createdAt: new Date(),
       updatedAt: new Date(),
+      isAdmin: false,
       organizationId: organizationIds[1]
     }])
   },
-  async down (queryInterface, Sequelize) {
+  async down (queryInterface) {
     await queryInterface.bulkDelete('users', null, {})
   }
 }
