@@ -1,13 +1,18 @@
 const express = require('express')
 require('dotenv').config()
 const morgan = require("morgan");
+const lambda = require('./lambda');
 
 const app = express()
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 
-require('./routes').forEach(r => {
-        app.use(r.url, createProxyMiddleware(r.proxy));
+require('./routes').forEach(route => {
+        if(route.auth){
+            app.use(route.url, lambda ,createProxyMiddleware(route.proxy))
+        } else {
+            app.use(route.url, createProxyMiddleware(route.proxy));
+        }
     })
 app.use(morgan('combined'));
 app.listen(3001, () => {
