@@ -1,7 +1,7 @@
-const lambdaAuthSherlock = require('./lambdaAuthSherlock');
+const {handler} = require('./lambdaAuthSherlock');
 const lambda = async (req, resp, next) => {
-    const event = {req}
-    const response = await lambdaAuthSherlock(event)
+    const event = {path:req.originalUrl, httpMethod:req.method, headers: req.headers};
+    const response = await handler(event)
     if(response.policyDocument.Statement[0].Effect === 'Allow'){
         next()
     } else {

@@ -1,41 +1,60 @@
 const http = require('http');
 
-const host = 'http://localhost:3030'; //si no es prod usar http://localhost:3030
-exports.handler = async (event, context) => {
-    const { path, httpMethod } = event;
+const host = 'localhost'; //si no es prod usar http://localhost:3030
 
+function httpRequest(params, postData, headers) {
+    return new Promise(function(resolve, reject) {
+        var req = http.request(params, function(res) {
+            // reject on bad status
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                return reject(new Error('statusCode=' + res.statusCode));
+            }
+            // cumulate data
+            var body = [];
+            res.on('data', function(chunk) {
+                body.push(chunk);
+            });
+            // resolve on end
+            res.on('end', function() {
+                try {
+                    body = JSON.parse(Buffer.concat(body).toString());
+                } catch(e) {
+                    reject(e);
+                }
+                resolve(body);
+            });
+        });
+        // reject on request error
+        req.on('error', function(err) {
+            // This is not a "Second reject", just a different sort of failure
+            reject(err);
+        });
+        if (postData) {
+            req.write(postData);
+        }
+        // IMPORTANT
+        req.end();
+    });
+}
+
+//preguntar a Rodri, para el logout me devuelve 2 veces lo mismo
+exports.handler = async (event, context) => {
+    const { path, httpMethod, headers } = event;
     const options = {
         method: httpMethod,
-        host,
+        host: `${host}`,
+        port: 3030,
         path,
-        headers: {
-            'accept': 'application/json',
-        }
+        headers
     };
-    const effect = await new Promise((resolve, reject) => {
-        let dataStr = "";
-        const req = http.request(options, (response) => {
-            response.on('data', data => dataStr += data);
-            response.on('end', () => {
-                const { statusCode } = (JSON.parse(dataStr));
-                if (statusCode === 200) {
-                    context.succeed({
-                        statusCode: 200,
-                        body: JSON.stringify({
-                            effect,
-                            resource: path,
-                            action: httpMethod,
-                        })
-                    })
-                    return "Allow"
-                }
-                else {
-                    return "Deny"
-                }
-            });
-            req.end();
-        });
-    });
+    let effect
+    try{
+        await httpRequest(options)
+        effect = 'Allow'
+    }catch(err){
+        console.log('error')
+        effect = 'Deny'
+    }
     return {
         policyDocument: {
             Version: "2012-10-17",
@@ -48,3 +67,5 @@ exports.handler = async (event, context) => {
         }
     };
 }
+
+

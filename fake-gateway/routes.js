@@ -1,6 +1,6 @@
 const ROUTES = [
     {
-        url: '/api/user/authenticate|/api-docs|/api/organization/validate-invitation-token|/api/organization/user',
+        url: '/api/user/authenticate',
         auth: false,
         creditCheck: false,
         rateLimit: {
