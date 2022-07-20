@@ -1,7 +1,7 @@
 const http = require('http');
 
-const host = 'localhost'; //si no es prod usar http://localhost:3030
-
+const host = process.env.VALIDATOR_HOST;
+const port = process.env.VALIDATOR_PORT;
 function httpRequest(params, postData, headers) {
     return new Promise(function(resolve, reject) {
         var req = http.request(params, function(res) {
@@ -24,26 +24,22 @@ function httpRequest(params, postData, headers) {
                 resolve(body);
             });
         });
-        // reject on request error
         req.on('error', function(err) {
-            // This is not a "Second reject", just a different sort of failure
             reject(err);
         });
         if (postData) {
             req.write(postData);
         }
-        // IMPORTANT
         req.end();
     });
 }
 
-//preguntar a Rodri, para el logout me devuelve 2 veces lo mismo
 exports.handler = async (event, context) => {
     const { path, httpMethod, headers } = event;
     const options = {
         method: httpMethod,
-        host: `${host}`,
-        port: 3030,
+        host,
+        port,
         path,
         headers
     };
@@ -52,7 +48,6 @@ exports.handler = async (event, context) => {
         await httpRequest(options)
         effect = 'Allow'
     }catch(err){
-        console.log('error')
         effect = 'Deny'
     }
     return {
