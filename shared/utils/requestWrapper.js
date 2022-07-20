@@ -69,9 +69,5 @@ class RequestWrapper {
   getSecurityValidation () {
   }
 }
-ControllerHandler.permission = permission
-
-
-
 module.exports = RequestWrapper
 //new RequestWrapper(handler, R1,R2,R3).wrap()
