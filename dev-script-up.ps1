@@ -15,9 +15,9 @@ $modules  | foreach {
 
 
 echo "Corrio todo! Proba los siguientes modulos: "
-echo "gateway -> 3035"
 echo "usuarios -> 3030"
 echo "ips -> 3031"
 echo "correlacion -> 3032"
 echo "busqueda -> 3033"
 echo "timeline -> 3034"
+echo "gateway -> 3035"

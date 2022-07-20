@@ -3,28 +3,28 @@ const http = require('http');
 const host = process.env.VALIDATOR_HOST;
 const port = process.env.VALIDATOR_PORT;
 function httpRequest(params, postData, headers) {
-    return new Promise(function(resolve, reject) {
-        var req = http.request(params, function(res) {
+    return new Promise(function (resolve, reject) {
+        const req = http.request(params, function (res) {
             // reject on bad status
             if (res.statusCode < 200 || res.statusCode >= 300) {
                 return reject(new Error('statusCode=' + res.statusCode));
             }
             // cumulate data
-            var body = [];
-            res.on('data', function(chunk) {
+            let body = [];
+            res.on('data', function (chunk) {
                 body.push(chunk);
             });
             // resolve on end
-            res.on('end', function() {
+            res.on('end', function () {
                 try {
                     body = JSON.parse(Buffer.concat(body).toString());
-                } catch(e) {
+                } catch (e) {
                     reject(e);
                 }
                 resolve(body);
             });
         });
-        req.on('error', function(err) {
+        req.on('error', function (err) {
             reject(err);
         });
         if (postData) {
@@ -44,10 +44,10 @@ exports.handler = async (event, context) => {
         headers
     };
     let effect
-    try{
+    try {
         await httpRequest(options)
         effect = 'Allow'
-    }catch(err){
+    } catch (err) {
         effect = 'Deny'
     }
     return {
