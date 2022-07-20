@@ -5,10 +5,6 @@ const port = process.env.VALIDATOR_PORT;
 function httpRequest(params, postData, headers) {
     return new Promise(function (resolve, reject) {
         const req = http.request(params, function (res) {
-            // reject on bad status
-            if (res.statusCode < 200 || res.statusCode >= 300) {
-                return reject(new Error('statusCode=' + res.statusCode));
-            }
             // cumulate data
             let body = [];
             res.on('data', function (chunk) {
@@ -21,7 +17,7 @@ function httpRequest(params, postData, headers) {
                 } catch (e) {
                     reject(e);
                 }
-                resolve(body);
+                resolve({code: res.statusCode,body});
             });
         });
         req.on('error', function (err) {
@@ -44,15 +40,23 @@ exports.handler = async (event, context) => {
         headers
     };
     let effect
+    let finalMessage
     try {
-        await httpRequest(options)
-        effect = 'Allow'
+        const {code, body} = await httpRequest(options)
+        if (code === 200) {
+            effect = "Allow"
+        } else {
+            effect = "Deny"
+            finalMessage = body.msg
+        }
     } catch (err) {
         effect = 'Deny'
     }
     return {
         policyDocument: {
             Version: "2012-10-17",
+            message: finalMessage,
+            code,
             Statement: [
                 {
                     Action: "execute-api:Invoke",
