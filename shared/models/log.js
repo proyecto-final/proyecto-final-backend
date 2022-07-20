@@ -4,7 +4,7 @@ module.exports = mongoose => {
   const Log = Schema ({
     title: {
       type: String,
-      required: [true, 'El título es requerido']
+      required: true
     },
     description: {
       type: String,
@@ -12,7 +12,12 @@ module.exports = mongoose => {
     },
     projectId: {
       type: Number,
-      required: [true, 'El projectid es requerido']
+      required: true
+    },
+    extension: {
+      type: String,
+      required: true,
+      enum: ['evtx', 'log']
     }
   })
   return model('log', Log)

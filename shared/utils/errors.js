@@ -5,17 +5,21 @@ const errorMsg = {
   //TODO add more validatorKey from sequelize
 } 
 const handleError = (resp, error) => {
-  console.log(error)
+  console.error(error)
   if (error?.code >= 400 && error?.code < 500) {
     //CUSTOM ERROR HANDLING
     return resp.status(error.code).json({msg: [error.msg] })
   }
   if (error?.errors){
     //DATABASE ERROR HANDLING
-    return resp.status(400).json({msg: error.errors.map(error =>{
-      const errorTranslator = errorMsg[error.validatorKey]
-      return errorTranslator ? errorTranslator(error.path, ...error.validatorArgs) : error.message
-    })})
+    if (Array.isArray(error.errors)) {
+      return resp.status(400).json({msg: error.errors.map(error =>{
+        const errorTranslator = errorMsg[error.validatorKey]
+        return errorTranslator ? errorTranslator(error.path, ...error.validatorArgs) : error.message
+      })})
+    } else {     
+      return resp.status(400).json({msg: Object.entries(error.errors).map(([field, error]) => `${field}: ${error.message}`) })
+    }
   }
   //DEFAULT ERROR HANDLING
   return resp.status(500).json({msg: [`Internal server error ${error?.message}`] })
