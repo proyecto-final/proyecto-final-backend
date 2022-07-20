@@ -1,18 +1,30 @@
-// const Log = require('../shared/models/log')
+const RequestWrapper = require('./../../shared/utils/requestWrapper')
+const { param } = require('express-validator')
+const mongoose = require('mongoose')
+const Log = require('./../../shared/models/log')(mongoose)
 
-
-const create = async(req, resp) => {
-  console.log(req.files)
-  if(!req.files) {
-    resp.status(200).json({ msg: 'ERROR' })
-  } else {
-    //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
-    let files = req.files
-    console.log(files)
+const create = new RequestWrapper(
+  param('projectId', 'El id debe ser un numero valido').isNumeric()
+).setHandler(async(req, resp) => {
+  const fileOrFiles = req.files?.files
+  if(fileOrFiles?.length === 0 || !fileOrFiles) {
+    throw { code: 400, msg: 'No files were uploaded.' }
   }
-  // const model = new Log({name: 'name'})
-  // await model.save()
-  resp.status(200).send('ok')
-}
+  const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
+  if (files.length > 5) {
+    throw { code: 400, msg: 'Max 5 files are allowed.' }
+  }
+  let metadatas
+  try {
+    metadatas = JSON.parse(req.body.metadata)
+  } catch (err) {
+    throw { code: 400, msg: 'Invalid metadata, must be a valid JSON' }
+  }
+  const logWithMetadata = files.map((file, index) => ({log :file, ...metadatas[index], projectId: req.params.projectId}))
+  console.log (logWithMetadata)
+  const logs = metadatas.map(logMetadata => new Log(logMetadata))
+  await Log.collection.insertMany(logs)
+  resp.status(200).json(logs)
+}).wrap()
 
 module.exports = { create }
