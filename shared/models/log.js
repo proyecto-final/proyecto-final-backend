@@ -12,7 +12,11 @@ module.exports = mongoose => {
     },
     description: {
       type: String,
-      required: [true, 'La descripción es requerida']
+      required: false
+    },
+    projectId: {
+      type: Number,
+      required: [true, 'El projectid es requerido']
     }
   })
   return model('log', Log)

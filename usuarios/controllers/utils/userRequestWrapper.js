@@ -1,5 +1,5 @@
 const User = require('../../models').user
-const RequestWrapper = require('../../shared/utils/requestWrapper')
+const RequestWrapper = require('../../../shared/utils/requestWrapper')
 
 class UserRequestWrapper extends RequestWrapper {
   constructor (...validations) {

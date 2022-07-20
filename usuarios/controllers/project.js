@@ -1,11 +1,11 @@
 const Project = require('../models').project
 const User = require('../models').user
 const { Op } = require('sequelize')
-const ControllerHandler = require('./utils/requestWrapper')
+const ControllerHandler = require('./utils/userRequestWrapper')
 const sequelize = require('sequelize')
-const {getIntValue} = require('../controllers/utils/dataHelpers')
+const {getIntValue} = require('../../shared/utils/dataHelpers')
 const { param, body } = require('express-validator')
-const { permission } = require('../controllers/utils/requestWrapper')
+const { permission } = require('../controllers/utils/userRequestWrapper')
 const {checkColor} = require('../controllers/utils/rules')
 
 // QUERIES
