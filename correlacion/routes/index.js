@@ -27,11 +27,11 @@ const logInput = async(req, resp) => {
 router.post('/project/:projectId/correlate/log',[], Log.create)
 router.get('/project/:projectId/correlate/log',[], logInput)
 
-router.get('/project/:projectId/correlate//log/:logId',[], logInput)
-router.patch('/project/:projectId/correlate//log/:logId',[], logInput)
-router.delete('/project/:projectId/correlate//log/:logId',[], logInput)
+router.get('/project/:projectId/correlate/log/:logId',[], logInput)
+router.patch('/project/:projectId/correlate/log/:logId',[], logInput)
+router.delete('/project/:projectId/correlate/log/:logId',[], logInput)
 
-router.patch('/project/:projectId/correlate//log/:logId/line/:lineId',[], logInput)
+router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
 
 router.get('/project/:projectId/correlate/vulnerability',[], logInput)
 

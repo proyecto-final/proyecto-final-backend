@@ -21,8 +21,6 @@ const create = new RequestWrapper(
   } catch (err) {
     throw { code: 400, msg: 'Invalid metadata, must be a valid JSON' }
   }
-  // const logWithMetadata = files.map((file, index) => ({log :file, ...metadatas[index], projectId: getIntValue(req.params.projectId)}))
-  // console.log(logWithMetadata)
   const logs = metadatas.map(logMetadata => new Log({...logMetadata, projectId: getIntValue(req.params.projectId)}))
   await Log.collection.insertMany(logs)
   resp.status(200).json(logs)
