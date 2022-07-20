@@ -9,6 +9,4 @@ const lambda = async (req, resp, next) => {
     }
 };
 
-
-
 module.exports = lambda
