@@ -79,7 +79,6 @@ const logout = new ControllerHandler()
       httpOnly: true,
       maxAge: 0
     }).json({ msg: 'OK' })
-    console.log('user logging out')
   }).wrap()
 
 const update = new ControllerHandler()
