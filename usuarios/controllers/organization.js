@@ -3,9 +3,9 @@ const Project = require('../models').project
 const User = require('../models').user
 const { Op } = require('sequelize')
 const sequelize = require('sequelize')
-const ControllerHandler = require('../controllers/utils/requestWrapper')
-const { permission } = require('../controllers/utils/requestWrapper')
-const {getBooleanValue, getIntValue} = require('../controllers/utils/dataHelpers')
+const ControllerHandler = require('../controllers/utils/userRequestWrapper')
+const { permission } = require('../controllers/utils/userRequestWrapper')
+const {getBooleanValue, getIntValue} = require('../../shared/utils/dataHelpers')
 const {checkColor} = require('../controllers/utils/rules')
 const {generateToken} = require('../controllers/utils')
 // QUERIES
@@ -214,7 +214,6 @@ const updateUser = new ControllerHandler()
     await user.update(data2Update)
     resp.status(200).json(user)
   }).wrap()
-
 
 const generateInvitationToken = new ControllerHandler()
   .hasId('organizationId')

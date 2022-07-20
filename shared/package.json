@@ -1,0 +1,15 @@
+{
+  "name": "sherlock-shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rdiazutn",
+  "license": "ISC",
+  "dependencies": {
+    "express-validator": "^6.14.2",
+    "mongoose": "^6.4.5"
+  }
+}

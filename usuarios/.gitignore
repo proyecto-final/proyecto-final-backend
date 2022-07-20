@@ -108,3 +108,8 @@ dist
 
 # Yarn lock
 yarn.lock
+
+# Custom
+temp/
+
+
