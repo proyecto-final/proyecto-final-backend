@@ -1,3 +1,5 @@
+
+
 const ROUTES = [
     {
         url: '/api/user/authenticate',
@@ -8,7 +10,7 @@ const ROUTES = [
             max: 5
         },
         proxy: {
-            target: "http://localhost:3030",
+            target: process.env.USER_SERVICE_URL,
             changeOrigin: true,
         }
     },
@@ -21,7 +23,7 @@ const ROUTES = [
             max: 5
         },
         proxy: {
-            target: "http://localhost:3030",
+            target: process.env.USER_SERVICE_URL,
             changeOrigin: true,
         }
     }
