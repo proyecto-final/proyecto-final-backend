@@ -6,7 +6,7 @@ class UserRequestWrapper extends RequestWrapper {
     super(...validations)
   }
 
-  wrapSecurityValidation () {
+  getSecurityValidation () {
     const wrappedSecurityValidation = async (req, res, next) => {
       const ruleChecks = await Promise.all(this.securityValidations.map(securityValidation => securityValidation(req, res)))
       if (ruleChecks.every(check => check)){

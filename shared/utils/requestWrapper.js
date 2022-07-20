@@ -66,7 +66,6 @@ class RequestWrapper {
     return [...this.validations, fieldsValidator, this.getSecurityValidation(), this.handler].filter(val => val)
   }
 
-  getSecurityValidation () {
-  }
+  getSecurityValidation () {}
 }
 module.exports = RequestWrapper
