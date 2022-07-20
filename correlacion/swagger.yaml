@@ -13,29 +13,62 @@ servers:
 
 components:
   schemas:
-    AuthenticationRequest:
+    LogRequest:
       type: object
       properties:
-        username:
+        title: 
           type: string
-          description: User identification name. It's setted in sign up page 
-        password:
+          description: Log title
+        description:
           type: string
-          description: user password
+          description: Log description
+    LogHeader:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        title:
+          type: string
+          description: Log title
+        description:
+          type: string
+          description: Log description
+        projectId:
+          type: string
+          description: ID of the project
       example:
-        password: superSecretPassword123
-        username: superCoolUsername
+        _id: 62d776f235ca54db99e4765e
+        title: pepe.txt
+        description: "This is a log file"
+        projectId: 123456789
 paths:
-  /users:
-    get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
+  /project/:projectId/correlate/log:
+    post:
+      summary: Creates an array of logs
+      description: Creates an array of logs
+      requestBody:
+        content: 
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  description: Logs to be correlated
+                  items:
+                    type: string
+                metadata:
+                  description: Metadata to be correlated, is an array of LogRequest as STRING
+                  type: array
+                  items:
+                    type: string
       responses:
-        '200':    # status code
+        '200':
           description: A JSON array of user names
           content:
             application/json:
               schema: 
                 type: array
-                items: 
-                  type: string
+                items:
+                  $ref: '#/components/schemas/LogHeader'
