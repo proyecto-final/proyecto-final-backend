@@ -67,9 +67,9 @@ class RequestWrapper {
   }
 
   getSecurityValidation () {
-    return null
   }
 }
+ControllerHandler.permission = permission
 
 
 

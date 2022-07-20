@@ -1,11 +1,11 @@
 const User = require('../models').user
 const Project = require('../models').project
+
 const crypto = require('crypto')
 const { permission } = require('../controllers/utils/userRequestWrapper')
 const ControllerHandler = require('../controllers/utils/userRequestWrapper')
 const Organization = require('../models').organization
 const {generateToken} = require('../controllers/utils')
-
 // Business
 const TOKEN_LIFETIME_IN_MILISECONDS = 60 * 60 * 24 * 7 * 1000
 

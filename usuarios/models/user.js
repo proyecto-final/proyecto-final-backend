@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize')
+const crypto = require('crypto')
 
 module.exports = (sequelize) => {
   const User = sequelize.define('user', {
@@ -61,6 +62,11 @@ module.exports = (sequelize) => {
       defaultValue: false
     }
   })
+
+  User.beforeCreate((user) => {
+    user.password = crypto.createHash('sha256').update(user.password).digest('hex')
+  })
+
   User.associate = (models) => {
     User.belongsTo(models.organization,
       {foreignKey: {name: 'organizationId'}}
