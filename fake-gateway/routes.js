@@ -1,8 +1,9 @@
 
 
 const ROUTES = [
+
     {
-        url: '/api/user/authenticate',
+        url: /^\/api\/(user|organization)\/.*$/,
         auth: false,
         creditCheck: false,
         rateLimit: {
@@ -15,7 +16,7 @@ const ROUTES = [
         }
     },
     {
-        url: '/api/user|organization/*',
+        url: /^\/api\/(ips|correlation|search|timeline)\/.*$/,
         auth: true,
         creditCheck: false,
         rateLimit: {
@@ -23,7 +24,7 @@ const ROUTES = [
             max: 5
         },
         proxy: {
-            target: process.env.USER_SERVICE_URL,
+            target: process.env.USER_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
         }
     }

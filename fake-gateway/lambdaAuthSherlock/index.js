@@ -2,10 +2,12 @@ const http = require('http');
 
 const host = process.env.VALIDATOR_HOST;
 const port = process.env.VALIDATOR_PORT;
-function httpRequest(params, postData, headers) {
+function httpRequest(params, postData) {
     return new Promise(function (resolve, reject) {
         const req = http.request(params, function (res) {
             // cumulate data
+            const returnedData ={code: res.statusCode, body: {msg: [res.statusMessage]}}
+            
             let body = [];
             res.on('data', function (chunk) {
                 body.push(chunk);
@@ -17,7 +19,7 @@ function httpRequest(params, postData, headers) {
                 } catch (e) {
                     reject(e);
                 }
-                resolve({code: res.statusCode,body});
+                resolve({ ...returnedData, body: body || returnedData.body });
             });
         });
         req.on('error', function (err) {
@@ -30,7 +32,7 @@ function httpRequest(params, postData, headers) {
     });
 }
 
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     const { path, httpMethod, headers } = event;
     const options = {
         method: httpMethod,
@@ -41,22 +43,22 @@ exports.handler = async (event, context) => {
     };
     let effect
     let finalMessage
+    let finalCode
     try {
-        const {code, body} = await httpRequest(options)
-        if (code === 200) {
-            effect = "Allow"
-        } else {
-            effect = "Deny"
-            finalMessage = body.msg
-        }
+        const { code, body } = await httpRequest(options)
+        finalCode = code
+        effect = code === 200 ? "Allow" : "Deny"
+        finalMessage = body
     } catch (err) {
         effect = 'Deny'
+        finalCode = 500
+        finalMessage = {msg: ['Server Error']}
     }
     return {
         policyDocument: {
             Version: "2012-10-17",
             message: finalMessage,
-            code,
+            code: finalCode,
             Statement: [
                 {
                     Action: "execute-api:Invoke",
