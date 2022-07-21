@@ -12,6 +12,23 @@ servers:
     description: Testing server
 
 components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
   schemas:
     LogRequest:
       type: object
@@ -37,15 +54,31 @@ components:
         projectId:
           type: string
           description: ID of the project
+        status:
+          type: string
+          description: status of the log
+          enum: 
+          - processing
+          - processed
       example:
         _id: 62d776f235ca54db99e4765e
         title: pepe.txt
         description: "This is a log file"
         projectId: 123456789
+        status: "processing"
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
+tags:
+  - name: Logs CRUD
+    description: logs creation, modification and remove
+
 paths:
   /project/:projectId/correlate/log:
     post:
       summary: Creates an array of logs
+      tags: [Logs CRUD]
       description: Creates an array of logs
       requestBody:
         content: 
@@ -72,3 +105,41 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LogHeader'
+    get:
+      summary: Get logs
+      tags: [Logs CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: name
+        in: query
+        description: name of the organization
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: status
+        in: query
+        description: used to filter organizations by enabled status
+        schema:
+          type: string
+          default: ""
+          enum:
+          - processing
+          - processed
+        required: false
+      responses:
+        200:
+          description: Logs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/LogHeader'
