@@ -1,4 +1,4 @@
-param([String[]] $modules = @("busqueda", "ips", "correlacion", "timeline", "usuarios"))
+param([String[]] $modules = @("busqueda", "ips", "correlacion", "timeline", "usuarios", "fake-gateway"))
 
 docker build -t mongo:dev mongo 
 docker build -t mysql:dev mysql 
@@ -20,3 +20,4 @@ echo "ips -> 3031"
 echo "correlacion -> 3032"
 echo "busqueda -> 3033"
 echo "timeline -> 3034"
+echo "gateway -> 3035"
