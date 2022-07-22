@@ -1,4 +1,5 @@
 const User = require('../../models').user
+const Project = require('../../models').project
 const RequestWrapper = require('../../../shared/utils/requestWrapper')
 
 class UserRequestWrapper extends RequestWrapper {
@@ -22,7 +23,14 @@ class UserRequestWrapper extends RequestWrapper {
 function getAndCacheUser(req){
   if (!req.userFromDBPromise){
     req.userFromDBPromise = User.findOne({
-      where: { token: req.token}
+      where: { token: req.token},
+      includes: {
+        model: Project,
+        attributes: ['id'],
+        through: {
+          attributes: []
+        }
+      }
     })
   }
   return req.userFromDBPromise
