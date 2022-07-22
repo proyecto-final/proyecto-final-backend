@@ -19,13 +19,13 @@ class UserRequestWrapper extends RequestWrapper {
   }
 }
 
-async function getAndCacheUser(req){
-  if (!req.userFromDB){
-    req.userFromDB = await User.findOne({
+function getAndCacheUser(req){
+  if (!req.userFromDBPromise){
+    req.userFromDBPromise = User.findOne({
       where: { token: req.token}
     })
   }
-  return req.userFromDB
+  return req.userFromDBPromise
 }
 
 const permission = {
