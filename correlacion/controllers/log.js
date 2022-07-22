@@ -36,7 +36,7 @@ const destroy = new RequestWrapper(param('logId').isMongoId()).hasId('projectId'
   .setHandler(async(req, resp) => {
     const { projectId, logId } = req.params
     const deletedLogs = await Log.findOneAndDelete({id: logId, projectId})
-    if (deletedLogs === 0){
+    if (!deletedLogs){
       throw { code: 404, msg: 'Log not found' }
     }
     resp.status(200).json({ msg: 'OK' })
