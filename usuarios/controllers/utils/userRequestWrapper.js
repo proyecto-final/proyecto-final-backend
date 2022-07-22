@@ -77,7 +77,7 @@ const permission = {
   hasAccessToProject (){
     return async (req) => {
       const user =  await getAndCacheUser(req)
-      return  user.projects.some(aProject => aProject.id === req.params.project)
+      return user.projects.some(aProject => aProject.id == req.params.projectId)
     }
   }
 }
