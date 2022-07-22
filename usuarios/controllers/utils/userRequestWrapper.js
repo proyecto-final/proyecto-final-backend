@@ -28,7 +28,6 @@ async function getAndCacheUser(req){
   return req.userFromDB
 }
 
-
 const permission = {
   or (...rules) {
     return async (req) => {
@@ -65,6 +64,12 @@ const permission = {
     return async (req) => {
       const user =  await getAndCacheUser(req)
       return user.role === 'Owner'
+    }
+  },
+  hasAccessToProject (){
+    return async (req) => {
+      const user =  await getAndCacheUser(req)
+      return  user.projects.some(aProject => aProject.id === req.params.project)
     }
   }
 }
