@@ -32,7 +32,7 @@ const create = new RequestWrapper(
 }).wrap()
 
 
-const destroy = new RequestWrapper().hasId('projectId').hasId('logId')
+const destroy = new RequestWrapper(param('logId').isMongoId()).hasId('projectId')
   .setHandler(async(req, resp) => {
     const { projectId, logId } = req.params
     const deletedLogs = await Log.findOneAndDelete({id: logId, projectId})

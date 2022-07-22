@@ -6,9 +6,10 @@ const { and, hasAccessToProject, isEnabled} = permission
 
 
 router.post('/project/:projectId/correlate/log',new ControllerHandler()
-  .setSecurityValidations(and(isEnabled(), hasAccessToProject()))).wrap()
+  .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap())
 router.delete('/project/:projectId/correlate/log/:logId',new ControllerHandler()
-  .setSecurityValidations(and(isEnabled(), hasAccessToProject()))).wrap()
-
+  .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap())
+router.patch('/project/:projectId/correlate/log/:logId',new ControllerHandler()
+  .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap())
 
 module.exports = router
