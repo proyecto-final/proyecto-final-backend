@@ -28,7 +28,7 @@ router.post('/project/:projectId/correlate/log',[], Log.create)
 router.get('/project/:projectId/correlate/log',[], Log.get)
 
 router.get('/project/:projectId/correlate/log/:logId',[], logInput)
-router.patch('/project/:projectId/correlate/log/:logId',[], logInput)
+router.patch('/project/:projectId/correlate/log/:logId',[], Log.update)
 router.delete('/project/:projectId/correlate/log/:logId',[], logInput)
 
 router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)

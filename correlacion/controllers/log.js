@@ -63,4 +63,20 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(logs))
   }).wrap()
 
-module.exports = { create, get }
+const update = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const { body } = req
+    const log = await Log.findById(req.params.logId)
+    if (body.title) {
+      log.title = body.title
+    }
+    if (body.description) {
+      log.description = body.description
+    }
+    await log.save()
+    resp.status(200).json(log)
+  }).wrap()
+
+module.exports = { create, get, update }
