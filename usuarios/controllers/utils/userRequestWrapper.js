@@ -24,13 +24,13 @@ function getAndCacheUser(req){
   if (!req.userFromDBPromise){
     req.userFromDBPromise = User.findOne({
       where: { token: req.token},
-      includes: {
+      include: [{
         model: Project,
         attributes: ['id'],
         through: {
           attributes: []
         }
-      }
+      }]
     })
   }
   return req.userFromDBPromise
