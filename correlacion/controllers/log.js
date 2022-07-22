@@ -38,7 +38,9 @@ const get = new RequestWrapper()
     const { query } = req
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
-    const mongooseQuery = {}
+    const mongooseQuery = {
+      projectId: getIntValue(req.params.projectId)
+    }
     if (query.title) {
       mongooseQuery.title = { '$regex': query.title, '$options': 'i' }
     }
