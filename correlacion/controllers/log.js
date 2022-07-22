@@ -31,4 +31,16 @@ const create = new RequestWrapper(
   resp.status(200).json(logs)
 }).wrap()
 
-module.exports = { create }
+
+const destroy = new RequestWrapper().hasId('projectId').hasId('logId')
+  .setHandler(async(req, resp) => {
+    const { projectId, logId } = req.params
+    const deletedLogs = await Log.findOneAndDelete({id: logId, projectId})
+    if (deletedLogs === 0){
+      throw { code: 404, msg: 'Log not found' }
+    }
+    resp.status(200).json({ msg: 'OK' })
+  }).wrap()
+
+
+module.exports = { create, destroy }
