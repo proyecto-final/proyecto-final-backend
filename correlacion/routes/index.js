@@ -25,7 +25,7 @@ const logInput = async(req, resp) => {
 
 //NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.post('/project/:projectId/correlate/log',[], Log.create)
-router.get('/project/:projectId/correlate/log',[], logInput)
+router.get('/project/:projectId/correlate/log',[], Log.get)
 
 router.get('/project/:projectId/correlate/log/:logId',[], logInput)
 router.patch('/project/:projectId/correlate/log/:logId',[], logInput)

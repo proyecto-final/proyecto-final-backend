@@ -18,6 +18,12 @@ module.exports = mongoose => {
       type: String,
       required: true,
       enum: ['evtx', 'log']
+    },
+    state: {
+      type: String,
+      required: true,
+      enum: ['processing', 'processed'],
+      default: 'processing'
     }
   })
   return model('log', Log)
