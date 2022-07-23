@@ -87,8 +87,8 @@ jobs:
       - name: Deploy to prod (search module)
         id: build-image-search
         run: |
-          mkdir busquedad/temp
-          cp -r shared busquedad/temp/shared
+          mkdir busqueda/temp
+          cp -r shared busqueda/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
