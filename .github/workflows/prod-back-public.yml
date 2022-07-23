@@ -30,10 +30,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Set modules dependencies
-      - id: set-module-dependecies
-      - run: | 
-          mkdir ./usuarios/temp
+  #    - name: Set modules dependencies
+  #    - id: set-module-dependecies
+   #   - run: | 
+    #      mkdir ./usuarios/temp
     #      mkdir ./timeline/temp
     #      mkdir ./correlacion/temp
     #      mkdir ./busqueda/temp
@@ -46,6 +46,8 @@ jobs:
       - name: Deploy to prod (user module)
         id: build-image-user
         run: |
+          mkdir usuarios/temp
+          cp -r shared usuarios/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MYSQL_CONNECTION_STRING=${{env.MYSQL_CONNECTION}} -t $AWS_REPOSITORY:usuarios usuarios
           docker tag $AWS_REPOSITORY:usuarios $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:usuarios
