@@ -5,10 +5,11 @@ const ControllerHandler = require('../controllers/utils/userRequestWrapper')
 const { and, hasAccessToProject, isEnabled} = permission
 
 
-const crudPermissions = new ControllerHandler()
+const userCrudPermission = new ControllerHandler()
   .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap()
-router.post('/project/:projectId/correlate/log',crudPermissions)
-router.delete('/project/:projectId/correlate/log/:logId',crudPermissions)
-router.patch('/project/:projectId/correlate/log/:logId',crudPermissions)
+router.post('/project/:projectId/correlate/log',userCrudPermission)
+router.get('/project/:projectId/correlate/log',userCrudPermission)
+router.delete('/project/:projectId/correlate/log/:logId',userCrudPermission)
+router.patch('/project/:projectId/correlate/log/:logId',userCrudPermission)
 
 module.exports = router
