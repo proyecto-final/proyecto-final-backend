@@ -78,7 +78,10 @@ const update = new RequestWrapper()
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { body } = req
-    const log = await Log.findById(req.params.logId)
+    const log = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
+    if (!log) {
+      throw { code: 404, msg: 'Log not found' }
+    }
     if (body.title) {
       log.title = body.title
     }
