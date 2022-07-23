@@ -15,7 +15,7 @@ const ROUTES = [
         }
     },
      {
-        url: /^\/api\/project\/[0-9]*\/correlate.*$/,
+        url: /^\/api\/project\/[0-9]*\/(correlate).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
