@@ -30,19 +30,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Set modules dependencies
-      - id: set-module-dependecies
-      - run: | 
-          mkdir ./usuarios/temp
-          mkdir ./timeline/temp
-          mkdir ./correlacion/temp
-          mkdir ./busqueda/temp
-          mkdir ./ips/temp
-          cp -r ./shared ./usuarios/temp/shared
-          cp -r ./shared ./timeline/temp/shared
-          cp -r ./shared ./correlacion/temp/shared
-          cp -r ./shared ./busqueda/temp/shared
-          cp -r ./shared ./ips/temp/shared 
+    #  - name: Set modules dependencies
+    #  - id: set-module-dependecies
+    #  - run: | 
+    #      mkdir ./usuarios/temp
+    #      mkdir ./timeline/temp
+    #      mkdir ./correlacion/temp
+    #      mkdir ./busqueda/temp
+    #      mkdir ./ips/temp
+    #     cp -r ./shared ./usuarios/temp/shared
+    #      cp -r ./shared ./timeline/temp/shared
+    #      cp -r ./shared ./correlacion/temp/shared
+    #      cp -r ./shared ./busqueda/temp/shared
+    #      cp -r ./shared ./ips/temp/shared 
       - name: Deploy to prod (user module)
         id: build-image-user
         run: |
