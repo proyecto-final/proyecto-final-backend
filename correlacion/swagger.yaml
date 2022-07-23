@@ -39,7 +39,7 @@ components:
         description:
           type: string
           description: Log description
-    genericResponseMessage:
+    Message:
       type: object
       properties:
         msg: 
@@ -176,4 +176,4 @@ paths:
             application/json:
               schema: 
                 type: object
-                $ref: '#/components/schemas/genericResponseMessage'
+                $ref: '#/components/schemas/Message'
