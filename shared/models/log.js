@@ -1,7 +1,8 @@
 
 module.exports = mongoose => {
   const { Schema, model } = mongoose
-  const Log = Schema ({
+  const Log = Schema(
+  {
     title: {
       type: String,
       required: true
@@ -25,6 +26,9 @@ module.exports = mongoose => {
       enum: ['processing', 'processed'],
       default: 'processing'
     }
+  },
+  {
+    timestamps: true
   })
   return model('log', Log)
 }
