@@ -1,10 +1,5 @@
 name: Sherlock_BE_PROD
-on:
-  push:
-    branches:
-      - main
-      - master
-      - chore/sc-304/solucionar-problemas-de-pipeline-con-logica
+on: push
 env:
   AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_REPOSITORY: ${{ secrets.AWS_DEFAULT_ECR }}
