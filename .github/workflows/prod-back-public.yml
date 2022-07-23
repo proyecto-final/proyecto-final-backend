@@ -64,8 +64,8 @@ jobs:
       - name: Deploy to prod (correlation module)
         id: build-image-correlation
         run: |
-          mkdir correletion/temp
-          cp -r shared correlation/temp/shared
+          mkdir correlacion/temp
+          cp -r shared correlacion/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:correlacion correlacion
           docker tag $AWS_REPOSITORY:correlacion $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:correlacion
@@ -87,8 +87,8 @@ jobs:
       - name: Deploy to prod (search module)
         id: build-image-search
         run: |
-          mkdir search/temp
-          cp -r shared search/temp/shared
+          mkdir busquedad/temp
+          cp -r shared busquedad/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
           docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
           docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
