@@ -39,6 +39,14 @@ components:
         description:
           type: string
           description: Log description
+    Message:
+      type: object
+      properties:
+        msg: 
+          type: string
+          description: message
+      example:
+        msg: OK
     LogHeader:
       type: object
       properties:
@@ -162,3 +170,27 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/LogHeader'
+    delete:
+      summary: Delete especific log
+      description: Delete especific log
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: Log
+        in: path
+        description: "Log ID"
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Messege acknowling it works
+          content:
+            application/json:
+              schema: 
+                type: object
+                $ref: '#/components/schemas/Message'

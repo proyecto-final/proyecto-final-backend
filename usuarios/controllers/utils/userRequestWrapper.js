@@ -1,4 +1,5 @@
 const User = require('../../models').user
+const Project = require('../../models').project
 const RequestWrapper = require('../../../shared/utils/requestWrapper')
 
 class UserRequestWrapper extends RequestWrapper {
@@ -19,15 +20,21 @@ class UserRequestWrapper extends RequestWrapper {
   }
 }
 
-async function getAndCacheUser(req){
-  if (!req.userFromDB){
-    req.userFromDB = await User.findOne({
-      where: { token: req.token}
+function getAndCacheUser(req){
+  if (!req.userFromDBPromise){
+    req.userFromDBPromise = User.findOne({
+      where: { token: req.token},
+      include: [{
+        model: Project,
+        attributes: ['id'],
+        through: {
+          attributes: []
+        }
+      }]
     })
   }
-  return req.userFromDB
+  return req.userFromDBPromise
 }
-
 
 const permission = {
   or (...rules) {
@@ -65,6 +72,12 @@ const permission = {
     return async (req) => {
       const user =  await getAndCacheUser(req)
       return user.role === 'Owner'
+    }
+  },
+  hasAccessToProject (){
+    return async (req) => {
+      const user =  await getAndCacheUser(req)
+      return user.projects.some(userProject => userProject.id == req.params.projectId)
     }
   }
 }

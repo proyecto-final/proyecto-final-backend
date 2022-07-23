@@ -27,8 +27,18 @@ const create = new RequestWrapper()
     const logsWithMetadata = files.map((file, index) => ({extension :file.name.split('.').pop(), ...metadatas[index], projectId: getIntValue(req.params.projectId)}))
     const logs = logsWithMetadata.map(logMetadata => new Log({...logMetadata, projectId: getIntValue(req.params.projectId)}))
     await Promise.all(logs.map(async log => await log.validate()))
-    await Log.collection.insertMany(logs)
+    await Promise.all(logs.map(async log => await log.save()))
     resp.status(200).json(logs)
+  }).wrap()
+
+const destroy = new RequestWrapper().hasMongoId('logId').hasId('projectId')
+  .setHandler(async(req, resp) => {
+    const { logId, projectId } = req.params
+    const deletedLog = await Log.deleteOne({_id: logId, projectId: getIntValue(projectId)})
+    if (!deletedLog || deletedLog.deletedCount === 0){
+      throw { code: 404, msg: 'Log not found' }
+    }
+    resp.status(200).json({ msg: 'OK' })
   }).wrap()
 
 const get = new RequestWrapper()
@@ -79,4 +89,5 @@ const update = new RequestWrapper()
     resp.status(200).json(log)
   }).wrap()
 
-module.exports = { create, get, update }
+
+module.exports = { create, get, update, destroy }
