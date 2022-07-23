@@ -1,105 +1,124 @@
 const User = require('../models').user
+const Project = require('../models').project
+
 const crypto = require('crypto')
-const jwt = require('jsonwebtoken')
-
-const TOKEN_LIFETIME_IN_SECONDS =  60 * 60 * 24 * 7
-const TOKEN_LIFETIME_IN_MILISECONDS = TOKEN_LIFETIME_IN_SECONDS * 1000
-
+const { permission } = require('../controllers/utils/userRequestWrapper')
+const ControllerHandler = require('../controllers/utils/userRequestWrapper')
+const Organization = require('../models').organization
+const {generateToken} = require('../controllers/utils')
 // Business
-function generateToken(user) {
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {expiresIn: TOKEN_LIFETIME_IN_SECONDS}).toString()
-    return token
-}
+const TOKEN_LIFETIME_IN_MILISECONDS = 60 * 60 * 24 * 7 * 1000
 
 function hash (password) {
+  try{
     return crypto.createHash('sha256').update(password).digest('hex')
+  }catch(err){
+    throw {code: 403, msg: 'Invalid credentials'}
+  }
 }
 
 function checkPassword (password) {
-    if (password.length < 8) {
-        throw {code: 400, msg: 'Password must be at least 8 characters long'}
-    } else if (!/[a-z]/.test(password)) {
-        throw {code: 400, msg: 'Password must contain at least one lowercase letter'}
-    } else if (!/[A-Z]/.test(password)) {
-        throw {code: 400, msg: 'Password must contain at least one uppercase letter'}
-    } else if (!/[0-9]/.test(password)) {
-        throw {code: 400, msg: 'Password must contain at least one number'}
-    } else if (!/[^a-zA-Z0-9]/.test(password)) {
-        throw {code: 400, msg: 'Password must contain at least one special character'}
-    } else if (password.length > 64) {
-        throw {code: 400, msg: 'Password must be at most 64 characters long'}
-    }
+  if (password.length < 8) {
+    throw {code: 400, msg: 'Password must be at least 8 characters long'}
+  } else if (!/[a-z]/.test(password)) {
+    throw {code: 400, msg: 'Password must contain at least one lowercase letter'}
+  } else if (!/[A-Z]/.test(password)) {
+    throw {code: 400, msg: 'Password must contain at least one uppercase letter'}
+  } else if (!/[0-9]/.test(password)) {
+    throw {code: 400, msg: 'Password must contain at least one number'}
+  } else if (!/[^a-zA-Z0-9]/.test(password)) {
+    throw {code: 400, msg: 'Password must contain at least one special character'}
+  } else if (password.length > 64) {
+    throw {code: 400, msg: 'Password must be at most 64 characters long'}
+  }
 }
 
 // DB
-async function findUserOrThrowBy (params) {
-    const user = await User.findOne({
-        where: params
-    })
-    if (!user) {
-        throw { msg: 'Invalid credentials', code: 403 }
+async function findUserOrThrowBy (params, withProjects = false) {
+  const include = withProjects ? [{
+    model: Project,
+    attributes: ['name', 'prefix', 'color', 'id'],
+    through: {
+      attributes: []
     }
-    return user
-}
-
-const authenticate = async(req, resp) => {
-    const { body } = req
-    try {
-        const user = await findUserOrThrowBy({
-            username: body.username,
-            password: hash(body.password)
-        })
-        const token = generateToken(user)
-        await user.update({ token })
-        resp.status(200).cookie('auth', token, {
-            httpOnly: true,
-            maxAge: TOKEN_LIFETIME_IN_MILISECONDS
-        }).json(user)
-    } catch (err) {
-        resp.status(401).json(err.msg)
-    }
-}
-
-const logout = async(req, resp) => {
-    try {
-        const token = req.token
-        const user = await findUserOrThrowBy({ token })
-        await user.update({ token: null })
-        resp.status(200).cookie('auth', '', {
-            httpOnly: true,
-            maxAge: 0
-        }).json({ msg: 'OK' })
-    } catch (err) {
-        resp.status(err.code).json(err.msg)
-    }
-}
-
-/*
-  {
-    "password": "123456",
-    "newPassword": "654321"
+  }] : []
+  const user = await User.findOne({
+    where: params,
+    include
+  })
+  if (!user) {
+    throw { msg: 'Invalid credentials', code: 403 }
   }
-*/
-
-const update = async(req, resp) => {
-    try {
-        const token = req.token
-        const { password, newPassword }=  req.body
-        const user = await findUserOrThrowBy({ token })
-        let data2Update = {}
-        if (password) {
-            if (hash(password) !== user.password) {
-                throw {code: 403, msg: 'Invalid credentials'}
-            }
-            checkPassword(newPassword)
-            data2Update.password = hash(newPassword)
-        }
-        await user.update(data2Update)
-        resp.status(200).json({ msg: 'OK' })
-    } catch (err) {
-        resp.status(err.code).json(err.msg)
-    }
+  return user
 }
 
+const authenticate = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const { body } = req
+    const user = await findUserOrThrowBy({
+      username: body.username,
+      password: hash(body.password)
+    }, true)
+    if (!user.enabled) {
+      throw { msg: 'User is disabled', code: 403 }
+    }
+    const token = generateToken(user.id)
+    await user.update({ token })
+    resp.status(200).cookie('auth', token, {
+      httpOnly: true,
+      maxAge: TOKEN_LIFETIME_IN_MILISECONDS
+    }).json(user)
+  }).wrap()
 
-module.exports = {authenticate, logout, update}
+const logout = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const token = req.token
+    const user = await findUserOrThrowBy({ token })
+    await user.update({ token: null })
+    resp.status(200).cookie('auth', '', {
+      httpOnly: true,
+      maxAge: 0
+    }).json({ msg: 'OK' })
+  }).wrap()
+
+const update = new ControllerHandler()
+  .setSecurityValidations(permission.isEnabled())
+  .setHandler(async(req, resp) => {
+    const token = req.token
+    const { password, newPassword }=  req.body
+    const user = await findUserOrThrowBy({ token })
+    let data2Update = {}
+    if (password) {
+      if (hash(password) !== user.password) {
+        throw {code: 401, msg: 'Invalid credentials'}
+      }
+      checkPassword(newPassword)
+      data2Update.password = hash(newPassword)
+    }
+    await user.update(data2Update)
+    resp.status(200).json({ msg: 'OK' })
+  }).wrap()
+
+const getSpecific = new ControllerHandler()
+  .setSecurityValidations(permission.isEnabled())
+  .setHandler(async(req, resp) => {
+    const token = req.token
+    const user = await findUserOrThrowBy({ token }, true)
+    resp.status(200).json(user)
+  }).wrap()
+
+const create = new ControllerHandler().notEmptyValues(['username','password','email','token','name'])
+  .setHandler(async(req, resp) => {
+    const {username, password, name, email, token} = req.body
+    checkPassword(password)
+    const organization = await Organization.findOne({where: {invitationToken: token}})
+    if(!organization){
+      throw {code: 403, msg: 'Token inválido'}
+    }
+    const organizationId = organization.id
+    const user = await new User({username, password, name, email, organizationId})
+    await user.save()
+    resp.status(200).json(user)
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create}

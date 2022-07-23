@@ -1,184 +1,59 @@
-const {Router} = require('express')
+const { Router } = require('express')
 const router = Router()
 const User = require('../controllers/user')
+const Organization = require('../controllers/organization')
+const Project = require('../controllers/project')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
-const dummyHandle = async(req, resp) => {
-    const {body, query, params} = req
-    console.log('request recieved: ', req)
-    console.log('body request recieved: ', body)
-    console.log('query request recieved: ', query)
-    console.log('params request recieved: ', params)
-    resp.status(200).json({
-        msg: 'Mocking Test',
-        request: {
-            body,
-            query,
-            params
-        }
-    })
+const dummyHandle = async (req, resp) => {
+  const { body, query, params } = req
+  console.log('request recieved: ', req)
+  console.log('body request recieved: ', body)
+  console.log('query request recieved: ', query)
+  console.log('params request recieved: ', params)
+  resp.status(200).json({
+    msg: 'Mocking Test',
+    request: {
+      body,
+      query,
+      params
+    }
+  })
 }
 
-//swagger metadata
 
-/**
- * @swagger
- * components:
- *   schemas:
- *     AuthenticationRequest:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         username:
- *           type: string
- *           description: User identification name. It's setted in sign up page 
- *         password:
- *           type: string
- *           description: user password
- *       example:
- *         password: superSecretPassword123
- *         username: superCoolUsername
- *     UserRequest:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         password:
- *           type: string
- *           description: Current user password
- *         newPassword:
- *           type: string
- *           description: New password to be set on the user
- *       example:
- *         password: hj019dSAd181sgf79041er81Ñ23gda2
- *         newPassword: rodriCapo123-
- *     UserResponse:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         id:
- *           type: string
- *           description: The auto-generated id of the user
- *         username:
- *           type: string
- *           description: User identification name. It's setted in sign up page 
- *       example:
- *         id: hj019dSAd181sgf79041er81Ñ23gda2
- *         username: superCoolUsername
- *     Message:
- *       type: object
- *       required:
- *         - title
- *         - author
- *       properties:
- *         msg:
- *           type: string
- *           description: Status message
- *       example:
- *         msg: User created successfully
- */
+// routes
+// users
+router.post('/user/authenticate', User.authenticate)
+router.post('/user/authorize', dummyHandle)
+router.post('/user/logout', User.logout)
+router.patch('/user', User.update)
+router.get('/user/me', User.getSpecific)
+//organizations
+router.get('/organization', Organization.get)
+router.post('/organization', Organization.create)
+router.patch('/organization/:organizationId', Organization.update)
+router.get('/organization/:organizationId', Organization.getSpecific)
+//users
+router.get('/organization/:organizationId/user', Organization.getUsers)
+router.post('/organization/:organizationId/invitation-token', Organization.generateInvitationToken)
+router.post('/organization/validate-invitation-token', Organization.validateToken)
+router.post('/organization/user', User.create) 
+// projects
+router.get('/organization/:organizationId/project', Project.get)
+router.post('/organization/:organizationId/project', Project.create)
+router.get('/organization/:organizationId/project/:projectId', Project.getSpecific)
+router.put('/organization/:organizationId/project/:projectId/users', Project.setUsers)
+router.patch('/organization/:organizationId/project/:projectId', Project.update)
+router.delete('/organization/:organizationId/project/:projectId', Project.destroy)
 
-/**
-  * @swagger
-  * tags:
-  *   name: Auth
-  *   description: authentication for users
-  *   name: Project CRUD
-  *   description: project creation, modification and remove
-  *   name: User CRUD
-  *   description: user creation, modification and remove
-  *   name: Organization data
-  *   description: organization data retrievement
-  * 
-  */
+router.patch('/organization/:organizationId/user/:userId', Organization.updateUser)
+router.delete('/organization/:organizationId/user/:userId', dummyHandle)
 
 
 
-//swagger routes
 
-/**
- * @swagger
- * /api/user/authenticate:
- *   post:
- *     summary: Authenticate the information for the current user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/AuthenticationRequest'
- *     responses:
- *       200:
- *         description: user information
- *         content:
- *           application/json:
- *             schema:
- *                 $ref: '#/components/schemas/UserResponse'
- */
-router.post('/user/authenticate',User.authenticate)
-router.post('/user/authorize',dummyHandle)
-/**
- * @swagger
- * /api/user/logout:
- *   post:
- *     summary: Invalidate the token for the current user
- *     tags: [Auth]
- *     responses:
- *       200:
- *         description: user information
- *         content:
- *           application/json:
- *             $ref: '#/components/schemas/Message'
- */
-router.put('/user/logout',User.logout)
-
-/**
- * @swagger
- * /api/user:
- *   patch:
- *     summary: Updates user information
- *     tags: [User CRUD]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UserRequest'
- *     responses:
- *       200:
- *         description: user information
- *         content:
- *           application/json:
- *             schema:
- *                 $ref: '#/components/schemas/UserResponse'
- */
-router.patch('/user',User.update)
-
-router.get('/organization',dummyHandle)
-router.post('/organization',dummyHandle)
-
-//NOTE: remember that organizationId comes inside req.params as {organizationId: value}
-router.get('/organization/:organizationId',dummyHandle)
-router.put('/organization/:organizationId',dummyHandle)
-
-router.post('/organization/:organizationId/generate-link',dummyHandle)
-router.post('/organization/:organizationId/user',dummyHandle)
-
-router.put('/organization/:organizationId/user/:userId',dummyHandle)
-router.delete('/organization/:organizationId/user/:userId',dummyHandle)
-
-router.post('/organization/:organizationId/project',dummyHandle)
-router.get('/organization/:organizationId/project',dummyHandle)
-
-router.get('/organization/:organizationId/project/:projectId',dummyHandle)
-router.patch('/organization/:organizationId/project/:projectId',dummyHandle)
 
 
 module.exports = router

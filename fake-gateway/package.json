@@ -1,0 +1,24 @@
+{
+  "name": "fake-gateway",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon --delay 500ms index.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "axios-cookiejar-support": "^4.0.2",
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "express-session": "^1.17.3",
+    "http-proxy-middleware": "^2.0.6",
+    "keycloak-connect": "^18.0.2",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.19",
+    "tough-cookie": "^4.0.0"
+  }
+}
