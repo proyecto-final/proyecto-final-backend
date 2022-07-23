@@ -3,7 +3,7 @@ const http = require('http');
 const host = process.env.VALIDATOR_HOST;
 const port = process.env.VALIDATOR_PORT;
 function httpRequest(params, postData) {
-    return new Promise(function (resolve, reject) {
+    const promise = new Promise(function (resolve, reject) {
         const req = http.request(params, function (res) {
             // cumulate data
             const returnedData ={code: res.statusCode, body: {msg: [res.statusMessage]}}
@@ -30,16 +30,18 @@ function httpRequest(params, postData) {
         }
         req.end();
     });
+    return promise
 }
 
 exports.handler = async (event) => {
     const { path, httpMethod, headers } = event;
+    const headersWithoutContentLength = { ...headers, 'Content-Length': 0 }
     const options = {
         method: httpMethod,
         host,
         port,
         path,
-        headers
+        headers: headersWithoutContentLength
     };
     let effect
     let finalMessage

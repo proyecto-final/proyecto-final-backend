@@ -73,4 +73,24 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(logs))
   }).wrap()
 
-module.exports = { create, get, destroy }
+const update = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const { body } = req
+    const log = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
+    if (!log) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    if (body.title) {
+      log.title = body.title
+    }
+    if (body.description !== undefined) {
+      log.description = body.description
+    }
+    await log.save()
+    resp.status(200).json(log)
+  }).wrap()
+
+
+module.exports = { create, get, update, destroy }
