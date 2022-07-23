@@ -85,7 +85,7 @@ const update = new RequestWrapper()
     if (body.title) {
       log.title = body.title
     }
-    if (body.description) {
+    if (body.description !== undefined) {
       log.description = body.description
     }
     await log.save()
