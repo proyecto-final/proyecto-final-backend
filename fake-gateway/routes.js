@@ -5,7 +5,6 @@ const ROUTES = [
     {
         url: /^\/api\/(user|organization)\/.*$/,
         auth: false,
-        creditCheck: false,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
             max: 5
@@ -15,10 +14,21 @@ const ROUTES = [
             changeOrigin: true,
         }
     },
+     {
+        url: /^\/api\/project\/[0-9]*\/correlate\/.*$/,
+        auth: true,
+        rateLimit: {
+            windowMs: 15 * 60 * 1000,
+            max: 5
+        },
+        proxy: {
+            target: process.env.CORRELATION_SERVICE_URL, //todo change this to the correct url in .env
+            changeOrigin: true,
+        }
+    },
     {
         url: /^\/api\/(timeline)\/.*$/,
         auth: true,
-        creditCheck: false,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
             max: 5
@@ -31,7 +41,6 @@ const ROUTES = [
     {
         url: /^\/api\/(ips)\/.*$/,
         auth: true,
-        creditCheck: false,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
             max: 5
@@ -44,26 +53,12 @@ const ROUTES = [
     {
         url: /^\/api\/(search)\/.*$/,
         auth: true,
-        creditCheck: false,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
             max: 5
         },
         proxy: {
             target: process.env.SEARCH_SERVICE_URL, //todo change this to the correct url in .env
-            changeOrigin: true,
-        }
-    },
-        {
-        url: /^\/api\/project\/[0-9]*\/correlate\/.*$/,
-        auth: true,
-        creditCheck: false,
-        rateLimit: {
-            windowMs: 15 * 60 * 1000,
-            max: 5
-        },
-        proxy: {
-            target: process.env.CORRELATION_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
         }
     }
