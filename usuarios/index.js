@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 require('dotenv').config()
 const db = require('./models/index')
 const cookieParser = require('cookie-parser')
@@ -7,6 +8,7 @@ const { exec } = require('child_process')
 const YAML = require('yamljs')
 const app = express()
 
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser())
 app.use(require('./middlewares/checkToken'))
