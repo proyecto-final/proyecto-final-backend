@@ -1,9 +1,8 @@
 name: Sherlock_BE_PROD
-on: 
+on:
   push:
     branches:
       - master
-      - main
 env:
   AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_REPOSITORY: ${{ secrets.AWS_DEFAULT_ECR }}
