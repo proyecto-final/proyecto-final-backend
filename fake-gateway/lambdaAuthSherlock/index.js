@@ -6,8 +6,7 @@ function httpRequest(params, postData) {
     const promise = new Promise(function (resolve, reject) {
         const req = http.request(params, function (res) {
             // cumulate data
-            const returnedData ={code: res.statusCode, body: {msg: [res.statusMessage]}}
-            
+            const returnedData = { code: res.statusCode, body: { msg: [res.statusMessage] } };
             let body = [];
             res.on('data', function (chunk) {
                 body.push(chunk);
@@ -30,45 +29,47 @@ function httpRequest(params, postData) {
         }
         req.end();
     });
-    return promise
+    return promise;
 }
 
 exports.handler = async (event) => {
-    const { path, httpMethod, headers } = event;
+    const { path, requestContext, headers } = event;
+    const { httpMethod } = requestContext
     const headersWithoutContentLength = { ...headers, 'Content-Length': 0 }
     const options = {
         method: httpMethod,
         host,
         port,
-        path,
+        path: `/api${path}`,
         headers: headersWithoutContentLength
     };
     let effect
-    let finalMessage
-    let finalCode
+    let message = {msg: ['internal error']}
+    let responseCode = 500
     try {
         const { code, body } = await httpRequest(options)
-        finalCode = code
         effect = code === 200 ? "Allow" : "Deny"
-        finalMessage = body
+        responseCode = code
+        message = body.msg
     } catch (err) {
-        effect = 'Deny'
-        finalCode = 500
-        finalMessage = {msg: ['Server Error']}
+        effect = "Deny"
     }
     return {
         policyDocument: {
             Version: "2012-10-17",
-            message: finalMessage,
-            code: finalCode,
             Statement: [
                 {
                     Action: "execute-api:Invoke",
                     Effect: effect,
-                    Resource: "*" //TODO change to exact resource
-                }]
+                    Resource: "*"
+                }
+            ]
+        },
+        context: {
+            code: responseCode,
+            message
         }
     };
-}
+};
 
 
