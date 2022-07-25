@@ -3,7 +3,7 @@
 const ROUTES = [
 
     {
-        url: /^\/api\/(user|organization)\/.*$/,
+        url: /^\/api\/(user|organization).*$/,
         auth: false,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
@@ -15,7 +15,7 @@ const ROUTES = [
         }
     },
      {
-        url: /^\/api\/project\/[0-9]*\/correlate\/.*$/,
+        url: /^\/api\/project\/[0-9]*\/(correlate).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
@@ -27,7 +27,7 @@ const ROUTES = [
         }
     },
     {
-        url: /^\/api\/(timeline)\/.*$/,
+        url: /^\/api\/(timeline).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
@@ -39,7 +39,7 @@ const ROUTES = [
         }
     },
     {
-        url: /^\/api\/(ips)\/.*$/,
+        url: /^\/api\/(ips).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
@@ -51,7 +51,7 @@ const ROUTES = [
         }
     },
     {
-        url: /^\/api\/(search)\/.*$/,
+        url: /^\/api\/(search).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,

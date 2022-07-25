@@ -1,4 +1,6 @@
 FROM node:alpine
+ARG MYSQL_CONNECTION_STRING
+ARG ENVIRONMENT
 
 WORKDIR /app
 
@@ -23,6 +25,9 @@ RUN rm ./config/config.json
 RUN mv .env.docker .env
 
 RUN mv ./config/config.docker.json ./config/config.json
+
+ENV MYSQL_CONNECTION_STRING=$MYSQL_CONNECTION_STRING
+ENV ENVIRONMENT=$ENVIRONMENT
 
 EXPOSE 3030
 

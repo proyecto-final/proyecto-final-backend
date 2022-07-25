@@ -1,5 +1,7 @@
 FROM node:alpine
 
+ARG MONGODB_URI
+
 WORKDIR /app
 
 COPY ./temp/shared ./shared
@@ -19,6 +21,8 @@ COPY . .
 RUN rm .env
 
 RUN mv .env.docker .env
+
+ENV MONGODB_URI=$MONGODB_URI
 
 EXPOSE 3033
 

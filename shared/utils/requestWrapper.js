@@ -39,9 +39,9 @@ class RequestWrapper {
     return this
   }
 
-  hasMongoId(field){
+  hasMongoId(field) {
     this.validations.push(
-      check(field, `El ${field} debe ser id Mongo valido`).isMongoId()
+      check(field, `El ${field} debe ser un numero mayor a cero`).isMongoId(),
     )
     return this
   }

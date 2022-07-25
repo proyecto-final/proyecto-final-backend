@@ -13,6 +13,7 @@
   - `proyecto-final-backend_busqueda_1`, port: `3033`
   - `proyecto-final-backend_correlacion_1`, port: `3032`
   - `proyecto-final-backend_usuario_1`, port: `3030`
+  - `proyecto-final-backend_fake-gateway_1`, port: `3035`
 
 ## Connect to local DBs
 
@@ -42,6 +43,7 @@
   - `busqueda`, port: `3033`
   - `correlacion`, port: `3032`
   - `usuario`, port: `3030`
+  - `fake-gateway`, port: `3035`
 - Note: if you use `./dev-script-down.ps1` to kill the modules nodemon will try to put them online again. I suggest you to close every console and then use the script to free resources.
 
 ## Connect to local DBs

@@ -12,7 +12,8 @@ app.use(fileUpload({
   createParentPath: true,
   limits: {
     fileSize: MEGABYTES_5
-  }
+  },
+  abortOnLimit: true
 }))
 app.use('/api', require('./routes'))
 app.listen(process.env.PORT, () => {
