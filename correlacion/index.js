@@ -1,4 +1,5 @@
 const express = require('express')
+const cors = require('cors')
 const mongoose = require('mongoose')
 const swaggerUi = require('swagger-ui-express')
 const fileUpload = require('express-fileupload')
@@ -7,6 +8,12 @@ require('dotenv').config()
 
 const MEGABYTES_5 = 5 * 1024 * 1024
 const app = express()
+
+app.use(cors({
+  origin: 'http://sherlock-security.s3-website-us-east-1.amazonaws.com',
+  credentials: true,
+  optionsSuccessStatus: 200 // For legacy browser support,
+}))
 app.use(express.json())
 app.use(fileUpload({
   createParentPath: true,
