@@ -67,7 +67,8 @@ const authenticate = new ControllerHandler()
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
-      sameSite: 'none'
+      sameSite: 'none',
+      secure: true
     }).json(user)
   }).wrap()
 
