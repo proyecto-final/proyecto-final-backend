@@ -8,7 +8,10 @@ const { exec } = require('child_process')
 const YAML = require('yamljs')
 const app = express()
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://sherlock-security.s3-website-us-east-1.amazonaws.com',
+  optionsSuccessStatus: 200 // For legacy browser support
+}))
 app.use(express.json())
 app.use(cookieParser())
 app.use(require('./middlewares/checkToken'))
