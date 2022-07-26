@@ -10,6 +10,7 @@ const app = express()
 
 app.use(cors({
   origin: 'http://sherlock-security.s3-website-us-east-1.amazonaws.com',
+  credentials: true,
   optionsSuccessStatus: 200 // For legacy browser support
 }))
 app.use(express.json())
