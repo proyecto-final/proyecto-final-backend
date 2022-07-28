@@ -1,5 +1,6 @@
 
 const { exec } = require('child_process')
+const fs = require('fs')
 
 const runCommand = (stringCommand) => {
   return new Promise((resolve, reject) => {
@@ -23,7 +24,6 @@ async function processLog (log) {
     }
   })
   // 2 Process
-  //  -o ${__dirname}/output/${temporaryName}.json --json
   const chainsawCommand = `${__dirname}/chainsaw hunt ${__dirname}/input/${temporaryName} -s ${__dirname}/sigma/ --mapping ${__dirname}/mappings/sigma-event-logs-all.yml  -o ${__dirname}/output/${temporaryName}.json --json`
   console.log(chainsawCommand)
   try {
@@ -32,7 +32,13 @@ async function processLog (log) {
     console.log(err)
     throw { code: 500, msg: 'Error running chainsaw'+err }
   }
-// 3 Read output
+  // 3 Read output
+  const outputFile = `${__dirname}/output/${temporaryName}.json`
+  const output = JSON.parse(fs.readFileSync(outputFile))
+  console.log(output)
+  // 4 Delete chainsaw file output as well as input
+  fs.unlinkSync(outputFile)
+  fs.unlinkSync(`${__dirname}/input/${temporaryName}`)
 }
 module.exports = {
   processFiles: async function(logs) {
