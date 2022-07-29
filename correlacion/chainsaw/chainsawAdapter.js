@@ -26,7 +26,7 @@ function getChainsawPath () {
       mapping: `${__dirname}/exec/macos/mappings/sigma-event-logs-all.yml`
     },
     'linux': {
-      chainsaw: `${__dirname}/exec/unix/chainsaw`,
+      chainsaw: 'chainsaw', //for docker
       mapping: `${__dirname}/exec/unix/mappings/sigma-event-logs-all.yml`
     },
   }

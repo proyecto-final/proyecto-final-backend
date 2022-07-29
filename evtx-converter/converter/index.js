@@ -40,27 +40,27 @@ const checkLogs = (fileOrFiles, metadata) => {
 }
 
 const convertFile = async (req, resp) => {
-  try {
-    const fileOrFiles = req.files?.files
-    const { projectId } = req.params
-    const formData = new FormData();
-    fileValidated = checkLogs(fileOrFiles, req.body.metadata)
-    const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
-      const fileName = `./temp/project-${projectId}-${file.name}`
-      file.mv(fileName)
-      let convertedName;
-      if (file.name.endsWith('.evtx')) {
-        if (process.env.PLATFORM === 'linux') {
-          convertedName = `./temp/${fileName}-converted.json`
-          await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${convertedName}  ${fileName}`)
-        } else {
-          convertedName = `./temp/${fileName}-converted.csv`
-          await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
-        }
-        //TODO agregar en caso de estar en mac
+  const fileOrFiles = req.files?.files
+  const { projectId } = req.params
+  const formData = new FormData();
+  fileValidated = checkLogs(fileOrFiles, req.body.metadata)
+  const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
+    const fileName = `./temp/project-${projectId}-${file.name}`
+    file.mv(fileName)
+    let convertedName;
+    if (file.name.endsWith('.evtx')) {
+      if (process.env.PLATFORM === 'linux') {
+        convertedName = `./temp/${fileName}-converted.json`
+        await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${fileName}`)
+      } else {
+        convertedName = `./temp/${fileName}-converted.csv`
+        await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
       }
-      return { filename: convertedName, metadata }
-    }));
+      //TODO agregar en caso de estar en mac
+    }
+    return { filename: convertedName, metadata }
+  }));
+  try {
     fileValidated.forEach(({ file }) => {
       const fileName = `./temp/project-${projectId}-${file.name}`;
       formData.append('files', fs.createReadStream(fileName), fileName)
@@ -76,20 +76,19 @@ const convertFile = async (req, resp) => {
       }
     }
     axios.post(url, formData, config).then(response => {
-      resp.status(200).json(response.data)
+      return resp.status(200).json(response.data)
     }).catch((err) => {
       console.log('axios error',err)
-      resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
+      return resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
     }).finally(() => {
-      fileValidated.forEach(({ file }) => fs.rm(`./temp/project-${projectId}-${file.name}`))
-      file2send.forEach(({ filename }) => fs.rm(filename))
+        console.log('delete files')
+        fileValidated.forEach(({ file }) => fs.rmSync(`./temp/project-${projectId}-${file.name}`))
+        file2send.forEach(({ filename }) => fs.rmSync(filename))
     })
-
   } catch (err) {
     console.log('express error',err)
-    resp.status(500).json({ msg: err || 'Internal Server Error' })
+    return resp.status(500).json({ msg: err || 'Internal Server Error' })
   }
-
 }
 
 router.post('/project/:projectId/correlate/log', convertFile)

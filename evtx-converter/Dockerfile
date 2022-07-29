@@ -2,7 +2,7 @@ FROM  nikolaik/python-nodejs
 
 ARG CORRELATION_URI
 
-COPY evtx_dump-v0.7.2-x86_64-unknown-linux-gnu /bin/
+COPY evtx_dump-v0.7.2-x86_64-unknown-linux-gnu /bin/evtx_dump
 
 WORKDIR /app
 
