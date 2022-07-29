@@ -48,7 +48,6 @@ async function processLog (log) {
   try {
     await runCommand(chainsawCommand)
   }catch (err) {
-    console.log(err)
     throw { code: 500, msg: 'Error running chainsaw'+err }
   } finally {
     fs.unlinkSync(`${__dirname}/input/${temporaryName}`)
