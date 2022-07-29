@@ -18,6 +18,7 @@ const runCommand = (stringCommand) => {
   })
 }
 
+//TODO poner en shared
 const checkLogs = (fileOrFiles, metadata) => {
   if(fileOrFiles?.length === 0 || !fileOrFiles) {
     throw { code: 400, msg: 'No files were uploaded.' }
@@ -41,19 +42,29 @@ const checkLogs = (fileOrFiles, metadata) => {
 const convertFile = async(req, resp) => {
     const fileOrFiles = req.files?.files
     const {projectId} = req.params
+    const formData = new FormData();
     fileValidated = checkLogs(fileOrFiles, req.body.metadata)
     const file2send = await Promise.all(fileValidated.map(async({file, metadata}) => {
         const fileName = `./temp/project-${projectId}-${file.name}`
         file.mv(fileName)
         if(file.name.endsWith('.evtx')){
-            await runCommand(`EvtxECmd.exe -f ${fileName} --csv ./temp --csvf ${fileName}.csv`)
+            if(process.env.PLATFORM === 'linux'){
+              await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${fileName}-converted.json  ${fileName}`)
+            } else {
+              await runCommand(`EvtxECmd.exe -f ${fileName} --csv ./temp --csvf ${fileName}.csv`)
+            }
+            //TODO agregar en caso de estar en mac
         }
         return {filename:`${fileName}.csv`, metadata}
     }));
-    const url = 'http://localhost:3032/api/project/1/correlate/log';
-    const formData = new FormData();
+    console.log(fileValidated)
+    fileValidated.forEach(({file}) => {
+        const fileName = `./temp/project-${projectId}-${file.name}`;
+        formData.append('files',  fs.createReadStream(fileName), fileName)
+    })
+    const url = `${process.env.HOST_CORRELATION}${req.path}`;
      file2send.forEach(async({filename}) => {
-        formData.append('files', fs.createReadStream(filename),filename)
+        formData.append('filesConverter', fs.createReadStream(filename),filename)
     })
     formData.append('metadata',JSON.stringify(fileValidated.map(({metadata}) => metadata)))
     const config = {
@@ -64,9 +75,10 @@ const convertFile = async(req, resp) => {
     axios.post(url, formData,config).then(response => {
         resp.status(200).json(response.data)
     }).catch((err)=> {
-        console.log(err)
-        resp.status(err.status).json({msg: err})
-
+        resp.status(err.response.status || 500).json( {msg: err.response.data.msg})
+    }).finally(() => {
+        fileValidated.forEach(({file}) => fs.rm(`./temp/project-${projectId}-${file.name}`))
+        file2send.forEach(({filename}) => fs.rm(filename) )
     })
 }
 
