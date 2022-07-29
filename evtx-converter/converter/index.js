@@ -1,4 +1,4 @@
-const {Router} = require('express')
+const { Router } = require('express')
 const { exec } = require('child_process')
 const router = Router()
 const axios = require('axios')
@@ -20,7 +20,7 @@ const runCommand = (stringCommand) => {
 
 //TODO poner en shared
 const checkLogs = (fileOrFiles, metadata) => {
-  if(fileOrFiles?.length === 0 || !fileOrFiles) {
+  if (fileOrFiles?.length === 0 || !fileOrFiles) {
     throw { code: 400, msg: 'No files were uploaded.' }
   }
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -36,54 +36,62 @@ const checkLogs = (fileOrFiles, metadata) => {
   if (files.length !== metadatas.length) {
     throw { code: 400, msg: 'Number of files and metadata must be the same' }
   }
-  return files.map((file,index) => ({file, metadata: metadatas[index]}))
+  return files.map((file, index) => ({ file, metadata: metadatas[index] }))
 }
 
-const convertFile = async(req, resp) => {
+const convertFile = async (req, resp) => {
+  try {
     const fileOrFiles = req.files?.files
-    const {projectId} = req.params
+    const { projectId } = req.params
     const formData = new FormData();
     fileValidated = checkLogs(fileOrFiles, req.body.metadata)
-    const file2send = await Promise.all(fileValidated.map(async({file, metadata}) => {
-        const fileName = `./temp/project-${projectId}-${file.name}`
-        file.mv(fileName)
-        if(file.name.endsWith('.evtx')){
-            if(process.env.PLATFORM === 'linux'){
-              await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${fileName}-converted.json  ${fileName}`)
-            } else {
-              await runCommand(`EvtxECmd.exe -f ${fileName} --csv ./temp --csvf ${fileName}.csv`)
-            }
-            //TODO agregar en caso de estar en mac
+    const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
+      const fileName = `./temp/project-${projectId}-${file.name}`
+      file.mv(fileName)
+      let convertedName;
+      if (file.name.endsWith('.evtx')) {
+        if (process.env.PLATFORM === 'linux') {
+          convertedName = `./temp/${fileName}-converted.json`
+          await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${convertedName}  ${fileName}`)
+        } else {
+          convertedName = `./temp/${fileName}-converted.csv`
+          await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
         }
-        return {filename:`${fileName}.csv`, metadata}
+        //TODO agregar en caso de estar en mac
+      }
+      return { filename: convertedName, metadata }
     }));
-    console.log(fileValidated)
-    fileValidated.forEach(({file}) => {
-        const fileName = `./temp/project-${projectId}-${file.name}`;
-        formData.append('files',  fs.createReadStream(fileName), fileName)
+    fileValidated.forEach(({ file }) => {
+      const fileName = `./temp/project-${projectId}-${file.name}`;
+      formData.append('files', fs.createReadStream(fileName), fileName)
     })
     const url = `${process.env.HOST_CORRELATION}${req.path}`;
-     file2send.forEach(async({filename}) => {
-        formData.append('filesConverter', fs.createReadStream(filename),filename)
+    file2send.forEach(async ({ filename }) => {
+      formData.append('filesConverter', fs.createReadStream(filename), filename)
     })
-    formData.append('metadata',JSON.stringify(fileValidated.map(({metadata}) => metadata)))
+    formData.append('metadata', JSON.stringify(fileValidated.map(({ metadata }) => metadata)))
     const config = {
-        headers: {
-            'content-type': 'multipart/form-data'
-        }
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
     }
-    axios.post(url, formData,config).then(response => {
-        resp.status(200).json(response.data)
-    }).catch((err)=> {
-        resp.status(err.response.status || 500).json( {msg: err.response.data.msg})
+    axios.post(url, formData, config).then(response => {
+      resp.status(200).json(response.data)
+    }).catch((err) => {
+      console.log('axios error',err)
+      resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
     }).finally(() => {
-        fileValidated.forEach(({file}) => fs.rm(`./temp/project-${projectId}-${file.name}`))
-        file2send.forEach(({filename}) => fs.rm(filename) )
+      fileValidated.forEach(({ file }) => fs.rm(`./temp/project-${projectId}-${file.name}`))
+      file2send.forEach(({ filename }) => fs.rm(filename))
     })
+
+  } catch (err) {
+    console.log('express error',err)
+    resp.status(500).json({ msg: err || 'Internal Server Error' })
+  }
+
 }
 
-
-//NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.post('/project/:projectId/correlate/log', convertFile)
 
 module.exports = router
