@@ -35,13 +35,32 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
+    console.log(JSON.stringify(detections))
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
       const eventId = getAttribute(defaultLine, 'Event.System.EventID')
-      const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp)
+      const logOrigin = getAttribute(defaultLine, 'Event.System.Channel')
+      const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp && 
+        detection.identification.eventId === eventId)
+      const destAddress = getAttribute(defaultLine, 'Event.EventData.DestAddress')
+      const destPort = getAttribute(defaultLine, 'Event.EventData.DestPort')
+      const sourceAddress = getAttribute(defaultLine, 'Event.EventData.SourceAddress')
+      const sourcePort = getAttribute(defaultLine, 'Event.EventData.SourcePort')
+      const application = getAttribute(defaultLine, 'Event.EventData.Application')
+      let ipData = ''
+      if (sourceAddress) {
+        ipData += ` - From: ${sourceAddress}:${sourcePort}`
+      }
+      if (destAddress) {
+        ipData += ` - To: ${destAddress}:${destPort}`
+      }
+      let applicationString = ''
+      if (application) {
+        applicationString = ` - ${application}`
+      }
       // TODO:
-      console.log(JSON.stringify(defaultLine))
-      const rawLine = `${timestamp} - ${eventId}`
+      // console.log(JSON.stringify(defaultLine))
+      const rawLine = `${timestamp} - ${eventId} - ${logOrigin}${ipData}${applicationString}`
       const otherAttributes = {}
       return new Line({
         log,
