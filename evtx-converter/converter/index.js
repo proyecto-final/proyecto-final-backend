@@ -46,6 +46,7 @@ const convertFile = async (req, resp) => {
     const formData = new FormData()
     fileValidated = checkLogs(fileOrFiles, req.body.metadata)
     const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
+      // TODO: agregar timestamp
       const fileName = `./temp/project-${projectId}-${file.name}`
       file.mv(fileName)
       let convertedName;
@@ -68,7 +69,7 @@ const convertFile = async (req, resp) => {
     const url = `${process.env.HOST_CORRELATION}${req.path}`
     // Este async me sugiere que puede fallar
     file2send.forEach(async ({ filename }) => {
-      formData.append('filesConverter', fs.createReadStream(filename), filename)
+      formData.append('filesConverted', fs.createReadStream(filename), filename)
     })
     formData.append('metadata', JSON.stringify(fileValidated.map(({ metadata }) => metadata)))
     const config = {
@@ -82,7 +83,6 @@ const convertFile = async (req, resp) => {
       console.log('axios error',err)
       resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
     }).finally(() => {
-      // TODO: fixear esto??
       fileValidated.forEach(({ file }) => fs.unlinkSync(`./temp/project-${projectId}-${file.name}`))
       file2send.forEach(({ filename }) => fs.unlinkSync(filename))
     })
