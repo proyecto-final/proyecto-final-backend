@@ -23,8 +23,6 @@ RUN npm install
 
 COPY . .
 
-RUN mv chainsaw_exec/sigma/ ./chainsaw/sigma
-
 RUN rm .env
 
 RUN mv .env.docker .env
