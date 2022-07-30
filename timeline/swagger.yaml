@@ -30,7 +30,7 @@ components:
         type: integer
         default: 10
   schemas:
-    TimelineResponseData:
+    TimelineResponse:
       type: object
       properties:
         title: 
@@ -39,12 +39,6 @@ components:
         projectId:
           type: number
           description: project id
-        log:
-          type: object
-          description: log data
-        lines:
-          type: array
-          description: timelines line
         updatedAt:
           type: string
           description: last update date
@@ -52,12 +46,10 @@ components:
           type: string
           description: creation date
       example:
-        title: "timeline1"
+        title: timeline1
         projectId: 1
-        lines: []
-        log: {}
-        createdAt: "2022-07-30T19:27:13.357Z"
-        updatedAt: "2022-07-30T19:27:13.357Z"
+        createdAt: 2022-07-30T19:27:13.357Z
+        updatedAt: 2022-07-30T19:27:13.357Z
     TimelineRequest:
       type: object
       properties:
@@ -130,5 +122,4 @@ paths:
             application/json:
               schema: 
                 type: object
-                items:
-                  $ref: '#/components/schemas/TimelineResponseData'
+                $ref: '#/components/schemas/TimelineResponse'
