@@ -9,12 +9,16 @@ module.exports = mongoose => {
     description: {
       type: String,
       required: false
-    }, 
+    },
+    projectId: {
+      type: Number,
+      required: true
+    },
     log: {
       type: Schema.Types.ObjectId,
       ref: 'log'
     },
-    timelineLines: [{
+    lines: [{
       type: Schema.Types.ObjectId,
       ref: 'timelineLine'
     }]
