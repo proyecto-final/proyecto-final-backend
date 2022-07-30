@@ -10,6 +10,10 @@ module.exports = mongoose => {
       type: String,
       required: true
     },
+    timestamp: {
+      type: String,
+      require: true
+    },
     line: {
       type: Schema.Types.ObjectId,
       ref: 'line'
