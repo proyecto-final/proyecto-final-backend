@@ -5,6 +5,7 @@ const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const  {processFiles: processFilesWithChainsaw}= require('../chainsaw/chainsawAdapter.js')
+const { get: getAttribute } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -29,24 +30,26 @@ const getExtension = (file) => {
 }
 
 const persistEvtxLinesFrom = async (processedLogs) => {
+  // TODO: REMOVE
+  processedLogs = [processedLogs[1]]
   const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
     const lines2Save = defaultLines.map(defaultLine => {
-      const vulnerabilites = detections.filter(detection => detection.identification.timestamp === defaultLine.TimeCreated['#attributes']['SystemTime'])
+      const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
+      const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp)
       // TODO:
-      const rawLine = 'Soy una line'
+      console.log(defaultLine)
+      const rawLine = 'Soy una line' + timestamp
       const otherAttributes = {}
       return new Line({
         log,
-        vulnerabilites,
+        vulnerabilites: vulnerabilites.map(vulnerability => vulnerability.name),
         raw: rawLine,
         detail: otherAttributes
       })
     })
-    return {
-      lines: lines2Save
-    }
+    return lines2Save
   })
   return await Line.insertMany(evtxLogLines.flat())
 }
@@ -66,9 +69,10 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
     .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
   try {
     console.log(JSON.stringify(processedLogs[1].detections))
-    const evtxLogLines = await persistEvtxLinesFrom(processedLogs)
-    console.log(evtxLogLines)
+    await persistEvtxLinesFrom(processedLogs)
+    // console.log(evtxLogLines)
   } catch (err) {
+    console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   const logs2Persist = [...nonEvtxLogs, ...processedLogs]
