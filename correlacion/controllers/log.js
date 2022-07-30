@@ -30,12 +30,9 @@ const getExtension = (file) => {
 }
 
 const persistEvtxLinesFrom = async (processedLogs) => {
-  // TODO: REMOVE
-  processedLogs = [processedLogs[1]]
   const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
-    console.log(JSON.stringify(detections))
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
       const eventId = getAttribute(defaultLine, 'Event.System.EventID')
@@ -47,6 +44,9 @@ const persistEvtxLinesFrom = async (processedLogs) => {
       const sourceAddress = getAttribute(defaultLine, 'Event.EventData.SourceAddress')
       const sourcePort = getAttribute(defaultLine, 'Event.EventData.SourcePort')
       const application = getAttribute(defaultLine, 'Event.EventData.Application')
+      const applicationId = getAttribute(defaultLine, 'Event.EventData.ProcessID')
+      const computer = getAttribute(defaultLine, 'Event.System.Computer')
+      const userId = getAttribute(defaultLine, 'Event.System.RemoteUserID')
       let ipData = ''
       if (sourceAddress) {
         ipData += ` - From: ${sourceAddress}:${sourcePort}`
@@ -58,14 +58,17 @@ const persistEvtxLinesFrom = async (processedLogs) => {
       if (application) {
         applicationString = ` - ${application}`
       }
-      // TODO:
-      // console.log(JSON.stringify(defaultLine))
       const rawLine = `${timestamp} - ${eventId} - ${logOrigin}${ipData}${applicationString}`
-      const otherAttributes = {}
+      const otherAttributes = {
+        application,
+        applicationId,
+        computer,
+        userId
+      }
       return new Line({
         log,
         timestamp,
-        vulnerabilites: vulnerabilites.map(vulnerability => vulnerability.name),
+        vulnerabilites: vulnerabilites.map(vulnerability => ({ name: vulnerability.name, references: vulnerability.references })),
         raw: rawLine,
         detail: otherAttributes
       })
