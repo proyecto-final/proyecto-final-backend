@@ -1,3 +1,0 @@
-[submodule "correlacion/chainsaw/sigma"]
-	path = correlacion/chainsaw/sigma
-	url = https://github.com/SigmaHQ/sigma
