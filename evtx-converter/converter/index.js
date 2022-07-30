@@ -45,6 +45,7 @@ const convertFile = async (req, resp) => {
     const { projectId } = req.params
     const formData = new FormData()
     fileValidated = checkLogs(fileOrFiles, req.body.metadata)
+    // File to string
     const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
       // TODO: agregar timestamp
       const fileName = `./temp/project-${projectId}-${file.name}`
@@ -55,8 +56,7 @@ const convertFile = async (req, resp) => {
           convertedName = `./temp/${fileName}-converted.json`
           await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${fileName}`)
         } else {
-          convertedName = `./temp/${fileName}-converted.csv`
-          await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
+          throw { code: 400, msg: 'Only linux platform is supported' }
         }
         //TODO agregar en caso de estar en mac
       }
@@ -66,10 +66,10 @@ const convertFile = async (req, resp) => {
       const fileName = `./temp/project-${projectId}-${file.name}`
       formData.append('files', fs.createReadStream(fileName), fileName)
     })
+    // Send to server
     const url = `${process.env.HOST_CORRELATION}${req.path}`
-    // Este async me sugiere que puede fallar
-    file2send.forEach(async ({ filename }) => {
-      formData.append('filesConverted', fs.createReadStream(filename), filename)
+    file2send.forEach(({ filename }) => {
+      formData.append('convertedFiles', fs.createReadStream(filename), filename)
     })
     formData.append('metadata', JSON.stringify(fileValidated.map(({ metadata }) => metadata)))
     const config = {
