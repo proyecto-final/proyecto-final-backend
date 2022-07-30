@@ -33,6 +33,18 @@ module.exports = {
       password: 'd50d3319bccca99d3093b689745b168cc79ecfd0e18e3e80be6d8c6ad1061407',
       email: 'email3@gmail.com',
       name: 'pepo',
+      role: 'Owner',
+      enabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isAdmin: false,
+      organizationId: organizationIds[1]
+    },
+    {
+      username: 'juancue99',
+      password: 'd50d3319bccca99d3093b689745b168cc79ecfd0e18e3e80be6d8c6ad1061407',
+      email: 'email3@gmail.com',
+      name: 'Johncito',
       role: 'User',
       enabled: true,
       createdAt: new Date(),

@@ -1,3 +1,8 @@
+docker stop mongo-dev-container
+docker stop mysql-dev-container
+docker rm -f mongo-dev-container
+docker rm -f mongo-dev-container 
+
 docker build -t mongo:dev mongo 
 docker build -t mysql:dev mysql 
 

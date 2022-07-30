@@ -15,13 +15,17 @@ const validateTimeline = (timeline) => {
 }
 
 const createLinesFrom = async (lines, log) => {
+  //tiene que tomar los lines que tienen asociado el log
+  //definir si las ines son objectos con el atributo id o si es un array de ids
   const logLines = await Line.find({_id: {$in: lines}, log})
-  return await TimelineLine.insertMany(logLines.map(line => ({
+  //validar las timelineLines
+  const timelineLines = logLines.map(line => new TimelineLine({
     ...line,
     line,
     tags: []
-  })
-  ))
+  }))
+  await Promise.all(timelineLines.map(async line => await line.validate()))
+  return await TimelineLine.insertMany(timelineLines)
 }
 
 const create = new RequestWrapper(

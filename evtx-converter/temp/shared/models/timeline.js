@@ -2,6 +2,7 @@
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const Timeline = Schema({
+    //que el log pertenezca al project id, las lines son las lineas de log 
     title: {
       type: String,
       required: true
