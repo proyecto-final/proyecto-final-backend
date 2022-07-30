@@ -9,6 +9,7 @@ const ROUTES = [
             windowMs: 15 * 60 * 1000,
             max: 5
         },
+        filter: () => true,
         proxy: {
             target: process.env.USER_SERVICE_URL,
             changeOrigin: true,
@@ -21,8 +22,27 @@ const ROUTES = [
             windowMs: 15 * 60 * 1000,
             max: 5
         },
+        filter: (pathName, req) => {
+            const evtxConverterPathRegex = /^\/api\/project\/[0-9]*\/(correlate)\/log$/
+            return !(evtxConverterPathRegex.test(pathName) && req.method === 'POST')
+        },
         proxy: {
             target: process.env.CORRELATION_SERVICE_URL, //todo change this to the correct url in .env
+            changeOrigin: true,
+        }
+    },
+     {
+        url: /^\/api\/project\/[0-9]*\/(correlate)\/log$/,
+        auth: true,
+        rateLimit: {
+            windowMs: 15 * 60 * 1000,
+            max: 5
+        },
+        filter: (pathName, req) => {
+            return req.method === 'POST'
+        },
+        proxy: {
+            target: process.env.EVTX_CONVERTER_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
         }
     },
@@ -33,6 +53,7 @@ const ROUTES = [
             windowMs: 15 * 60 * 1000,
             max: 5
         },
+        filter: () => true,
         proxy: {
             target: process.env.TIMELINE_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
@@ -45,6 +66,7 @@ const ROUTES = [
             windowMs: 15 * 60 * 1000,
             max: 5
         },
+        filter: () => true,
         proxy: {
             target: process.env.IPS_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
@@ -57,6 +79,7 @@ const ROUTES = [
             windowMs: 15 * 60 * 1000,
             max: 5
         },
+        filter: () => true,
         proxy: {
             target: process.env.SEARCH_SERVICE_URL, //todo change this to the correct url in .env
             changeOrigin: true,
