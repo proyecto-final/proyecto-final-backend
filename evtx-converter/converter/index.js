@@ -52,7 +52,7 @@ const convertFile = async (req, resp) => {
       if (file.name.endsWith('.evtx')) {
         if (process.env.PLATFORM === 'linux') {
           convertedName = `./temp/${fileName}-converted.json`
-          await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${convertedName}  ${fileName}`)
+          await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${fileName}`)
         } else {
           convertedName = `./temp/${fileName}-converted.csv`
           await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
