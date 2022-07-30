@@ -18,6 +18,10 @@ module.exports = mongoose => {
       type: String,
       required: true
     },
+    timestamp: {
+      type: String,
+      required: true
+    },
     notes: {
       type: Array,
       default: () => []

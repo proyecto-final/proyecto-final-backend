@@ -37,13 +37,15 @@ const persistEvtxLinesFrom = async (processedLogs) => {
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
+      const eventId = getAttribute(defaultLine, 'Event.System.EventID')
       const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp)
       // TODO:
-      console.log(defaultLine)
-      const rawLine = 'Soy una line' + timestamp
+      console.log(JSON.stringify(defaultLine))
+      const rawLine = `${timestamp} - ${eventId}`
       const otherAttributes = {}
       return new Line({
         log,
+        timestamp,
         vulnerabilites: vulnerabilites.map(vulnerability => vulnerability.name),
         raw: rawLine,
         detail: otherAttributes
