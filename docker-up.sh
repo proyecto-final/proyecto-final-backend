@@ -1,4 +1,3 @@
-param([String[]] $modules = "all")
 docker-compose stop
 docker-compose rm -f
 rm -r ./usuarios/temp
@@ -21,4 +20,4 @@ cp -r ./shared ./correlacion/temp/shared
 cp -r ./shared ./busqueda/temp/shared
 cp -r ./shared ./ips/temp/shared
 cp -r ./shared ./evtx-converter/temp/shared
-docker-compose --profile $modules up --build -d
+docker-compose --profile all up --build -d

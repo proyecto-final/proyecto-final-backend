@@ -40,32 +40,33 @@ const checkLogs = (fileOrFiles, metadata) => {
 }
 
 const convertFile = async (req, resp) => {
-  const fileOrFiles = req.files?.files
-  const { projectId } = req.params
-  const formData = new FormData();
-  fileValidated = checkLogs(fileOrFiles, req.body.metadata)
-  const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
-    const fileName = `./temp/project-${projectId}-${file.name}`
-    file.mv(fileName)
-    let convertedName;
-    if (file.name.endsWith('.evtx')) {
-      if (process.env.PLATFORM === 'linux') {
-        convertedName = `./temp/${fileName}-converted.json`
-        await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${fileName}`)
-      } else {
-        convertedName = `./temp/${fileName}-converted.csv`
-        await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
-      }
-      //TODO agregar en caso de estar en mac
-    }
-    return { filename: convertedName, metadata }
-  }));
   try {
+    const fileOrFiles = req.files?.files
+    const { projectId } = req.params
+    const formData = new FormData()
+    fileValidated = checkLogs(fileOrFiles, req.body.metadata)
+    const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
+      const fileName = `./temp/project-${projectId}-${file.name}`
+      file.mv(fileName)
+      let convertedName;
+      if (file.name.endsWith('.evtx')) {
+        if (process.env.PLATFORM === 'linux') {
+          convertedName = `./temp/${fileName}-converted.json`
+          await runCommand(`evtx_dump-v0.7.2-x86_64-unknown-linux-gnu -o jsonl -f ${convertedName}  ${fileName}`)
+        } else {
+          convertedName = `./temp/${fileName}-converted.csv`
+          await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
+        }
+        //TODO agregar en caso de estar en mac
+      }
+      return { filename: convertedName, metadata }
+    }))
     fileValidated.forEach(({ file }) => {
-      const fileName = `./temp/project-${projectId}-${file.name}`;
+      const fileName = `./temp/project-${projectId}-${file.name}`
       formData.append('files', fs.createReadStream(fileName), fileName)
     })
-    const url = `${process.env.HOST_CORRELATION}${req.path}`;
+    const url = `${process.env.HOST_CORRELATION}${req.path}`
+    // Este async me sugiere que puede fallar
     file2send.forEach(async ({ filename }) => {
       formData.append('filesConverter', fs.createReadStream(filename), filename)
     })
@@ -76,19 +77,21 @@ const convertFile = async (req, resp) => {
       }
     }
     axios.post(url, formData, config).then(response => {
-      return resp.status(200).json(response.data)
+      resp.status(200).json(response.data)
     }).catch((err) => {
       console.log('axios error',err)
-      return resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
+      resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
     }).finally(() => {
-        console.log('delete files')
-        fileValidated.forEach(({ file }) => fs.rmSync(`./temp/project-${projectId}-${file.name}`))
-        file2send.forEach(({ filename }) => fs.rmSync(filename))
+      // TODO: fixear esto??
+      fileValidated.forEach(({ file }) => fs.unlinkSync(`./temp/project-${projectId}-${file.name}`))
+      file2send.forEach(({ filename }) => fs.unlinkSync(filename))
     })
+
   } catch (err) {
     console.log('express error',err)
-    return resp.status(500).json({ msg: err || 'Internal Server Error' })
+    resp.status(500).json({ msg: err || 'Internal Server Error' })
   }
+
 }
 
 router.post('/project/:projectId/correlate/log', convertFile)
