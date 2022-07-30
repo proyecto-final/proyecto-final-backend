@@ -43,7 +43,7 @@ module.exports = {
     {
       username: 'juancue99',
       password: 'd50d3319bccca99d3093b689745b168cc79ecfd0e18e3e80be6d8c6ad1061407',
-      email: 'email3@gmail.com',
+      email: 'email4@gmail.com',
       name: 'Johncito',
       role: 'User',
       enabled: true,
