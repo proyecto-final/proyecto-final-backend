@@ -17,6 +17,10 @@ module.exports = mongoose => {
     raw: {
       type: String,
       required: true
+    },
+    notes: {
+      type: Array,
+      default: () => []
     }
   })
   return model('line', Line)
