@@ -30,5 +30,9 @@ module.exports = mongoose => {
   {
     timestamps: true
   })
+  Log.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
   return model('log', Log)
 }
