@@ -123,3 +123,24 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/TimelineResponse'
+  /project/:projectId/timeline/:timelineId:
+    delete:
+      summary: Creates a timeline
+      tags: [Timeline CRUD]
+      description: Creates a timeline
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Timeline elimination result response
