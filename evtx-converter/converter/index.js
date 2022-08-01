@@ -68,7 +68,6 @@ const convertFile = async (req, resp) => {
     })
     // Send to server
     const url = `${process.env.HOST_CORRELATION}${req.path}`
-    console.log(file2send)
     file2send.forEach(({ filename }) => {
       formData.append('convertedFiles', fs.createReadStream(filename), filename)
     })

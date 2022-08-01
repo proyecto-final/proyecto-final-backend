@@ -7,8 +7,9 @@ const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const  {processFiles: processFilesWithChainsaw}= require('../chainsaw/chainsawAdapter.js')
 const { get: getAttribute } = require('lodash')
 
-const checkLogs = (fileOrFiles, metadata, convertedFiles) => {
+const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
+  const convertedFiles = Array.isArray(convertedFileOrFiles) ? convertedFileOrFiles : [convertedFileOrFiles]
   let metadatas
   try {
     metadatas = JSON.parse(metadata)
@@ -97,8 +98,8 @@ const create = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, resp) => {
     const fileOrFiles = req.files?.files
-    const jsonFiles = req.files?.convertedFiles
-    const { files, metadatas, convertedFiles } = checkLogs(fileOrFiles, req.body.metadata, jsonFiles)
+    const jsonFileOrFiles = req.files?.convertedFiles
+    const { files, metadatas, convertedFiles } = checkLogs(fileOrFiles, req.body.metadata, jsonFileOrFiles)
     const logsWithMetadata = files.map((file, index) => 
       ({
         ...metadatas[index],
@@ -111,9 +112,6 @@ const create = new RequestWrapper()
     await Promise.all(logs.map(async log => await log.validate()))
     await Promise.all(logs.map(async log => await log.save()))
     // BODY
-    console.log(logs)
-    console.log(files)
-    console.log(convertedFiles)
     await processAndPersistLogs(logs, files, convertedFiles)
 
     resp.status(200).json(logs)
