@@ -90,6 +90,10 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   } catch (err) {
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
+  await Promise.all(logs.map(log => {
+    log.state = 'processed'
+    return log.save()
+  }))
   // const logs2Persist = [...nonEvtxLogs, ...processedLogs]
   // persist lines of evtxLogWithFiles+processedLogs and nonEvtxLogWithFiles
   return logsWithFiles
