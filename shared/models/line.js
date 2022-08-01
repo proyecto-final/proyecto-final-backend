@@ -27,5 +27,5 @@ module.exports = mongoose => {
       default: () => []
     }
   })
-  return model('line', Line)
+  return mongoose.models.line || model('line', Line)
 }

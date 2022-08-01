@@ -1,6 +1,7 @@
 const {Router} = require('express')
 const router = Router()
 const Log = require('../controllers/log')
+const Line = require('../controllers/line')
 
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
@@ -28,8 +29,8 @@ router.post('/project/:projectId/correlate/log',[], Log.create)
 router.delete('/project/:projectId/correlate/log/:logId',[], Log.destroy)
 router.get('/project/:projectId/correlate/log',[], Log.get)
 router.patch('/project/:projectId/correlate/log/:logId',[], Log.update)
-router.get('/project/:projectId/correlate/log/:logId',[], logInput)
 
+router.get('/project/:projectId/correlate/log/:logId/line',[], Line.get)
 router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
 
 router.get('/project/:projectId/correlate/vulnerability',[], logInput)

@@ -92,9 +92,7 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   const processedLogs = (await processFilesWithChainsaw(evtxLogs))
     .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
   try {
-    console.log(JSON.stringify(processedLogs[1].detections))
     await persistEvtxLinesFrom(processedLogs)
-    // console.log(evtxLogLines)
   } catch (err) {
     console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
