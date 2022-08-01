@@ -10,6 +10,10 @@ module.exports = mongoose => {
       type: String,
       required: true
     },
+    timestamp: {
+      type: String,
+      require: true
+    },
     line: {
       type: Schema.Types.ObjectId,
       ref: 'line'
@@ -23,5 +27,9 @@ module.exports = mongoose => {
       default: () => []
     },
   })
+  TimelineLine.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
   return model('timelineLine', TimelineLine)
 }

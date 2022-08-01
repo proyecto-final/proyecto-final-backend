@@ -19,14 +19,12 @@ const logInput = async(req, resp) => {
     }
   })
 }
+router.post('/project/:projectId/timeline',[], Timeline.create)
+router.delete('/project/:projectId/timeline/:timelineId',[], Timeline.destroy)
 
 router.get('/project/:projectId/timeline',[], logInput)
-router.post('/project/:projectId/timeline',[], Timeline.create)
-
 router.get('/project/:projectId/timeline/:timelineId',[], logInput)
 router.patch('/project/:projectId/timeline/:timelineId',[], logInput)
-router.delete('/project/:projectId/timeline/:timelineId',[], logInput)
-
 router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',[], logInput)
 
 
