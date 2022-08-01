@@ -35,35 +35,28 @@ const persistEvtxLinesFrom = async (processedLogs) => {
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
-      const eventId = getAttribute(defaultLine, 'Event.System.EventID')
-      const logOrigin = getAttribute(defaultLine, 'Event.System.Channel')
+      const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
       const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp && 
-        detection.identification.eventId === eventId)
-      const destAddress = getAttribute(defaultLine, 'Event.EventData.DestAddress')
-      const destPort = getAttribute(defaultLine, 'Event.EventData.DestPort')
-      const sourceAddress = getAttribute(defaultLine, 'Event.EventData.SourceAddress')
-      const sourcePort = getAttribute(defaultLine, 'Event.EventData.SourcePort')
-      const application = getAttribute(defaultLine, 'Event.EventData.Application')
-      const applicationId = getAttribute(defaultLine, 'Event.EventData.ProcessID')
-      const computer = getAttribute(defaultLine, 'Event.System.Computer')
-      const userId = getAttribute(defaultLine, 'Event.System.RemoteUserID')
+        detection.identification.eventId === EventID)
+      const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
+        getAttribute(defaultLine, 'Event.EventData') || {}
       let ipData = ''
-      if (sourceAddress) {
-        ipData += ` - From: ${sourceAddress}:${sourcePort}`
+      if (SourceAddress) {
+        ipData += ` - From: ${SourceAddress}:${SourcePort}`
       }
-      if (destAddress) {
-        ipData += ` - To: ${destAddress}:${destPort}`
+      if (DestAddress) {
+        ipData += ` - To: ${DestAddress}:${DestPort}`
       }
       let applicationString = ''
-      if (application) {
-        applicationString = ` - ${application}`
+      if (Application) {
+        applicationString = ` - ${Application}`
       }
-      const rawLine = `${timestamp} - ${eventId} - ${logOrigin}${ipData}${applicationString}`
+      const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
       const otherAttributes = {
-        application,
-        applicationId,
-        computer,
-        userId
+        application: Application,
+        applicationId: ProcessID,
+        computer: Computer,
+        userId: RemoteUserID
       }
       return new Line({
         log,
@@ -84,8 +77,8 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
     file: files[index]
   }))
   // Get different types
-  const nonEvtxLogs = logsWithFiles
-    .filter(({ file }) => getExtension(file) !== 'evtx')
+  // const nonEvtxLogs = logsWithFiles
+  //   .filter(({ file }) => getExtension(file) !== 'evtx')
   const evtxLogs = logsWithFiles
     .filter(({ file }) => getExtension(file) === 'evtx')
   // Process and merge results
@@ -94,12 +87,10 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   try {
     await persistEvtxLinesFrom(processedLogs)
   } catch (err) {
-    console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
-  const logs2Persist = [...nonEvtxLogs, ...processedLogs]
+  // const logs2Persist = [...nonEvtxLogs, ...processedLogs]
   // persist lines of evtxLogWithFiles+processedLogs and nonEvtxLogWithFiles
-  console.log('persisting', logs2Persist.length)
   return logsWithFiles
 }
 const create = new RequestWrapper()
