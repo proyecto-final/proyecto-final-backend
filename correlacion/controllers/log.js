@@ -111,6 +111,9 @@ const create = new RequestWrapper()
     await Promise.all(logs.map(async log => await log.validate()))
     await Promise.all(logs.map(async log => await log.save()))
     // BODY
+    console.log(logs)
+    console.log(files)
+    console.log(convertedFiles)
     await processAndPersistLogs(logs, files, convertedFiles)
 
     resp.status(200).json(logs)
