@@ -1,6 +1,6 @@
 db.createCollection('logs')
 db.createCollection('lines')
-db.createCollection('timelinesLines')
+db.createCollection('timelineLines')
 db.createCollection('timelines')
 
 //log
