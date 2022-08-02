@@ -78,9 +78,52 @@ components:
       type: number
       description: Number of results in the database
       example: 10
+    Line:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        log:
+          type: string
+          description: Log ID
+        vulnerabilities:
+          type: array
+          description: Vulnerability detected
+        detail:
+          type: object
+          description: Additional line informaiton
+        raw:
+          type: string
+          description: string version of line
+        timestamp:
+          type: string
+          description: time of line event
+        notes:
+          type: array
+          description: user added notes
+      example:
+        _id: 62d776f235ca54db99e4765e
+        log: 62e5ae6f36a29d448fc6bf0f
+        vulnerabilites:
+          - name: RDP Login from Localhost
+            references:
+              - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+              - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+        detail:
+          computer: PC01.example.corp
+
+        raw: 2019-02-13T18:04:58.363696Z - 4624 - Security
+        timestamp: 2019-02-13T18:04:58.363696Z
+        notes:
+          - This is a note
+          - This is another note
+
 tags:
   - name: Logs CRUD
     description: logs creation, modification and remove
+  - name: Lines CRUD
+    description: lines creation, modification and remove
 
 paths:
   /project/:projectId/correlate/log:
@@ -121,7 +164,7 @@ paths:
       - $ref: '#/components/parameters/limitParam'
       - name: name
         in: query
-        description: name of the organization
+        description: name of the log
         required: false
         schema:
           type: string
@@ -194,3 +237,32 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/Message'
+  /project/:projectId/correlate/log/:logId:/line:
+    get:
+      summary: Get lines
+      tags: [Lines CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: raw
+        in: query
+        description: log text
+        required: false
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Line'

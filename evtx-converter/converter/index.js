@@ -42,34 +42,30 @@ const checkLogs = (fileOrFiles, metadata) => {
 const convertFile = async (req, resp) => {
   try {
     const fileOrFiles = req.files?.files
-    const { projectId } = req.params
     const formData = new FormData()
     fileValidated = checkLogs(fileOrFiles, req.body.metadata)
-    const file2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
-      // TODO: agregar timestamp
-      const fileName = `./temp/project-${projectId}-${file.name}`
-      file.mv(fileName)
-      let convertedName;
+    // File to string
+    const files2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
+      const random = (Math.random() + 1).toString(36).substring(2)
+      const inputFileName = `./input/${random}-${file.name}`
+      const convertedName = `./output/${random}-${file.name}-converted.json`
+      await file.mv(inputFileName)
       if (file.name.endsWith('.evtx')) {
         if (process.env.PLATFORM === 'linux') {
-          convertedName = `./temp/${fileName}-converted.json`
-          await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${fileName}`)
+          await runCommand(`evtx_dump -o jsonl -f ${convertedName}  ${inputFileName}`)
         } else {
-          convertedName = `./temp/${fileName}-converted.csv`
-          await runCommand(`EvtxECmd.exe -f ${fileName} --csv . --csvf ${convertedName}`)
+          throw { code: 400, msg: 'Only linux platform is supported' }
         }
-        //TODO agregar en caso de estar en mac
       }
-      return { filename: convertedName, metadata }
+      return { input: inputFileName, output: convertedName, metadata }
     }))
-    fileValidated.forEach(({ file }) => {
-      const fileName = `./temp/project-${projectId}-${file.name}`
-      formData.append('files', fs.createReadStream(fileName), fileName)
-    })
+    // Send to server
     const url = `${process.env.HOST_CORRELATION}${req.path}`
-    // Este async me sugiere que puede fallar
-    file2send.forEach(async ({ filename }) => {
-      formData.append('filesConverted', fs.createReadStream(filename), filename)
+    files2send.forEach(({input, output}) => {
+      formData.append('files', fs.createReadStream(input), input)
+      if (output) {
+        formData.append('convertedFiles', fs.createReadStream(output), output)
+      }
     })
     formData.append('metadata', JSON.stringify(fileValidated.map(({ metadata }) => metadata)))
     const config = {
@@ -83,8 +79,10 @@ const convertFile = async (req, resp) => {
       console.log('axios error',err)
       resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
     }).finally(() => {
-      fileValidated.forEach(({ file }) => fs.unlinkSync(`./temp/project-${projectId}-${file.name}`))
-      file2send.forEach(({ filename }) => fs.unlinkSync(filename))
+      files2send.forEach(({ input, output }) => {
+        fs.unlinkSync(input)
+        fs.unlinkSync(output)
+      })
     })
 
   } catch (err) {
