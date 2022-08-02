@@ -74,7 +74,27 @@ const destroy = new RequestWrapper()
     resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted.deletedCount} lines` })
   }).wrap()
 
+const update = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('timelineId')
+  .setHandler(async (req, resp) => {
+    const { body } = req
+    const timeline = await Timeline.findOne({_id: req.params.timelineId, projectId: getIntValue(req.params.projectId)})
+    if (!timeline) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    if (body.title) {
+      timeline.title = body.title
+    }
+    if (body.description !== undefined) {
+      timeline.description = body.description
+    }
+    await timeline.save()
+    resp.status(200).json(timeline)
+  }).wrap()
+  
 module.exports = {
   create,
-  destroy
+  destroy,
+  update
 }
