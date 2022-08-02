@@ -57,7 +57,6 @@ const convertFile = async (req, resp) => {
           throw { code: 400, msg: 'Only linux platform is supported' }
         }
       }
-      console.log(convertedName)
       return { input: inputFileName, output: convertedName, metadata }
     }))
     // Send to server
