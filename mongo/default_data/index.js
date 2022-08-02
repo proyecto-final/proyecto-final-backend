@@ -209,20 +209,17 @@ db.timelineLines.insertMany([
 ])
 
 
-/*
-db.timelineLines.find({})
-db.timeline.insertMany([
+db.timelines.insertMany([
   {
     title: 'timelineTest1',
     description: 'a test timeline',
     projectId: 1,
     log: {
-      type: Schema.Types.ObjectId,
+      type: db.logs.find({})[0]._id,
       ref: 'log'
     },
     lines: [
-      db.timelineLines.find({})[0]._id, //TODO tiene que coincidier con lo que haya en logs
       db.timelineLines.find({})[0]._id,
-      db.timelineLines.find({})[0]._id,
+      db.timelineLines.find({})[2]._id
     ]
-}])*/
+}])

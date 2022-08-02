@@ -27,5 +27,9 @@ module.exports = mongoose => {
       default: () => []
     }
   })
+  Line.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
   return mongoose.models.line || model('line', Line)
 }

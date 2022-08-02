@@ -6,7 +6,7 @@ const Timeline = require('../../shared/models/timeline')(mongoose)
 const TimelineLine = require('../../shared/models/timelineLine')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
-// const {adaptMongoosePage} = require('../../shared/utils/pagination')
+const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 
 const validateTimeline = (timeline) => {
   if (!timeline.lines || timeline.lines.length === 0 ) {
@@ -92,9 +92,41 @@ const update = new RequestWrapper()
     await timeline.save()
     resp.status(200).json(timeline)
   }).wrap()
-  
+
+const get = new RequestWrapper()
+  .hasId('projectId')
+  .handlePagination()
+  .setHandler(async (req, resp) => {
+    const { query } = req
+    const offset = getIntValue(query.offset)
+    const limit = getIntValue(query.limit)
+    const mongooseQuery = {
+      'log.projectId': getIntValue(req.params.projectId)
+    }
+    if (query.title) {
+      mongooseQuery.title = { '$regex': query.title, '$options': 'i' }
+    }
+    console.log(mongooseQuery)
+    const timelines = await Timeline.aggregate([{
+      $facet: {
+        paginatedResult: [
+          { $match: mongooseQuery },
+          { $skip: offset },
+          { $limit: limit }
+        ],
+        totalCount: [
+          { $match: mongooseQuery },
+          { $count: 'totalCount' }
+        ]
+      }
+    }])
+    resp.status(200).json(adaptMongoosePage(timelines))
+  }).wrap()
+
+
 module.exports = {
   create,
   destroy,
-  update
+  update,
+  get
 }
