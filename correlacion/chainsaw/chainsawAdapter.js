@@ -44,7 +44,7 @@ async function processLog (log) {
   // 2 Process
   const {chainsaw, mapping} = getChainsawPath()
   const chainsawCommand = `${chainsaw} hunt ${__dirname}/input/${temporaryName} -s ${__dirname}/sigma/ --mapping ${mapping}  -o ${__dirname}/output/${temporaryName}.json --json`
-  console.log(chainsawCommand)
+  // TO DEBUG:console.log(chainsawCommand)
   try {
     await runCommand(chainsawCommand)
   }catch (err) {

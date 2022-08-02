@@ -18,10 +18,14 @@ module.exports = mongoose => {
       type: String,
       required: true
     },
+    timestamp: {
+      type: String,
+      required: true
+    },
     notes: {
       type: Array,
       default: () => []
     }
   })
-  return model('line', Line)
+  return mongoose.models.line || model('line', Line)
 }
