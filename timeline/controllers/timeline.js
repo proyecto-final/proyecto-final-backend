@@ -16,12 +16,22 @@ const validateTimeline = (timeline) => {
 
 const createLinesFrom = async (lines, log) => {
   const logLines = await Line.find({_id: {$in: lines}, log})
-  return await TimelineLine.insertMany(logLines.map(line => ({
-    ...line,
-    line,
-    tags: []
-  })
-  ))
+  if(logLines.length === 0){
+    throw {code: 400, msg: 'Lines are not valid'}
+  }
+  const timelineLines = logLines.map(line => {
+    const {raw, detail, vulnerabilites, log, notes } = line
+    return new TimelineLine({
+      line,
+      raw, 
+      detail, 
+      vulnerabilites, 
+      log, 
+      notes,
+      tags: []
+    })})
+  await Promise.all(timelineLines.map(async line => await line.validate()))
+  return await TimelineLine.insertMany(timelineLines)
 }
 
 const create = new RequestWrapper(
@@ -33,7 +43,6 @@ const create = new RequestWrapper(
   .setHandler(async (req, resp) => {
     const timeline2Create = req.body
     validateTimeline(timeline2Create)
-    // TODO
     const log = await Log.findOne({_id: timeline2Create.log, projectId: getIntValue(req.params.projectId)})
     if (!log) {
       throw { code: 404, msg: 'Log not found' }
@@ -46,6 +55,7 @@ const create = new RequestWrapper(
       projectId: getIntValue(req.params.projectId),
       lines
     })
+    await timeline.save()
     resp.status(200).json(timeline)
   }).wrap()
 

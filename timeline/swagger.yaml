@@ -6,9 +6,9 @@ info:
   description: Sherlock reports module interface
   version: 0.1.9
 servers:
-  - url: http://localhost:3032/
+  - url: http://localhost:3034/
     description: development server
-  - url: http://localhost:3032/
+  - url: http://localhost:3034/
     description: Testing server
 
 components:
@@ -30,23 +30,42 @@ components:
         type: integer
         default: 10
   schemas:
-    LogRequest:
+    TimelineResponse:
       type: object
       properties:
         title: 
           type: string
-          description: Log title
-        description:
+          description: timeline title
+        projectId:
+          type: number
+          description: project id
+        updatedAt:
           type: string
-          description: Log description
-    Message:
+          description: last update date
+        createdAt:
+          type: string
+          description: creation date
+      example:
+        title: timeline1
+        projectId: 1
+        createdAt: 2022-07-30T19:27:13.357Z
+        updatedAt: 2022-07-30T19:27:13.357Z
+    TimelineRequest:
       type: object
       properties:
-        msg: 
+        title: 
           type: string
-          description: message
+          description: timeline title
+        lines:
+          type: array
+          description: lines mongo ids
+        log:
+          type: string
+          description: log mongo id
       example:
-        msg: OK
+        title: timeline1
+        log: 62e557770cda67a071353283 
+        lines: ["62e557770cda67a071353287", "62e557770cda67a071353288"]
     LogHeader:
       type: object
       properties:
@@ -69,110 +88,21 @@ components:
           - processing
           - processed
       example:
-        _id: 62d776f235ca54db99e4765e
+        _id: "62d776f235ca54db99e4765e"
         title: pepe.txt
         description: "This is a log file"
         projectId: 123456789
         status: "processing"
-    Count:
-      type: number
-      description: Number of results in the database
-      example: 10
 tags:
-  - name: Logs CRUD
-    description: logs creation, modification and remove
+  - name: Timeline CRUD
+    description: timeline creation, modification and remove
 
 paths:
-  /project/:projectId/correlate/log:
+  /project/:projectId/timeline:
     post:
-      summary: Creates an array of logs
-      tags: [Logs CRUD]
-      description: Creates an array of logs
-      requestBody:
-        content: 
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                files:
-                  type: array
-                  description: Logs to be correlated
-                  items:
-                    type: string
-                metadata:
-                  description: Metadata to be correlated, is an array of LogRequest as STRING
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '200':
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/LogHeader'
-    get:
-      summary: Get logs
-      tags: [Logs CRUD]
-      parameters:
-      - $ref: '#/components/parameters/offsetParam'
-      - $ref: '#/components/parameters/limitParam'
-      - name: name
-        in: query
-        description: name of the organization
-        required: false
-        schema:
-          type: string
-          default: ""
-      - name: status
-        in: query
-        description: used to filter organizations by enabled status
-        schema:
-          type: string
-          default: ""
-          enum:
-          - processing
-          - processed
-        required: false
-      responses:
-        200:
-          description: Logs page
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  count:
-                    $ref: '#/components/schemas/Count'
-                  rows:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/LogHeader'
-  /project/:projectId/correlate/log/:logId:
-    patch:
-      summary: Edits a log
-      tags: [Logs CRUD]
-      description: Edits a log
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LogRequest'
-      responses:
-        '200':
-          description: A JSON array of user names
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/LogHeader'
-    delete:
-      summary: Delete especific log
-      description: Delete especific log
+      summary: Creates a timeline
+      tags: [Timeline CRUD]
+      description: Creates a timeline
       parameters:
       - name: projectId
         in: path
@@ -180,17 +110,16 @@ paths:
         required: true
         schema:
           type: integer
-      - name: Log
-        in: path
-        description: "Log ID"
-        required: true
-        schema:
-          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimelineRequest'
       responses:
         '200':
-          description: Messege acknowling it works
+          description: Timeline data response
           content:
             application/json:
               schema: 
                 type: object
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/TimelineResponse'
