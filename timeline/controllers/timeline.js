@@ -61,19 +61,15 @@ const create = new RequestWrapper(
   }).wrap()
 
 
-const destroy = new RequestWrapper(
-  check('timelineId', 'Timeline must a mongo id').isMongoId()
-)
+const destroy = new RequestWrapper()
+  .hasMongoId('timelineId')
   .hasId('projectId').setHandler(async (req, resp) => {
     const {timelineId, projectId } = req.params
-    console.log('timeline: ',timelineId)
-    console.log('project: ',projectId)
     const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
     if (!timeline) {
       throw { code: 404, msg: 'Timeline not found' }
     }
     const linesDeleted = await TimelineLine.deleteMany( {_id: timeline.lines.map(({_id}) => _id)})
-    console.log(linesDeleted)
     await Timeline.deleteOne({_id: timelineId, projectId: getIntValue(projectId)})
     resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted.deletedCount} lines` })
   }).wrap()
