@@ -10,20 +10,30 @@ module.exports = (sequelize) => {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: { len: [2,32] },
-      unique: true
+      validate: { len: [2,32] }
     },
     prefix: {
       type: DataTypes.STRING,
       allowNull: false,
-      validate: { len: [2,16] },
-      unique: true
+      validate: { len: [2,16] }
     },
     color:  {
       type: DataTypes.STRING,
       defaultValue: '#6492E6',
       allowNull: false,
     }
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['name', 'organizationId']
+      },
+      {
+        unique: true,
+        fields: ['prefix', 'organizationId']
+      },
+    ]
   })
   Project.associate = (models) => {
     Project.belongsTo(models.organization,
