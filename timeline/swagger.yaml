@@ -161,9 +161,9 @@ paths:
                 type: object
                 $ref: '#/components/schemas/TimelineResponse'
     delete:
-      summary: Creates a timeline
+      summary: Deletes a timeline
       tags: [Timeline CRUD]
-      description: Creates a timeline
+      description: Deletes a timeline
       parameters:
       - name: projectId
         in: path
