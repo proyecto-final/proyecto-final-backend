@@ -1,10 +1,10 @@
-db.createCollection('log')
-db.createCollection('line')
-db.createCollection('timelineLine')
-db.createCollection('timeline')
+db.createCollection('logs')
+db.createCollection('lines')
+db.createCollection('timelineLines')
+db.createCollection('timelines')
 
 //log
-db.log.insertMany([
+db.logs.insertMany([
   {
     title: 'log1',
     description: 'log1',
@@ -37,9 +37,9 @@ db.log.insertMany([
 
 //lines
 
-db.line.insertMany([
+db.lines.insertMany([
   {
-    log: db.log.find({})[0]._id,
+    log: db.logs.find({})[0]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -51,7 +51,7 @@ db.line.insertMany([
     ]
   },
   {
-    log: db.log.find({})[0]._id,
+    log: db.logs.find({})[0]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -63,7 +63,7 @@ db.line.insertMany([
     ]
   },
   {
-    log: db.log.find({})[1]._id,
+    log: db.logs.find({})[1]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -75,7 +75,7 @@ db.line.insertMany([
     ]
   },
   {
-    log: db.log.find({})[1]._id,
+    log: db.logs.find({})[1]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -87,7 +87,7 @@ db.line.insertMany([
     ]
   },
   {
-    log: db.log.find({})[3]._id,
+    log: db.logs.find({})[3]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -99,7 +99,7 @@ db.line.insertMany([
     ]
   },
   {
-    log: db.log.find({})[2]._id,
+    log: db.logs.find({})[2]._id,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -114,7 +114,7 @@ db.line.insertMany([
 
 //timelines
 
-db.timelineLine.insertMany([
+db.timelineLines.insertMany([
   {
     detail: {
       detail1: 'detail1',
@@ -122,7 +122,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[0]._id,
+    line:db.lines.find({})[0]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -135,7 +135,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[0]._id,
+    line:db.lines.find({})[0]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -148,7 +148,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[1]._id,
+    line:db.lines.find({})[1]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -161,7 +161,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[1]._id,
+    line:db.lines.find({})[1]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -174,7 +174,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[2]._id,
+    line:db.lines.find({})[2]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -187,7 +187,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[2]._id,
+    line:db.lines.find({})[2]._id,
     tags: [
       'tag1','tag2'
     ],
@@ -200,7 +200,7 @@ db.timelineLine.insertMany([
       detail3: 'detail3',
     },
     raw: 'raw timelineline',
-    line:db.line.find({})[2]._id,
+    line:db.lines.find({})[2]._id,
     tags: [
       'tag1','tag2'
     ],
