@@ -26,6 +26,9 @@ RUN mv .env.docker .env
 
 RUN chmod +x /bin/evtx_dump
 
+RUN mkdir input
+RUN mkdir output
+
 ENV HOST_CORRELATION=$CORRELATION_URI
 ENV PLATFORM=linux
 

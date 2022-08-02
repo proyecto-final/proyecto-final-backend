@@ -18,6 +18,10 @@ module.exports = mongoose => {
       type: String,
       required: true
     },
+    timestamp: {
+      type: String,
+      required: true
+    },
     notes: {
       type: Array,
       default: () => []
@@ -27,5 +31,5 @@ module.exports = mongoose => {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return model('line', Line)
+  return mongoose.models.line || model('line', Line)
 }

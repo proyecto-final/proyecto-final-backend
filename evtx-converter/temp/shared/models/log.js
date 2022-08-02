@@ -1,4 +1,3 @@
-
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const Log = Schema(
@@ -30,5 +29,5 @@ module.exports = mongoose => {
   {
     timestamps: true
   })
-  return model('log', Log)
+  return mongoose.models.log || model('log', Log)
 }

@@ -1,4 +1,3 @@
-
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const Log = Schema(
@@ -34,5 +33,5 @@ module.exports = mongoose => {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return model('log', Log)
+  return mongoose.models.log || model('log', Log)
 }
