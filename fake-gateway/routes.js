@@ -47,7 +47,7 @@ const ROUTES = [
         }
     },
     {
-        url: /^\/api\/(timeline).*$/,
+        url: /^\/api\/project\/[0-9]*\/(timeline).*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,

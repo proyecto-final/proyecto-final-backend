@@ -26,5 +26,9 @@ module.exports = mongoose => {
   {
     timestamps: true
   })
+  Timeline.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
   return model('timeline', Timeline)
 }

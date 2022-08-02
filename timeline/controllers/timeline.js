@@ -20,10 +20,11 @@ const createLinesFrom = async (lines, log) => {
     throw {code: 400, msg: 'Lines are not valid'}
   }
   const timelineLines = logLines.map(line => {
-    const {raw, detail, vulnerabilites, log, notes } = line
+    const {raw, detail, vulnerabilites,timestamp, log, notes } = line
     return new TimelineLine({
       line,
       raw, 
+      timestamp,
       detail, 
       vulnerabilites, 
       log, 
@@ -59,6 +60,21 @@ const create = new RequestWrapper(
     resp.status(200).json(timeline)
   }).wrap()
 
+
+const destroy = new RequestWrapper()
+  .hasMongoId('timelineId')
+  .hasId('projectId').setHandler(async (req, resp) => {
+    const {timelineId, projectId } = req.params
+    const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
+    if (!timeline) {
+      throw { code: 404, msg: 'Timeline not found' }
+    }
+    const linesDeleted = await TimelineLine.deleteMany( {_id: timeline.lines.map(({_id}) => _id)})
+    await Timeline.deleteOne({_id: timelineId, projectId: getIntValue(projectId)})
+    resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted.deletedCount} lines` })
+  }).wrap()
+
 module.exports = {
-  create
+  create,
+  destroy
 }
