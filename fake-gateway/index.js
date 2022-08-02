@@ -7,11 +7,11 @@ const app = express()
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
 
-require('./routes').forEach(route => {
-    if (route.auth) {
-        app.use(route.url, lambda, createProxyMiddleware(route.proxy))
+require('./routes').forEach(({url, auth, filter, proxy}) => {
+    if (auth) {
+        app.use(url, lambda, createProxyMiddleware(filter, proxy))
     } else {
-        app.use(route.url, createProxyMiddleware(route.proxy));
+        app.use(url, createProxyMiddleware(filter, proxy));
     }
 })
 app.use(morgan('combined'));

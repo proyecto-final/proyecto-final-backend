@@ -1,6 +1,11 @@
 FROM node:alpine
 
 ARG MONGODB_URI
+COPY chainsaw_exec/chainsaw_x86_64-unknown-linux-mus /bin/chainsaw
+COPY chainsaw_exec/LICENCE /bin/
+RUN mkdir /bin/mappings
+COPY chainsaw_exec/mappings/sigma-event-logs-legacy.yml /bin/mappings
+COPY chainsaw_exec/mappings/sigma-event-logs-all.yml /bin/mappings
 
 WORKDIR /app
 

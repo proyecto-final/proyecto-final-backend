@@ -2,32 +2,122 @@ const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
+const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
+const  {processFiles: processFilesWithChainsaw}= require('../chainsaw/chainsawAdapter.js')
+const { get: getAttribute } = require('lodash')
 
+const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
+  const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
+  const convertedFiles = Array.isArray(convertedFileOrFiles) ? convertedFileOrFiles : [convertedFileOrFiles]
+  let metadatas
+  try {
+    metadatas = JSON.parse(metadata)
+  } catch (err) {
+    throw { code: 400, msg: 'Invalid metadata, must be a valid JSON' }
+  }
+  if (files.length !== metadatas.length) {
+    throw { code: 400, msg: 'Number of files, metadata must be the same' }
+  }
+  const evtxFiles = files.filter(file => getExtension(file) === 'evtx')
+  if (evtxFiles.length >= 1 && evtxFiles.length !== convertedFiles.length) {
+    throw { code: 400, msg: 'Number of files, converted files must be the same' }
+  }
+  return { files, metadatas, convertedFiles }
+}
+
+const getExtension = (file) => {
+  return file.name.split('.').pop()
+}
+
+const persistEvtxLinesFrom = async (processedLogs) => {
+  const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
+    const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
+    const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
+    const lines2Save = defaultLines.map(defaultLine => {
+      const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
+      const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
+      const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp && 
+        detection.identification.eventId === EventID)
+      const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
+        getAttribute(defaultLine, 'Event.EventData') || {}
+      let ipData = ''
+      if (SourceAddress) {
+        ipData += ` - From: ${SourceAddress}:${SourcePort}`
+      }
+      if (DestAddress) {
+        ipData += ` - To: ${DestAddress}:${DestPort}`
+      }
+      let applicationString = ''
+      if (Application) {
+        applicationString = ` - ${Application}`
+      }
+      const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
+      const otherAttributes = {
+        application: Application,
+        applicationId: ProcessID,
+        computer: Computer,
+        userId: RemoteUserID
+      }
+      return new Line({
+        log,
+        timestamp,
+        vulnerabilites: vulnerabilites.map(vulnerability => ({ name: vulnerability.name, references: vulnerability.references })),
+        raw: rawLine,
+        detail: otherAttributes
+      })
+    })
+    return lines2Save
+  })
+  return await Line.insertMany(evtxLogLines.flat())
+}
+
+const processAndPersistLogs = async (logs, files, convertedFiles) => {
+  const logsWithFiles = logs.map((log, index) => ({
+    log,
+    file: files[index]
+  }))
+  // Get different types
+  // const nonEvtxLogs = logsWithFiles
+  //   .filter(({ file }) => getExtension(file) !== 'evtx')
+  const evtxLogs = logsWithFiles
+    .filter(({ file }) => getExtension(file) === 'evtx')
+  // Process and merge results
+  const processedLogs = (await processFilesWithChainsaw(evtxLogs))
+    .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
+  try {
+    await persistEvtxLinesFrom(processedLogs)
+  } catch (err) {
+    throw { code: 500, msg: 'Couldn\'t process log files' }
+  }
+  await Promise.all(logs.map(log => {
+    log.state = 'processed'
+    return log.save()
+  }))
+  // const logs2Persist = [...nonEvtxLogs, ...processedLogs]
+  // persist lines of evtxLogWithFiles+processedLogs and nonEvtxLogWithFiles
+  return logsWithFiles
+}
 const create = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, resp) => {
     const fileOrFiles = req.files?.files
-    if(fileOrFiles?.length === 0 || !fileOrFiles) {
-      throw { code: 400, msg: 'No files were uploaded.' }
-    }
-    const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
-    if (files.length > 5) {
-      throw { code: 400, msg: 'Max 5 files are allowed.' }
-    }
-    let metadatas
-    try {
-      metadatas = JSON.parse(req.body.metadata)
-    } catch (err) {
-      throw { code: 400, msg: 'Invalid metadata, must be a valid JSON' }
-    }
-    if (files.length !== metadatas.length) {
-      throw { code: 400, msg: 'Number of files and metadata must be the same' }
-    }
-    const logsWithMetadata = files.map((file, index) => ({extension :file.name.split('.').pop(), ...metadatas[index], projectId: getIntValue(req.params.projectId)}))
+    const jsonFileOrFiles = req.files?.convertedFiles
+    const { files, metadatas, convertedFiles } = checkLogs(fileOrFiles, req.body.metadata, jsonFileOrFiles)
+    const logsWithMetadata = files.map((file, index) => 
+      ({
+        ...metadatas[index],
+        projectId: getIntValue(req.params.projectId),
+        extension: getExtension(file),
+        file
+      }))
+    // HEADER
     const logs = logsWithMetadata.map(logMetadata => new Log({...logMetadata, projectId: getIntValue(req.params.projectId)}))
     await Promise.all(logs.map(async log => await log.validate()))
     await Promise.all(logs.map(async log => await log.save()))
+    // BODY
+    await processAndPersistLogs(logs, files, convertedFiles)
+
     resp.status(200).json(logs)
   }).wrap()
 
