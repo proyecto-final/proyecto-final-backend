@@ -66,9 +66,7 @@ const authenticate = new ControllerHandler()
     await user.update({ token })
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
-      maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
-      sameSite: 'none',
-      secure: true
+      maxAge: TOKEN_LIFETIME_IN_MILISECONDS
     }).json(user)
   }).wrap()
 
