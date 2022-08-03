@@ -101,20 +101,12 @@ const get = new RequestWrapper()
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
     const mongooseQuery = {
-      'related_log.projectId': getIntValue(req.params.projectId)
+      'projectId': getIntValue(req.params.projectId)
     }
     if (query.title) {
       mongooseQuery.title = { '$regex': query.title, '$options': 'i' }
     }
     const timelines = await Timeline.aggregate([
-      {
-        $lookup: {
-          from: 'logs',
-          localField: 'log',
-          foreignField: '_id',
-          as: 'related_log'
-        }
-      },
       {
         $facet: {
           paginatedResult: [
