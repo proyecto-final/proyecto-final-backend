@@ -4,11 +4,13 @@ module.exports = mongoose => {
   const Timeline = Schema({
     title: {
       type: String,
-      required: true
+      required: true,
+      maxLength: 32
     },
     description: {
       type: String,
-      required: false
+      required: false,
+      maxLength: 250
     },
     projectId: {
       type: Number,
