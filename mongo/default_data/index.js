@@ -10,28 +10,36 @@ db.logs.insertMany([
     description: 'log1',
     projectId: 1,
     extension: '.log',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log2',
     description: 'log2',
     projectId: 1,
     extension: '.log',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log3',
     description: 'log3',
     projectId: 2,
     extension: '.evtx',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log4',
     description: 'log4',
     projectId: 1,
     extension: '.evtx',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
 ])
 
@@ -218,5 +226,7 @@ db.timelines.insertMany([
     lines: [
       db.timelineLines.find({})[0]._id,
       db.timelineLines.find({})[2]._id
-    ]
+    ],
+    updatedAt: new Date(),
+    createdAt: new Date()
 }])
