@@ -10,28 +10,36 @@ db.logs.insertMany([
     description: 'log1',
     projectId: 1,
     extension: '.log',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log2',
     description: 'log2',
     projectId: 1,
     extension: '.log',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log3',
     description: 'log3',
     projectId: 2,
     extension: '.evtx',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
   {
     title: 'log4',
     description: 'log4',
     projectId: 1,
     extension: '.evtx',
-    state:'processed'
+    state:'processed',
+    updatedAt: new Date(),
+    createdAt: new Date()
   },
 ])
 
@@ -209,20 +217,16 @@ db.timelineLines.insertMany([
 ])
 
 
-/*
-db.timelineLines.find({})
-db.timeline.insertMany([
+db.timelines.insertMany([
   {
     title: 'timelineTest1',
     description: 'a test timeline',
     projectId: 1,
-    log: {
-      type: Schema.Types.ObjectId,
-      ref: 'log'
-    },
+    log: db.logs.find({})[0]._id,
     lines: [
-      db.timelineLines.find({})[0]._id, //TODO tiene que coincidier con lo que haya en logs
       db.timelineLines.find({})[0]._id,
-      db.timelineLines.find({})[0]._id,
-    ]
-}])*/
+      db.timelineLines.find({})[2]._id
+    ],
+    updatedAt: new Date(),
+    createdAt: new Date()
+}])

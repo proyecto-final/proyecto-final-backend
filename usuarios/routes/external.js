@@ -16,6 +16,7 @@ router.patch('/project/:projectId/correlate/log/:logId',userCrudPermission)
 
 //TIMELINE
 router.post('/project/:projectId/timeline/',userCrudPermission)
+router.get('/project/:projectId/timeline/',userCrudPermission)
 router.get('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.delete('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.patch('/project/:projectId/timeline/:timelineId',userCrudPermission)

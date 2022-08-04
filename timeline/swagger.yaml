@@ -30,12 +30,19 @@ components:
         type: integer
         default: 10
   schemas:
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
     TimelineResponse:
       type: object
       properties:
         title: 
           type: string
           description: timeline title
+        description: 
+          type: string
+          description: timeline description
         projectId:
           type: number
           description: project id
@@ -48,6 +55,7 @@ components:
       example:
         title: timeline1
         projectId: 1
+        description: Some description
         createdAt: 2022-07-30T19:27:13.357Z
         updatedAt: 2022-07-30T19:27:13.357Z
     TimelineRequest:
@@ -70,33 +78,6 @@ components:
         log: 62e557770cda67a071353283 
         description: Some description
         lines: ["62e557770cda67a071353287", "62e557770cda67a071353288"]
-    LogHeader:
-      type: object
-      properties:
-        _id:
-          type: string
-          description: Log ID
-        title:
-          type: string
-          description: Log title
-        description:
-          type: string
-          description: Log description
-        projectId:
-          type: string
-          description: ID of the project
-        status:
-          type: string
-          description: status of the log
-          enum: 
-          - processing
-          - processed
-      example:
-        _id: "62d776f235ca54db99e4765e"
-        title: pepe.txt
-        description: "This is a log file"
-        projectId: 123456789
-        status: "processing"
 tags:
   - name: Timeline CRUD
     description: timeline creation, modification and remove
@@ -127,6 +108,34 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/TimelineResponse'
+    get:
+      summary: Get Timelines
+      tags: [Timeline CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: title
+        in: query
+        description: title of the timeline
+        required: false
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: Timelines page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/TimelineResponse'
   /project/:projectId/timeline/:timelineId:
     patch:
       summary: Updates a timeline

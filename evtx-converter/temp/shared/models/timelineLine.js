@@ -27,5 +27,9 @@ module.exports = mongoose => {
       default: () => []
     },
   })
+  TimelineLine.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
   return model('timelineLine', TimelineLine)
 }
