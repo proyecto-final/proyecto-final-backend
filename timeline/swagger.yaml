@@ -52,12 +52,16 @@ components:
         createdAt:
           type: string
           description: creation date
+        lines: 
+          type: array
+          description: timeline lines
       example:
         title: timeline1
         projectId: 1
         description: Some description
         createdAt: 2022-07-30T19:27:13.357Z
         updatedAt: 2022-07-30T19:27:13.357Z
+        lines: ["62e557770cda67a071353287", "62e557770cda67a071353288"]
     TimelineRequest:
       type: object
       properties:
@@ -121,6 +125,12 @@ paths:
         schema:
           type: string
           default: ""
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
       responses:
         200:
           description: Timelines page
