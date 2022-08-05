@@ -58,12 +58,12 @@ const authenticate = new ControllerHandler()
     const user = await findUserOrThrowBy({
       username: body.username
     }, true)
+    if (user.attemptsCount >= MAX_ALLOWED_ATTEMPTS) {
+      throw { msg: 'Account blocked. Too many attempts', code: 403 }
+    }
     if (user.password !== hash(body.password)) {
       await user.update({ attemptsCount:user.attemptsCount + 1 })
       throw { msg: 'Invalid credentials', code: 403 }
-    }
-    if (user.attemptsCount >= MAX_ALLOWED_ATTEMPTS) {
-      throw { msg: 'Account blocked. Too many attempts', code: 403 }
     }
     if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
