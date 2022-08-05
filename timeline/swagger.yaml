@@ -87,7 +87,7 @@ tags:
     description: timeline creation, modification and remove
 
 paths:
-  /api/project/:projectId/timeline:
+  /api/project/{projectId}/timeline:
     post:
       summary: Creates a timeline
       tags: [Timeline CRUD]
@@ -146,7 +146,7 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/TimelineResponse'
-  /api/project/:projectId/timeline/:timelineId:
+  /api/project/{projectId}/timeline/:timelineId:
     patch:
       summary: Updates a timeline
       tags: [Timeline CRUD]
