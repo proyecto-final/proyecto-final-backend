@@ -2,38 +2,17 @@ const {Router} = require('express')
 const router = Router()
 const Log = require('../controllers/log')
 const Line = require('../controllers/line')
-
-/*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
-        y llamarlas desde aca con un require */
-const logInput = async(req, resp) => {
-  const {body, query, params} = req
-  console.log('request recieved: ', req)
-  console.log('body request recieved: ', body)
-  console.log('query request recieved: ', query)
-  console.log('params request recieved: ', params)
-  resp.status(200).json({
-    msg: 'Mocking Test',
-    request: {
-      body,
-      query,
-      params
-    }
-  })
-}
+const Vulnerability = require('../controllers/vulnerability')
 
 
-
-
-//NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.post('/project/:projectId/correlate/log',[], Log.create)
 router.delete('/project/:projectId/correlate/log/:logId',[], Log.destroy)
 router.get('/project/:projectId/correlate/log',[], Log.get)
 router.patch('/project/:projectId/correlate/log/:logId',[], Log.update)
-
 router.get('/project/:projectId/correlate/log/:logId/line',[], Line.get)
-router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
+router.get('/project/:projectId/correlate/vulnerability',[], Vulnerability.get)
+router.post('/project/:projectId/correlate/vulnerability',[], Vulnerability.create)
 
-router.get('/project/:projectId/correlate/vulnerability',[], logInput)
-
+//router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
 
 module.exports = router
