@@ -31,7 +31,7 @@ router.get('/project/:projectId/correlate/log',[], Log.get)
 router.patch('/project/:projectId/correlate/log/:logId',[], Log.update)
 
 router.get('/project/:projectId/correlate/log/:logId/line',[], Line.get)
-router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
+router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], Line.update)
 
 router.get('/project/:projectId/correlate/vulnerability',[], logInput)
 
