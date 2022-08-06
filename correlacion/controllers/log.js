@@ -34,16 +34,12 @@ const getExtension = (file) => {
 const persistEvtxLinesFrom = async (processedLogs) => {
   const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
-    // DETECTIONS -> VULNERABILITIES.
-    // VULNERABILITIES NO EXISTENTES: CREO
-    // DETECTIONS -> VULNERABILITIES.
-    //      DETECTION -> { vulnerability, detectionData}
     const foundedDetections = await Vulnerability.findMany({name: detections.map(detection => detection.name)})
     const vulnerabilitiesCreated = await Vulnerability.createMany(detections.filter(detection => !foundedDetections.some(foundedDetection => foundedDetection.name === detection.name)).map(detection => {
       return {
         name: detection.name,
         references: detection.references,
-        level: detection.severity,
+        level: detection.level,
         isCustom: false
       }
     }))
