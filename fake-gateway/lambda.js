@@ -5,7 +5,7 @@ const lambda = async (req, resp, next) => {
     if (response.policyDocument.Statement[0].Effect === 'Allow') {
         next()
     } else {
-        resp.status(response.context.code).json({msg:[response.context.message]})
+        resp.status(response.context.code).json({msg: response.context.message})
     }
 };
 
