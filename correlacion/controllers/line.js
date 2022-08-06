@@ -50,7 +50,7 @@ const update = new RequestWrapper(
     const { annotations } = req.body
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
-      resp.status(404).json({msg: 'Line not found'})
+      throw {msg: 'Line not found'}
     }
     lineUpdated.notes = annotations
     await lineUpdated.save()
