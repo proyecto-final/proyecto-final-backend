@@ -74,6 +74,54 @@ components:
         description: "This is a log file"
         projectId: 123456789
         status: "processing"
+    VulnerabilityResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Vulnerability ID
+        name:
+          type: string
+          description: Vulnerability name
+        references:
+          type: string
+          description: vulnerability references
+        projectId:
+          type: string
+          description: ID of the project
+        level:
+          type: string
+          description: vulnerability level
+          enum: 
+          - high
+          - medium
+          - low
+      example:
+        _id: 62ee8f56647000687263cf76
+        references: ["https://car.mitre.org/wiki/CAR-2016-04-005"]
+        level: low
+        name: Admin User Remote Logon
+    VulnerabilityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Vulnerability name
+        references:
+          type: string
+          description: vulnerability references
+        level:
+          type: string
+          description: vulnerability level
+          enum: 
+          - high
+          - medium
+          - low
+      example:
+        _id: 62ee8f56647000687263cf76
+        references: ["https://car.mitre.org/wiki/CAR-2016-04-005"]
+        level: low
+        name: Admin User Remote Logon
     Count:
       type: number
       description: Number of results in the database
@@ -124,9 +172,11 @@ tags:
     description: logs creation, modification and remove
   - name: Lines CRUD
     description: lines creation, modification and remove
+  - name: Vulnerability CRUD
+    description: vulnerability creation and visualization
 
 paths:
-  /project/:projectId/correlate/log:
+  /api/project/{projectId}/correlate/log:
     post:
       summary: Creates an array of logs
       tags: [Logs CRUD]
@@ -194,7 +244,7 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
-  /project/:projectId/correlate/log/:logId:
+  /api/project/{projectId}/correlate/log/{logId}:
     patch:
       summary: Edits a log
       tags: [Logs CRUD]
@@ -237,7 +287,7 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/Message'
-  /project/:projectId/correlate/log/:logId:/line:
+  /api/project/{projectId}/correlate/log/{logId}/line:
     get:
       summary: Get lines
       tags: [Lines CRUD]
@@ -266,3 +316,75 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/Line'
+  /api/project/{projectId}/correlate/vulnerability:
+    post:
+      summary: Creates an array of logs
+      tags: [Vulnerability CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      description: Creates an array of logs
+      requestBody:
+        content: 
+         application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/VulnerabilityRequest'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/VulnerabilityResponse'
+    get:
+      summary: Get logs
+      tags: [Vulnerability CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: name
+        in: query
+        description: title of the log
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: level
+        in: query
+        description: used to filter organizations by enabled status
+        schema:
+          type: string
+          default: ""
+          enum:
+          - high
+          - low
+          - medium
+        required: false
+      responses:
+        200:
+          description: Logs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/VulnerabilityResponse'
