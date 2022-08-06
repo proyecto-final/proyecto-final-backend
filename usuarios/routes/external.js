@@ -13,6 +13,8 @@ router.post('/project/:projectId/correlate/log',userCrudPermission)
 router.get('/project/:projectId/correlate/log',userCrudPermission)
 router.delete('/project/:projectId/correlate/log/:logId',userCrudPermission)
 router.patch('/project/:projectId/correlate/log/:logId',userCrudPermission)
+router.get('/project/:projectId/correlate/vulnerability',userCrudPermission)
+router.post('/project/:projectId/correlate/vulnerability',userCrudPermission)
 router.get('/project/:projectId/correlate/log/:logId/line',userCrudPermission)
 router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',userCrudPermission)
 //TIMELINE
