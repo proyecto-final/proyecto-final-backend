@@ -2,10 +2,10 @@ db.createCollection('logs')
 db.createCollection('lines')
 db.createCollection('timelineLines')
 db.createCollection('timelines')
-db.createCollection('vulnerabilitys')
+db.createCollection('vulnerabilities')
 
 //vulnerabilities
-db.vulnerabilitys.insertMany([
+db.vulnerabilities.insertMany([
   {
     references: ["https://car.mitre.org/wiki/CAR-2016-04-005"],
     level: "low",

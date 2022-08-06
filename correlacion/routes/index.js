@@ -13,6 +13,5 @@ router.get('/project/:projectId/correlate/log/:logId/line',[], Line.get)
 router.get('/project/:projectId/correlate/vulnerability',[], Vulnerability.get)
 router.post('/project/:projectId/correlate/vulnerability',[], Vulnerability.create)
 
-//router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], logInput)
 
 module.exports = router
