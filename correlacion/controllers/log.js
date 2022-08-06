@@ -3,9 +3,9 @@ const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
-const Vulnerability = require('./../../shared/models/Vulnerability')(mongoose)
+const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
-const  {processFiles: processFilesWithChainsaw}= require('../chainsaw/chainsawAdapter.js')
+const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
 const { get: getAttribute } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
@@ -32,28 +32,31 @@ const getExtension = (file) => {
 }
 
 const persistEvtxLinesFrom = async (processedLogs) => {
-  const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
+  const evtxLogLines = processedLogs.map(async ({ convertedFile, log, detections }) => {
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
-    const foundedDetections = await Vulnerability.findMany({name: detections.map(detection => detection.name)})
-    const vulnerabilitiesCreated = await Vulnerability.createMany(detections.filter(detection => !foundedDetections.some(foundedDetection => foundedDetection.name === detection.name)).map(detection => {
-      return {
-        name: detection.name,
-        references: detection.references,
-        level: detection.level,
-        isCustom: false
-      }
+    const foundDetections = await Vulnerability.find({name: {$in: detections.map(detection => detection.name)}})
+    const vulnerabilitiesCreated = await Vulnerability.insertMany(
+      detections.filter(detection => !foundDetections.some(foundedDetection => foundedDetection.name === detection.name))
+        .map(detection => new Vulnerability({
+          name: detection.name,
+          references: detection.references,
+          level: detection.level,
+          isCustom: false
+        }
+        )))
+    foundDetections.push(...vulnerabilitiesCreated)
+    const vulnerabilitesWithDetection = detections.map(detectionData => ({
+      vulnerability: foundDetections.find(foundedDetection => foundedDetection.name === detectionData.name),
+      detectionData
     }))
-    foundedDetections.push(...vulnerabilitiesCreated)
-    const vulnerabilitesWithDetection = detections.map(detectionData => {
-      const vulnerability = foundedDetections.find(foundedDetection => foundedDetection.name === detectionData.name)
-      return {vulnerability, detectionData}
-    })
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
       const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
-      const vulnerabilites = vulnerabilitesWithDetection.filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
+      const vulnerabilites = vulnerabilitesWithDetection
+        .filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
         detectionData.identification.eventId === EventID)
+        .map(({vulnerability}) => vulnerability)
       return createLine(defaultLine, vulnerabilites, timestamp, log)
     })
     return lines2Save
@@ -86,7 +89,7 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log) => {
   return new Line({
     log,
     timestamp,
-    vulnerabilites: vulnerabilites.map(({vulnerability}) => vulnerability),
+    vulnerabilites,
     raw: rawLine,
     detail: otherAttributes
   })
