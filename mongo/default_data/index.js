@@ -9,12 +9,14 @@ db.vulnerabilities.insertMany([
   {
     references: ["https://car.mitre.org/wiki/CAR-2016-04-005"],
     level: "low",
-    name: "Admin User Remote Logon"
+    name: "Admin User Remote Logon",
+    isCustom: false
   },
   {
     references: ["https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html"],
     level: "high",
-    name: "RDP Login from Localhost"
+    name: "RDP Login from Localhost",
+    isCustom: false,
   }
 ])
 
