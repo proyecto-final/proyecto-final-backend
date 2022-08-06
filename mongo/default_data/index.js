@@ -73,7 +73,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[0]._id,
@@ -85,7 +86,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[1]._id,
@@ -97,7 +99,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[1]._id,
@@ -109,7 +112,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[3]._id,
@@ -121,7 +125,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[2]._id,
@@ -133,7 +138,8 @@ db.lines.insertMany([
     raw: 'Soy un log',
     notes: [
       'nota 1','nota 2'
-    ]
+    ],
+    timestamp: '2019-02-13T18:01:47.512340Z'
   },
 ])
 
