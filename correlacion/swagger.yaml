@@ -254,8 +254,8 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
-  
-/api/project/:projectId/correlate/log/:logId/line/:lineId:
+
+  /api/project/:projectId/correlate/log/:logId/line/:lineId:
     patch:
       summary: Update lines
       tags: [Lines CRUD]
@@ -291,7 +291,7 @@ paths:
               schema:
                 type: object
                 $ref: '#/components/schemas/Line'
-/api/project/{projectId}/correlate/log/{logId}:
+  /api/project/{projectId}/correlate/log/{logId}:
     patch:
       summary: Edits a log
       tags: [Logs CRUD]
@@ -420,14 +420,14 @@ paths:
           - low
           - medium
         required: false
-      responses:
-        200:
-          description: Logs page
-                properties:
-                  count:
-                    $ref: '#/components/schemas/Count'
-                  rows:
-                    type: array
-                    items:
-                      allOf:
-                        - $ref: '#/components/schemas/VulnerabilityResponse'
+        responses:
+          200:
+            description: Logs page
+                  properties:
+                    count:
+                      $ref: '#/components/schemas/Count'
+                    rows:
+                      type: array
+                      items:
+                        allOf:
+                          - $ref: '#/components/schemas/VulnerabilityResponse'
