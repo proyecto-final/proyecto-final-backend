@@ -357,14 +357,14 @@ paths:
           type: integer
       - name: name
         in: query
-        description: title of the log
+        description: vulnerability name
         required: false
         schema:
           type: string
           default: ""
       - name: level
         in: query
-        description: used to filter organizations by enabled status
+        description: vulnerability level
         schema:
           type: string
           default: ""
