@@ -52,12 +52,16 @@ components:
         createdAt:
           type: string
           description: creation date
+        lines: 
+          type: array
+          description: timeline lines
       example:
         title: timeline1
         projectId: 1
         description: Some description
         createdAt: 2022-07-30T19:27:13.357Z
         updatedAt: 2022-07-30T19:27:13.357Z
+        lines: ["62e557770cda67a071353287", "62e557770cda67a071353288"]
     TimelineRequest:
       type: object
       properties:
@@ -83,7 +87,7 @@ tags:
     description: timeline creation, modification and remove
 
 paths:
-  /project/:projectId/timeline:
+  /api/project/{projectId}/timeline:
     post:
       summary: Creates a timeline
       tags: [Timeline CRUD]
@@ -121,6 +125,12 @@ paths:
         schema:
           type: string
           default: ""
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
       responses:
         200:
           description: Timelines page
@@ -136,7 +146,7 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/TimelineResponse'
-  /project/:projectId/timeline/:timelineId:
+  /api/project/{projectId}/timeline/:timelineId:
     patch:
       summary: Updates a timeline
       tags: [Timeline CRUD]
