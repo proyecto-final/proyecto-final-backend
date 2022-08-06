@@ -53,7 +53,6 @@ exports.handler = async (event) => {
         message = code === 404 ? ['Permissions not defined for requested route'] : body.msg
     } catch (err) {
         effect = "Deny"
-        console.log('error: ', err)
     }
     return {
         policyDocument: {
