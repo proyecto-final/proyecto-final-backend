@@ -13,7 +13,6 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: { len: [2,32] },
       unique: true
-
     }, 
     email: {
       type: DataTypes.STRING,
@@ -60,6 +59,11 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false
+    },
+    attemptsCount: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     }
   })
 

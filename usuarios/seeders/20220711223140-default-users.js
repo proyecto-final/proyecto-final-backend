@@ -14,7 +14,8 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: true,
-      organizationId: organizationIds[0]
+      organizationId: organizationIds[0],
+      attemptsCount: 0
     },
     {
       username: 'pepa',
@@ -26,7 +27,8 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: false,
-      organizationId: organizationIds[0]
+      organizationId: organizationIds[0],
+      attemptsCount: 0
     },
     {
       username: 'pepo',
@@ -38,7 +40,8 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: false,
-      organizationId: organizationIds[1]
+      organizationId: organizationIds[1],
+      attemptsCount: 0
     },
     {
       username: 'juancue99',
@@ -50,7 +53,8 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: false,
-      organizationId: organizationIds[1]
+      organizationId: organizationIds[1],
+      attemptsCount: 0
     }])
   },
   async down (queryInterface) {
