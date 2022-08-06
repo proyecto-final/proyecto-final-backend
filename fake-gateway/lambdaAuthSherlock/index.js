@@ -50,9 +50,10 @@ exports.handler = async (event) => {
         const { code, body } = await httpRequest(options)
         effect = code === 200 ? "Allow" : "Deny"
         responseCode = code
-        message = body.msg
+        message = code === 404 ? ['Permissions not defined for requested route'] : body.msg
     } catch (err) {
         effect = "Deny"
+        console.log('error: ', err)
     }
     return {
         policyDocument: {

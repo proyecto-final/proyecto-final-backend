@@ -19,6 +19,10 @@ app.use(require('./middlewares/checkToken'))
 app.use('/api', require('./routes'))
 app.use('/api', require('./routes/external'))
 
+app.use(function(req, res){
+  res.status(404).json({msg: 'Not Found'})
+})
+
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}`)
 })
