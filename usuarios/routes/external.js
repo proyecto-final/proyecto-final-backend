@@ -13,6 +13,7 @@ router.post('/project/:projectId/correlate/log',userCrudPermission)
 router.get('/project/:projectId/correlate/log',userCrudPermission)
 router.delete('/project/:projectId/correlate/log/:logId',userCrudPermission)
 router.patch('/project/:projectId/correlate/log/:logId',userCrudPermission)
+router.get('/project/:projectId/correlate/log/:logId/line',userCrudPermission)
 
 //TIMELINE
 router.post('/project/:projectId/timeline/',userCrudPermission)
