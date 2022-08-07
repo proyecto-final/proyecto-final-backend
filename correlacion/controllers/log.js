@@ -32,21 +32,24 @@ const getExtension = (file) => {
 }
 
 const persistEvtxLinesFrom = async (processedLogs) => {
-  const evtxLogLines = processedLogs.map(async ({ convertedFile, log, detections }) => {
+  const evtxLogLines = []
+  for(const processedLog of processedLogs) {
+    const { convertedFile, log, detections } = processedLog
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
-    const foundDetections = await Vulnerability.find({name: {$in: detections.map(detection => detection.name)}})
-    const vulnerabilitiesCreated = await Vulnerability.insertMany(
-      detections.filter(detection => !foundDetections.some(foundedDetection => foundedDetection.name === detection.name))
-        .map(detection => new Vulnerability({
-          name: detection.name,
-          references: detection.references,
-          level: detection.level,
-          isCustom: false
-        }
-        )))
-    foundDetections.push(...vulnerabilitiesCreated)
+    const existingVulnerabilities = await Vulnerability.find({name: {$in: detections.map(detection => detection.name)}})
+    const detections2Create = detections.filter(detection => !existingVulnerabilities.some(foundDetection => foundDetection.name === detection.name))
+    const uniqueCreatedVulnerabilities = detections2Create
+      .filter((detection, index) => detections2Create.findIndex(detection2 => detection2.name === detection.name) === index)
+      .map(detection => new Vulnerability({
+        name: detection.name,
+        references: detection.references,
+        level: detection.level,
+        isCustom: false
+      }))
+    await Vulnerability.insertMany(uniqueCreatedVulnerabilities)
+    const vulnerabilities = [...existingVulnerabilities, ...uniqueCreatedVulnerabilities]
     const vulnerabilitesWithDetection = detections.map(detectionData => ({
-      vulnerability: foundDetections.find(foundedDetection => foundedDetection.name === detectionData.name),
+      vulnerability: vulnerabilities.find(foundDetection => foundDetection.name === detectionData.name),
       detectionData
     }))
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
@@ -55,12 +58,12 @@ const persistEvtxLinesFrom = async (processedLogs) => {
       const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
       const vulnerabilites = vulnerabilitesWithDetection
         .filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
-        detectionData.identification.eventId === EventID)
+          detectionData.identification.eventId === EventID)
         .map(({vulnerability}) => vulnerability)
       return createLine(defaultLine, vulnerabilites, timestamp, log)
     })
-    return lines2Save
-  })
+    evtxLogLines.push(lines2Save)
+  }
   return await Line.insertMany(evtxLogLines.flat())
 }
 
@@ -111,6 +114,7 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   try {
     await persistEvtxLinesFrom(processedLogs)
   } catch (err) {
+    console.error(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
