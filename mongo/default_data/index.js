@@ -57,6 +57,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
@@ -70,6 +71,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
@@ -83,6 +85,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
@@ -96,6 +99,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
@@ -109,6 +113,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
@@ -122,6 +127,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
 ])
