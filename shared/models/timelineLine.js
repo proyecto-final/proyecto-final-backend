@@ -22,10 +22,10 @@ module.exports = mongoose => {
       type: Array,
       default: () => []
     },
-    vulnerabilites: {
-      type: Array,
-      default: () => []
-    },
+    vulnerabilites: [{
+      type: Schema.Types.ObjectId,
+      ref: 'vulnerability'
+    }],
   })
   TimelineLine.methods.toJSON = function () {
     const {__v, ...others} = this.toObject()
