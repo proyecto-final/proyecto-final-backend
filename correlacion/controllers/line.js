@@ -51,8 +51,9 @@ const update = new RequestWrapper().hasId('projectId')
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
-    if(isSelected){
-      lineUpdated.isSelected = getBooleanValue(isSelected)
+    const isSelectedValue = getBooleanValue(isSelected)
+    if(isSelectedValue !== null){
+      lineUpdated.isSelected = isSelectedValue
     }
     if(notes){
       lineUpdated.notes = notes
