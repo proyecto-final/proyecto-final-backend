@@ -84,6 +84,9 @@ const update = new RequestWrapper()
     if (body.title) {
       timeline.title = body.title
     }
+    if(body.lines){
+      timeline.lines = await createLinesFrom(body.lines, timeline.log)
+    }
     if (body.description !== undefined) {
       timeline.description = body.description
     }
