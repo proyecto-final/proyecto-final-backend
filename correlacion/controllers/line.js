@@ -46,13 +46,16 @@ const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { notes } = req.body
+    const { notes, isSelected } = req.body
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
-    lineUpdated.notes = notes
-    lineUpdated.isSelected = getBooleanValue(req.body.isSelected)
+    console.log(req.body)
+    lineUpdated.isSelected = getBooleanValue(isSelected)
+    if(notes){
+      lineUpdated.notes = notes
+    }
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)
   }).wrap()
