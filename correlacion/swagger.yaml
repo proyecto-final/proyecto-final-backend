@@ -126,6 +126,16 @@ components:
       type: number
       description: Number of results in the database
       example: 10
+    LineUpdateRequest:
+      type: object
+      properties:
+        annotations:
+          type: array
+          description: line notes
+      example:
+        annotations:
+          - This is a note
+          - This is another note
     Line:
       type: object
       properties:
@@ -244,6 +254,43 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
+
+  /api/project/:projectId/correlate/log/:logId/line/:lineId:
+    patch:
+      summary: Update lines
+      tags: [Lines CRUD]
+      parameters:
+      - name: project id
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: string
+      - name: log id
+        in: path
+        description: log id (mongo)
+        required: true
+        schema:
+          type: string
+      - name: line id
+        in: path
+        description: line id (mongo)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineUpdateRequest'
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Line'
   /api/project/{projectId}/correlate/log/{logId}:
     patch:
       summary: Edits a log
@@ -344,7 +391,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/VulnerabilityResponse'
     get:
-      summary: Get logs
+      summary: Get vulnerabilities
       tags: [Vulnerability CRUD]
       parameters:
       - $ref: '#/components/parameters/offsetParam'
@@ -375,7 +422,7 @@ paths:
         required: false
       responses:
         200:
-          description: Logs page
+          description: Vulnerabilities page
           content:
             application/json:
               schema:
@@ -387,4 +434,3 @@ paths:
                     type: array
                     items:
                       allOf:
-                        - $ref: '#/components/schemas/VulnerabilityResponse'
