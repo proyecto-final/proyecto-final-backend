@@ -84,7 +84,11 @@ components:
         annotations:
           type: array
           description: line notes
+        isSelected:
+          type: boolean
+          description: line selected for new timeline
       example:
+        isSelected: true
         annotations:
           - This is a note
           - This is another note
