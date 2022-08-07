@@ -108,6 +108,11 @@ const get = new RequestWrapper()
     }
     const timelines = await Timeline.aggregate([
       {
+        $project: {
+          lines: 0
+        }
+      },
+      {
         $facet: {
           paginatedResult: [
             { $match: mongooseQuery },
@@ -123,10 +128,24 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 
+const getSpecific = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('timelineId')
+  .setHandler(
+    async (req, resp) => {
+      const { timelineId, projectId } = req.params
+      const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
+      if (!timeline) {
+        throw { code: 404, msg: 'Timeline not found' }
+      }
+      resp.status(200).json(timeline)
+    }
+  ).wrap()
 
 module.exports = {
   create,
   destroy,
   update,
-  get
+  get,
+  getSpecific
 }
