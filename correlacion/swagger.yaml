@@ -126,16 +126,6 @@ components:
       type: number
       description: Number of results in the database
       example: 10
-    LineUpdateRequest:
-      type: object
-      properties:
-        annotations:
-          type: array
-          description: line notes
-      example:
-        annotations:
-          - This is a note
-          - This is another note
     Line:
       type: object
       properties:
@@ -420,14 +410,17 @@ paths:
           - low
           - medium
         required: false
-        responses:
-          200:
-            description: Logs page
-                  properties:
-                    count:
-                      $ref: '#/components/schemas/Count'
-                    rows:
-                      type: array
-                      items:
-                        allOf:
-                          - $ref: '#/components/schemas/VulnerabilityResponse'
+      responses:
+        200:
+          description: Logs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
