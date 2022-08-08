@@ -1,7 +1,6 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
-const {check} = require('express-validator')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -45,12 +44,12 @@ const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { note } = req.body
+    const { notes } = req.body
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
-    lineUpdated.notes = note
+    lineUpdated.notes = notes
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)
   }).wrap()

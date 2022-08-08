@@ -81,11 +81,11 @@ components:
     LineUpdateRequest:
       type: object
       properties:
-        annotations:
+        notes:
           type: array
           description: line notes
       example:
-        annotations:
+        notes:
           - This is a note
           - This is another note
     Line:
