@@ -72,6 +72,29 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   return await Line.insertMany(evtxLogLines.flat())
 }
 
+const persistCommonLogLinesFrom = async (logs) => {
+  const logLines = logs.map(({ file, log }) => {
+    //const converSingleLineJsonToValidOne = json => json.split('\n')
+    console.log(` my file: ${file.data.toString()}`)
+    const defaultLines  = file.data.toString().split('\n')
+    const lines2Save = defaultLines.map(defaultLine => {
+      const timestamp = new Date()
+      const otherAttributes = {
+        warning: 'Line from .log file, not processed by chainsaw',
+      }
+      return new Line({
+        log,
+        timestamp,
+        raw: defaultLine,
+        detail: otherAttributes
+      })
+    })
+    return lines2Save
+  })
+  return await Line.insertMany(logLines.flat())
+}
+
+
 const processAndPersistLogs = async (logs, files, convertedFiles) => {
   const logsWithFiles = logs.map((log, index) => ({
     log,
@@ -82,12 +105,18 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   //   .filter(({ file }) => getExtension(file) !== 'evtx')
   const evtxLogs = logsWithFiles
     .filter(({ file }) => getExtension(file) === 'evtx')
+
+  const nonEvtxLogs = logsWithFiles.filter(({ file }) => getExtension(file) === 'log')
+
   // Process and merge results
   const processedLogs = (await processFilesWithChainsaw(evtxLogs))
     .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
   try {
     await persistEvtxLinesFrom(processedLogs)
+    await persistCommonLogLinesFrom(nonEvtxLogs)
+    
   } catch (err) {
+    console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
