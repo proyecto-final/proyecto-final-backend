@@ -49,7 +49,9 @@ const update = new RequestWrapper().hasId('projectId')
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
-    lineUpdated.notes = notes
+    if (notes){
+      lineUpdated.notes = notes
+    }
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)
   }).wrap()
