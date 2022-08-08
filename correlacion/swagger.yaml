@@ -132,10 +132,16 @@ components:
         notes:
           type: array
           description: line notes
+        vulnerabilites:
+          type: array
+          description: line vulnerabilites
       example:
         notes:
           - This is a note
           - This is another note
+        vulnerabilites:
+          - _id: 62ee8f56647000687263cf76
+          - _id: 62ee8f56647000687263cf76
     Line:
       type: object
       properties:
@@ -363,6 +369,7 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/Line'
+
   /api/project/{projectId}/correlate/vulnerability:
     post:
       summary: Creates an array of logs
@@ -420,9 +427,12 @@ paths:
           - low
           - medium
         required: false
-        responses:
+      responses:
           200:
             description: Logs page
+            content:
+              application/json:
+                schema:
                   properties:
                     count:
                       $ref: '#/components/schemas/Count'

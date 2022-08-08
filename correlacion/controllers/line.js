@@ -3,6 +3,7 @@ const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
+const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 
 const get = new RequestWrapper()
@@ -44,13 +45,24 @@ const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { notes } = req.body
+    const { notes, vulnerabilites } = req.body
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
     if (notes){
       lineUpdated.notes = notes
+    }
+    if (vulnerabilites) {
+      const vulnerabilitesIds = vulnerabilites.map(vulnerability => vulnerability._id)
+      const vulnerabilitesToAdd = await Vulnerability.find({ 
+        _id: { $in: vulnerabilitesIds },
+        $or: [
+          {projectId: {$eq: getIntValue(projectId)}}, 
+          {isCustom: false} 
+        ]
+      })
+      lineUpdated.vulnerabilites = vulnerabilitesToAdd
     }
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)

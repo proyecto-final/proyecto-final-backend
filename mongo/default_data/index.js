@@ -17,6 +17,13 @@ db.vulnerabilities.insertMany([
     level: "high",
     name: "RDP Login from Localhost",
     isCustom: false,
+  },
+  {
+    references: ["https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html"],
+    level: "high",
+    name: "LSASS Access from Non System Account",
+    isCustom: true,
+    projectId: 1
   }
 ])
 
