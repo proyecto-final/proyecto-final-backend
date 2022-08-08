@@ -81,17 +81,19 @@ const update = new RequestWrapper()
   .setHandler(async (req, resp) => {
     const { body } = req
     const timeline = await Timeline.findOne({_id: req.params.timelineId, projectId: getIntValue(req.params.projectId)})
+    const requestLines = body.lines
     if (!timeline) {
       throw { code: 404, msg: 'Log not found' }
     }
     if (body.title) {
       timeline.title = body.title
     }
-    if(body.lines){
-      const linesIds = body.lines.map(line => line.id)
-      console.log('ids: ',linesIds)
-      timeline.lines = await createLinesFrom(linesIds, timeline.log)
-      timeline.lines.forEach(lineWithLogLineData => lineWithLogLineData.tags = body.lines.find(lineFromRequest => lineFromRequest.id === lineWithLogLineData.line._id.toString())?.tags)
+    if(requestLines){
+      const linesIds = requestLines.map(line => line.id)
+      const linesCreated = await createLinesFrom(linesIds, timeline.log)
+      const findTagsInRequestById = id => requestLines.find(lineFromRequest => lineFromRequest.id === id)?.tags
+      linesCreated.forEach(lineWithLogLineData => lineWithLogLineData.tags = findTagsInRequestById(lineWithLogLineData.line._id.toString()))
+      timeline.lines = linesCreated
     }
     if (body.description !== undefined) {
       timeline.description = body.description
