@@ -244,6 +244,43 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
+
+  /api/project/:projectId/correlate/log/:logId/line/:lineId:
+    patch:
+      summary: Update lines
+      tags: [Lines CRUD]
+      parameters:
+      - name: project id
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: string
+      - name: log id
+        in: path
+        description: log id (mongo)
+        required: true
+        schema:
+          type: string
+      - name: line id
+        in: path
+        description: line id (mongo)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineUpdateRequest'
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Line'
   /api/project/{projectId}/correlate/log/{logId}:
     patch:
       summary: Edits a log
@@ -387,4 +424,3 @@ paths:
                     type: array
                     items:
                       allOf:
-                        - $ref: '#/components/schemas/VulnerabilityResponse'
