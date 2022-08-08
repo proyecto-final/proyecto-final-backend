@@ -1,15 +1,7 @@
 
 module.exports = mongoose => {
   const { Schema, model } = mongoose
-  const Line = Schema({
-    log: {
-      type: Schema.Types.ObjectId,
-      ref: 'log'
-    },
-    vulnerabilites:  [{
-      type: Schema.Types.ObjectId,
-      ref: 'vulnerability'
-    }],
+  const TimelineLine = Schema({
     detail: {
       type: Object,
       required: true
@@ -20,16 +12,24 @@ module.exports = mongoose => {
     },
     timestamp: {
       type: String,
-      required: true
+      require: true
     },
-    notes: {
+    line: {
+      type: Schema.Types.ObjectId,
+      ref: 'line'
+    },
+    tags: {
       type: Array,
       default: () => []
-    }
+    },
+    vulnerabilites: [{
+      type: Schema.Types.ObjectId,
+      ref: 'vulnerability'
+    }],
   })
-  Line.methods.toJSON = function () {
+  TimelineLine.methods.toJSON = function () {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return mongoose.models.line || model('line', Line)
+  return model('timelineLine', TimelineLine)
 }
