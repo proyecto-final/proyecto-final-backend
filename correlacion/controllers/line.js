@@ -22,6 +22,12 @@ const get = new RequestWrapper()
     const mongooseQuery = {
       log: logOwner._id
     }
+    
+    const isSelectedValue = getBooleanValue(query.isSelected)
+    if(isSelectedValue !== null){
+      mongooseQuery.isSelected = isSelectedValue
+    }
+
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
