@@ -17,4 +17,13 @@ const getIntValue = (value) => {
   }
 }
 
-module.exports = {getBooleanValue, getIntValue}
+const getDateValue = (value) => {
+  try {
+    return new Date(value)
+  } catch {
+    return null
+  }
+}
+
+
+module.exports = {getBooleanValue, getIntValue, getDateValue}

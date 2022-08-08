@@ -1,5 +1,5 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
@@ -61,7 +61,7 @@ const persistEvtxLinesFrom = async (processedLogs) => {
       }
       return new Line({
         log,
-        timestamp,
+        timestamp: getDateValue(timestamp),
         vulnerabilites: vulnerabilites.map(vulnerability => ({ name: vulnerability.name, references: vulnerability.references })),
         raw: rawLine,
         detail: otherAttributes
