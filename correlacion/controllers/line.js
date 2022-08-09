@@ -1,6 +1,7 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
+const {check} = require('express-validator')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
@@ -39,6 +40,7 @@ const get = new RequestWrapper()
     }])
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
+
 
 const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('lineId')

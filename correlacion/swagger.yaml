@@ -428,16 +428,18 @@ paths:
           - medium
         required: false
       responses:
-          200:
-            description: Logs page
-            content:
-              application/json:
-                schema:
-                  properties:
-                    count:
-                      $ref: '#/components/schemas/Count'
-                    rows:
-                      type: array
-                      items:
-                        allOf:
-                          - $ref: '#/components/schemas/VulnerabilityResponse'
+        200:
+          description: Logs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/VulnerabilityResponse'
+
