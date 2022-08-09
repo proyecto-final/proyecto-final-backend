@@ -74,8 +74,6 @@ const persistEvtxLinesFrom = async (processedLogs) => {
 
 const persistCommonLogLinesFrom = async (logs) => {
   const logLines = logs.map(({ file, log }) => {
-    //const converSingleLineJsonToValidOne = json => json.split('\n')
-    console.log(` my file: ${file.data.toString()}`)
     const defaultLines  = file.data.toString().split('\n')
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = new Date()
