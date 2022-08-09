@@ -7,7 +7,7 @@ docker rm -f evtx-converter-dev-container
 
 docker build -t mongo:dev mongo 
 docker build -t mysql:dev mysql 
-docker build --build-arg CORRELATION_URI=http://192.168.0.3:3032/api -t evtx-converter:dev evtx-converter
+docker build --build-arg CORRELATION_URI=http://192.168.0.4:3032/api -t evtx-converter:dev evtx-converter
 
 docker run --name mongo-dev-container -d -p 27017:27017 mongo:dev 
 docker run --name mysql-dev-container -d -p 3306:3306 mysql:dev 
