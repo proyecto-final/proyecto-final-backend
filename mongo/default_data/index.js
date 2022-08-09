@@ -1,6 +1,5 @@
 db.createCollection('logs')
 db.createCollection('lines')
-db.createCollection('timelineLines')
 db.createCollection('timelines')
 db.createCollection('vulnerabilities')
 
@@ -145,101 +144,6 @@ db.lines.insertMany([
 
 //timelines
 
-db.timelineLines.insertMany([
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[0]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[0]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[1]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[1]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[2]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[2]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  },
-  {
-    detail: {
-      detail1: 'detail1',
-      detail2: 'detail2',
-      detail3: 'detail3',
-    },
-    raw: 'raw timelineline',
-    line:db.lines.find({})[2]._id,
-    tags: [
-      'tag1','tag2'
-    ],
-    vulnerabilites: [],
-  }
-])
-
-
 db.timelines.insertMany([
   {
     title: 'timelineTest1',
@@ -247,9 +151,33 @@ db.timelines.insertMany([
     projectId: 1,
     log: db.logs.find({})[0]._id,
     lines: [
-      db.timelineLines.find({})[0]._id,
-      db.timelineLines.find({})[2]._id
-    ],
+      {
+        detail: {
+          detail1: 'detail1',
+          detail2: 'detail2',
+          detail3: 'detail3',
+        },
+        raw: 'raw timelineline',
+        line:db.lines.find({})[0]._id,
+        tags: [
+          'tag1','tag2'
+        ],
+        vulnerabilites: [],
+      },
+      {
+        detail: {
+          detail1: 'detail1',
+          detail2: 'detail2',
+          detail3: 'detail3',
+        },
+        raw: 'raw timelineline',
+        line:db.lines.find({})[1]._id,
+        tags: [
+          'tag1','tag2'
+        ],
+        vulnerabilites: [],
+    }
+  ],
     updatedAt: new Date(),
     createdAt: new Date()
 }])
