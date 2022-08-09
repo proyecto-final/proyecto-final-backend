@@ -83,7 +83,7 @@ const update = new RequestWrapper()
     const timeline = await Timeline.findOne({_id: req.params.timelineId, projectId: getIntValue(req.params.projectId)})
     const requestLines = body.lines
     if (!timeline) {
-      throw { code: 404, msg: 'Log not found' }
+      throw { code: 404, msg: 'Timeline not found' }
     }
     if (body.title) {
       timeline.title = body.title
