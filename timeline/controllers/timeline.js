@@ -3,7 +3,6 @@ const { getIntValue } = require('../../shared/utils/dataHelpers')
 const { check} = require('express-validator')
 const mongoose = require('mongoose')
 const Timeline = require('../../shared/models/timeline')(mongoose)
-const TimelineLine = require('../../shared/models/timelineLine')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -21,7 +20,7 @@ const createLinesFrom = async (lines, log) => {
   }
   const timelineLines = logLines.map(line => {
     const {raw, detail, vulnerabilites,timestamp, log, notes } = line
-    return new TimelineLine({
+    return {
       line,
       raw, 
       timestamp,
@@ -30,9 +29,8 @@ const createLinesFrom = async (lines, log) => {
       log, 
       notes,
       tags: []
-    })})
-  await Promise.all(timelineLines.map(async line => await line.validate()))
-  return await TimelineLine.insertMany(timelineLines)
+    }})
+  return timelineLines
 }
 
 const create = new RequestWrapper(
@@ -108,6 +106,11 @@ const get = new RequestWrapper()
     }
     const timelines = await Timeline.aggregate([
       {
+        $project: {
+          lines: 0
+        }
+      },
+      {
         $facet: {
           paginatedResult: [
             { $match: mongooseQuery },
@@ -123,10 +126,24 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 
+const getSpecific = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('timelineId')
+  .setHandler(
+    async (req, resp) => {
+      const { timelineId, projectId } = req.params
+      const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
+      if (!timeline) {
+        throw { code: 404, msg: 'Timeline not found' }
+      }
+      resp.status(200).json(timeline)
+    }
+  ).wrap()
 
 module.exports = {
   create,
   destroy,
   update,
-  get
+  get,
+  getSpecific
 }

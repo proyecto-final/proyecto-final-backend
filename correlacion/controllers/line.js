@@ -39,6 +39,28 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 
+const update = new RequestWrapper().hasId('projectId')
+  .hasMongoId('lineId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const { lineId, projectId, logId } = req.params
+    const { notes } = req.body
+    const logOwner = await Log.findOne({ _id: logId, projectId: getIntValue(req.params.projectId) })
+    if (!logOwner) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    const lineUpdated = await Line.findOne({ _id: lineId, log: logOwner._id, projectId: getIntValue(projectId) })
+    if (!lineUpdated) {
+      throw {code: 404, msg: 'Line not found'}
+    }
+    if (notes){
+      lineUpdated.notes = notes
+    }
+    await lineUpdated.save()
+    resp.status(200).json(lineUpdated)
+  }).wrap()
+
 module.exports = {
-  get
+  get,
+  update
 }
