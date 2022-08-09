@@ -1,7 +1,6 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
-const {check} = require('express-validator')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -40,19 +39,23 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 
-const update = new RequestWrapper(
-  check('annotations').isArray()
-).hasId('projectId')
+const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('lineId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { annotations } = req.body
-    const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
-    if (!lineUpdated) {
-      throw {msg: 'Line not found'}
+    const { notes } = req.body
+    const logOwner = await Log.findOne({ _id: logId, projectId: getIntValue(req.params.projectId) })
+    if (!logOwner) {
+      throw { code: 404, msg: 'Log not found' }
     }
-    lineUpdated.notes = annotations
+    const lineUpdated = await Line.findOne({ _id: lineId, log: logOwner._id, projectId: getIntValue(projectId) })
+    if (!lineUpdated) {
+      throw {code: 404, msg: 'Line not found'}
+    }
+    if (notes){
+      lineUpdated.notes = notes
+    }
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)
   }).wrap()

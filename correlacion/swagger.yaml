@@ -126,6 +126,16 @@ components:
       type: number
       description: Number of results in the database
       example: 10
+    LineUpdateRequest:
+      type: object
+      properties:
+        notes:
+          type: array
+          description: line notes
+      example:
+        notes:
+          - This is a note
+          - This is another note
     Line:
       type: object
       properties:
@@ -412,15 +422,15 @@ paths:
         required: false
       responses:
         200:
-          description: Logs page
+          description: Line page
           content:
             application/json:
               schema:
-                type: object
                 properties:
                   count:
                     $ref: '#/components/schemas/Count'
                   rows:
                     type: array
                     items:
-                      allOf:
+                      $ref: '#/components/schemas/Line'
+
