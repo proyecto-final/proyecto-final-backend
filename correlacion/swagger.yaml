@@ -129,15 +129,11 @@ components:
     LineUpdateRequest:
       type: object
       properties:
-        annotations:
+        notes:
           type: array
           description: line notes
-        isSelected:
-          type: boolean
-          description: line selected for new timeline
       example:
-        isSelected: true
-        annotations:
+        notes:
           - This is a note
           - This is another note
     Line:
@@ -367,7 +363,7 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/Line'
-  /api/project/:projectId/correlate/log/:logId/line/:lineId:
+  /api/project/{projectId}/correlate/log/{logId}/line/{lineId}:
     patch:
       summary: Update lines
       tags: [Lines CRUD]
@@ -461,11 +457,10 @@ paths:
         required: false
       responses:
         200:
-          description: Logs page
+          description: Line page
           content:
             application/json:
               schema:
-                type: object
                 properties:
                   count:
                     $ref: '#/components/schemas/Count'
@@ -474,4 +469,3 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/VulnerabilityResponse'
-
