@@ -3,7 +3,6 @@ const { getIntValue } = require('../../shared/utils/dataHelpers')
 const { check} = require('express-validator')
 const mongoose = require('mongoose')
 const Timeline = require('../../shared/models/timeline')(mongoose)
-const TimelineLine = require('../../shared/models/timelineLine')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -21,7 +20,7 @@ const createLinesFrom = async (lines, log) => {
   }
   const timelineLines = logLines.map(line => {
     const {raw, detail, vulnerabilites,timestamp, log, notes } = line
-    return new TimelineLine({
+    return {
       line,
       raw, 
       timestamp,
@@ -30,9 +29,8 @@ const createLinesFrom = async (lines, log) => {
       log, 
       notes,
       tags: []
-    })})
-  await Promise.all(timelineLines.map(async line => await line.validate()))
-  return await TimelineLine.insertMany(timelineLines)
+    }})
+  return timelineLines
 }
 
 const create = new RequestWrapper(
@@ -48,7 +46,10 @@ const create = new RequestWrapper(
     if (!log) {
       throw { code: 404, msg: 'Log not found' }
     }
-    const lines = await createLinesFrom(timeline2Create.lines, log)
+    const linesIds = timeline2Create.lines.map(line => line.id)
+    const lines = await createLinesFrom(linesIds, log)
+    lines.forEach(lineWithLogLineData => lineWithLogLineData.tags = timeline2Create.lines.find(lineFromRequest => lineFromRequest.id === lineWithLogLineData.line._id.toString())?.tags)
+    
     const timeline = new Timeline({
       title: timeline2Create.title,
       description: timeline2Create.description,
@@ -69,9 +70,9 @@ const destroy = new RequestWrapper()
     if (!timeline) {
       throw { code: 404, msg: 'Timeline not found' }
     }
-    const linesDeleted = await TimelineLine.deleteMany( {_id: timeline.lines.map(({_id}) => _id)})
+    const linesDeleted = timeline.lines.length
     await Timeline.deleteOne({_id: timelineId, projectId: getIntValue(projectId)})
-    resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted.deletedCount} lines` })
+    resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted} lines` })
   }).wrap()
 
 const update = new RequestWrapper()
@@ -80,11 +81,19 @@ const update = new RequestWrapper()
   .setHandler(async (req, resp) => {
     const { body } = req
     const timeline = await Timeline.findOne({_id: req.params.timelineId, projectId: getIntValue(req.params.projectId)})
+    const requestLines = body.lines
     if (!timeline) {
-      throw { code: 404, msg: 'Log not found' }
+      throw { code: 404, msg: 'Timeline not found' }
     }
     if (body.title) {
       timeline.title = body.title
+    }
+    if(requestLines){
+      const linesIds = requestLines.map(line => line.id)
+      const linesCreated = await createLinesFrom(linesIds, timeline.log)
+      const findTagsInRequestById = id => requestLines.find(lineFromRequest => lineFromRequest.id === id)?.tags
+      linesCreated.forEach(lineWithLogLineData => lineWithLogLineData.tags = findTagsInRequestById(lineWithLogLineData.line._id.toString()))
+      timeline.lines = linesCreated
     }
     if (body.description !== undefined) {
       timeline.description = body.description
@@ -108,6 +117,11 @@ const get = new RequestWrapper()
     }
     const timelines = await Timeline.aggregate([
       {
+        $project: {
+          lines: 0
+        }
+      },
+      {
         $facet: {
           paginatedResult: [
             { $match: mongooseQuery },
@@ -123,10 +137,24 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 
+const getSpecific = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('timelineId')
+  .setHandler(
+    async (req, resp) => {
+      const { timelineId, projectId } = req.params
+      const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
+      if (!timeline) {
+        throw { code: 404, msg: 'Timeline not found' }
+      }
+      resp.status(200).json(timeline)
+    }
+  ).wrap()
 
 module.exports = {
   create,
   destroy,
   update,
-  get
+  get,
+  getSpecific
 }

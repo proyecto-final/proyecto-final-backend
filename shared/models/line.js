@@ -14,6 +14,10 @@ module.exports = mongoose => {
       type: Object,
       required: true
     },
+    isSelected: {
+      type: Boolean,
+      default: false
+    },
     raw: {
       type: String,
       required: true
@@ -25,6 +29,10 @@ module.exports = mongoose => {
     notes: {
       type: Array,
       default: () => []
+    },
+    index: {
+      type: Number,
+      required: true
     }
   })
   Line.methods.toJSON = function () {

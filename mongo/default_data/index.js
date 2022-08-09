@@ -1,6 +1,5 @@
 db.createCollection('logs')
 db.createCollection('lines')
-db.createCollection('timelineLines')
 db.createCollection('timelines')
 db.createCollection('vulnerabilities')
 
@@ -2090,14 +2089,6 @@ db.vulnerabilities.insertMany([
       "https://github.com/OTRF/ThreatHunter-Playbook/blob/f7a58156dbfc9b019f17f638b8c62d22e557d350/playbooks/WIN-201012004336.yaml",
       "https://securitydatasets.com/notebooks/small/windows/08_lateral_movement/SDWIN-200806015757.html?highlight=create%20file"
     ]
-  },
-  {
-    isCustom: false, level: "high",
-    name: "KrbRelayUp Attack Pattern",
-    references: [
-      "https://twitter.com/sbousseaden/status/1518976397364056071?s=12&t=qKO5eKHvWhAP19a50FTZ7g",
-      "https://github.com/elastic/detection-rules/blob/fb6ee2c69864ffdfe347bf3b050cb931f53067a6/rules/windows/privilege_escalation_krbrelayup_suspicious_logon.toml"
-    ]
   }
 ])
 
@@ -2146,6 +2137,7 @@ db.logs.insertMany([
 db.lines.insertMany([
   {
     log: db.logs.find({})[0]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2155,10 +2147,12 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[0]._id,
+    index: 2,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2168,10 +2162,12 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[1]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2181,10 +2177,12 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[1]._id,
+    index: 2,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2194,10 +2192,12 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[3]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2207,10 +2207,12 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
   {
     log: db.logs.find({})[2]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -2220,6 +2222,7 @@ db.lines.insertMany([
     notes: [
       'nota 1', 'nota 2'
     ],
+    isSelected: false,
     timestamp: '2019-02-13T18:01:47.512340Z'
   },
 ])
@@ -2319,8 +2322,6 @@ db.timelineLines.insertMany([
     vulnerabilites: [],
   }
 ])
-
-
 db.timelines.insertMany([
   {
     title: 'timelineTest1',
@@ -2328,9 +2329,35 @@ db.timelines.insertMany([
     projectId: 1,
     log: db.logs.find({})[0]._id,
     lines: [
-      db.timelineLines.find({})[0]._id,
-      db.timelineLines.find({})[2]._id
-    ],
+      {
+        index: 1,
+        detail: {
+          detail1: 'detail1',
+          detail2: 'detail2',
+          detail3: 'detail3',
+        },
+        raw: 'raw timelineline',
+        line:db.lines.find({})[0]._id,
+        tags: [
+          'tag1','tag2'
+        ],
+        vulnerabilites: [],
+      },
+      {
+        index: 2,
+        detail: {
+          detail1: 'detail1',
+          detail2: 'detail2',
+          detail3: 'detail3',
+        },
+        raw: 'raw timelineline',
+        line:db.lines.find({})[1]._id,
+        tags: [
+          'tag1','tag2'
+        ],
+        vulnerabilites: [],
+    }
+  ],
     updatedAt: new Date(),
     createdAt: new Date()
   }])
