@@ -19,7 +19,7 @@ const getIntValue = (value) => {
 
 const getDateValue = (value) => {
   try {
-    return new Date(value)
+    return isNaN(new Date(value)) ? null : new Date(value)
   } catch {
     return null
   }
