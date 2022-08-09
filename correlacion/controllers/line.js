@@ -1,11 +1,11 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
-const {check} = require('express-validator')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
+const line = require('./../../shared/models/line')
 
 const get = new RequestWrapper()
   .hasId('projectId')
@@ -22,6 +22,12 @@ const get = new RequestWrapper()
     const mongooseQuery = {
       log: logOwner._id
     }
+    
+    const isSelectedValue = getBooleanValue(query.isSelected)
+    if(isSelectedValue !== null){
+      mongooseQuery.isSelected = isSelectedValue
+    }
+
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
@@ -41,13 +47,12 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 
-
 const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('lineId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { notes, vulnerabilites } = req.body
+    const { notes, vulnerabilites,isSelected } = req.body
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
@@ -65,6 +70,12 @@ const update = new RequestWrapper().hasId('projectId')
         ]
       })
       lineUpdated.vulnerabilites = vulnerabilitesToAdd
+    const isSelectedValue = getBooleanValue(isSelected)
+    if(isSelectedValue !== null){
+      lineUpdated.isSelected = isSelectedValue
+    }
+    if(notes){
+      lineUpdated.notes = notes
     }
     await lineUpdated.save()
     resp.status(200).json(lineUpdated)

@@ -14,6 +14,10 @@ module.exports = mongoose => {
       type: Object,
       required: true
     },
+    isSelected: {
+      type: Boolean,
+      default: false
+    },
     raw: {
       type: String,
       required: true
