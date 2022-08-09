@@ -1,6 +1,7 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue, getDateValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
+const {check} = require('express-validator')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -57,6 +58,24 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 
+const update = new RequestWrapper(
+  check('annotations').isArray()
+).hasId('projectId')
+  .hasMongoId('lineId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const { lineId, projectId, logId } = req.params
+    const { annotations } = req.body
+    const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
+    if (!lineUpdated) {
+      throw {msg: 'Line not found'}
+    }
+    lineUpdated.notes = annotations
+    await lineUpdated.save()
+    resp.status(200).json(lineUpdated)
+  }).wrap()
+
 module.exports = {
-  get
+  get,
+  update
 }

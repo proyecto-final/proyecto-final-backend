@@ -3,8 +3,9 @@ const { getIntValue, getDateValue } = require('./../../shared/utils/dataHelpers'
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
+const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
-const  {processFiles: processFilesWithChainsaw}= require('../chainsaw/chainsawAdapter.js')
+const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
 const { get: getAttribute } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
@@ -31,45 +32,70 @@ const getExtension = (file) => {
 }
 
 const persistEvtxLinesFrom = async (processedLogs) => {
-  const evtxLogLines = processedLogs.map(({ convertedFile, log, detections }) => {
+  const evtxLogLines = []
+  for(const processedLog of processedLogs) {
+    const { convertedFile, log, detections } = processedLog
     const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
+    const existingVulnerabilities = await Vulnerability.find({name: {$in: detections.map(detection => detection.name)}})
+    const detections2Create = detections.filter(detection => !existingVulnerabilities.some(foundDetection => foundDetection.name === detection.name))
+    const uniqueCreatedVulnerabilities = detections2Create
+      .filter((detection, index) => detections2Create.findIndex(detection2 => detection2.name === detection.name) === index)
+      .map(detection => new Vulnerability({
+        name: detection.name,
+        references: detection.references,
+        level: detection.level,
+        isCustom: false
+      }))
+    await Vulnerability.insertMany(uniqueCreatedVulnerabilities)
+    const vulnerabilities = [...existingVulnerabilities, ...uniqueCreatedVulnerabilities]
+    const vulnerabilitesWithDetection = detections.map(detectionData => ({
+      vulnerability: vulnerabilities.find(foundDetection => foundDetection.name === detectionData.name),
+      detectionData
+    }))
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
     const lines2Save = defaultLines.map(defaultLine => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
-      const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
-      const vulnerabilites = detections.filter(detection => detection.identification.timestamp2 === timestamp && 
-        detection.identification.eventId === EventID)
-      const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
-        getAttribute(defaultLine, 'Event.EventData') || {}
-      let ipData = ''
-      if (SourceAddress) {
-        ipData += ` - From: ${SourceAddress}:${SourcePort}`
-      }
-      if (DestAddress) {
-        ipData += ` - To: ${DestAddress}:${DestPort}`
-      }
-      let applicationString = ''
-      if (Application) {
-        applicationString = ` - ${Application}`
-      }
-      const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
-      const otherAttributes = {
-        application: Application,
-        applicationId: ProcessID,
-        computer: Computer,
-        userId: RemoteUserID
-      }
-      return new Line({
-        log,
-        timestamp: getDateValue(timestamp),
-        vulnerabilites: vulnerabilites.map(vulnerability => ({ name: vulnerability.name, references: vulnerability.references })),
-        raw: rawLine,
-        detail: otherAttributes
-      })
+      const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
+      const vulnerabilites = vulnerabilitesWithDetection
+        .filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
+          detectionData.identification.eventId === EventID)
+        .map(({vulnerability}) => vulnerability)
+      return createLine(defaultLine, vulnerabilites, timestamp, log)
     })
-    return lines2Save
-  })
+    evtxLogLines.push(lines2Save)
+  }
   return await Line.insertMany(evtxLogLines.flat())
+}
+
+const createLine = (defaultLine, vulnerabilites, timestamp, log) => {
+  const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
+  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
+        getAttribute(defaultLine, 'Event.EventData') || {}
+  let ipData = ''
+  if (SourceAddress) {
+    ipData += ` - From: ${SourceAddress}:${SourcePort}`
+  }
+  if (DestAddress) {
+    ipData += ` - To: ${DestAddress}:${DestPort}`
+  }
+  let applicationString = ''
+  if (Application) {
+    applicationString = ` - ${Application}`
+  }
+  const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
+  const otherAttributes = {
+    application: Application,
+    applicationId: ProcessID,
+    computer: Computer,
+    userId: RemoteUserID
+  }
+  return new Line({
+    log,
+    timestamp,
+    vulnerabilites,
+    raw: rawLine,
+    detail: otherAttributes
+  })
 }
 
 const processAndPersistLogs = async (logs, files, convertedFiles) => {
@@ -88,6 +114,7 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   try {
     await persistEvtxLinesFrom(processedLogs)
   } catch (err) {
+    console.error(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
