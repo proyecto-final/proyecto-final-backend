@@ -1,9 +1,10 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
+const line = require('./../../shared/models/line')
 
 const get = new RequestWrapper()
   .hasId('projectId')
@@ -20,6 +21,12 @@ const get = new RequestWrapper()
     const mongooseQuery = {
       log: logOwner._id
     }
+    
+    const isSelectedValue = getBooleanValue(query.isSelected)
+    if(isSelectedValue !== null){
+      mongooseQuery.isSelected = isSelectedValue
+    }
+
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
@@ -44,16 +51,16 @@ const update = new RequestWrapper().hasId('projectId')
   .hasMongoId('logId')
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
-    const { notes } = req.body
-    const logOwner = await Log.findOne({ _id: logId, projectId: getIntValue(req.params.projectId) })
-    if (!logOwner) {
-      throw { code: 404, msg: 'Log not found' }
-    }
-    const lineUpdated = await Line.findOne({ _id: lineId, log: logOwner._id, projectId: getIntValue(projectId) })
+    const { notes, isSelected } = req.body
+    const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
-    if (notes){
+    const isSelectedValue = getBooleanValue(isSelected)
+    if(isSelectedValue !== null){
+      lineUpdated.isSelected = isSelectedValue
+    }
+    if(notes){
       lineUpdated.notes = notes
     }
     await lineUpdated.save()
