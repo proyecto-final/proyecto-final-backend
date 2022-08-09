@@ -58,6 +58,7 @@ async function processLog (log) {
     const detections = JSON.parse(fs.readFileSync(outputFile))
     const minifiedDetections = detections.map(detection => ({
       name: detection.name,
+      level: detection.level,
       identification: {
         timestamp: detection.timestamp,
         timestamp2: detection.document.data.Event.System.TimeCreated_attributes.SystemTime,

@@ -17,7 +17,7 @@ router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',userCrudPer
 router.get('/project/:projectId/correlate/vulnerability',userCrudPermission)
 router.post('/project/:projectId/correlate/vulnerability',userCrudPermission)
 router.get('/project/:projectId/correlate/log/:logId/line',userCrudPermission)
-
+router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',userCrudPermission)
 //TIMELINE
 router.post('/project/:projectId/timeline/',userCrudPermission)
 router.get('/project/:projectId/timeline/',userCrudPermission)
