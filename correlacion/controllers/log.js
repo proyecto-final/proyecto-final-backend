@@ -72,11 +72,15 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   return await Line.insertMany(evtxLogLines.flat())
 }
 
+const timestampRegex = /(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/[0-9]{4} [0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]/g
+
 const persistCommonLogLinesFrom = async (logs) => {
   const logLines = logs.map(({ file, log }) => {
     const defaultLines  = file.data.toString().split('\n')
-    const lines2Save = defaultLines.map(defaultLine => {
-      const timestamp = new Date()
+    const lines2Save = defaultLines.filter(line => !!line).map(defaultLine => {
+      const dateString = defaultLine.match(timestampRegex)
+      console.log('time: ', defaultLine)
+      const timestamp = new Date(dateString[0])
       const otherAttributes = {
         warning: 'Line from .log file, not processed by chainsaw',
       }
