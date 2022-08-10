@@ -31,7 +31,7 @@ const get = new RequestWrapper()
     if (dateTo) {
       const dateToEndDay = new Date(dateTo.getTime() + 24 * 60 * 60 * 1000)
       mongooseQuery.timestamp = mongooseQuery.timestamp ?
-        { ...mongooseQuery.date, $lte: dateToEndDay } : { $lte: dateToEndDay }
+        { ...mongooseQuery.timestamp, $lte: dateToEndDay } : { $lte: dateToEndDay }
     }
     const lines = await Line.aggregate([
       {
