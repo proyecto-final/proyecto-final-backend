@@ -16,6 +16,13 @@ db.vulnerabilities.insertMany([
     level: "high",
     name: "RDP Login from Localhost",
     isCustom: false,
+  },
+  {
+    references: ["https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html"],
+    level: "high",
+    name: "LSASS Access from Non System Account",
+    isCustom: true,
+    projectId: 1
   }
 ])
 
@@ -64,6 +71,7 @@ db.logs.insertMany([
 db.lines.insertMany([
   {
     log: db.logs.find({})[0]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -73,10 +81,12 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
   {
     log: db.logs.find({})[0]._id,
+    index: 2,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -86,10 +96,12 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
   {
     log: db.logs.find({})[1]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -99,10 +111,12 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
   {
     log: db.logs.find({})[1]._id,
+    index: 2,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -112,10 +126,12 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
   {
     log: db.logs.find({})[3]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -125,10 +141,12 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
   {
     log: db.logs.find({})[2]._id,
+    index: 1,
     vulnerabilites: [],
     detail: {
       detaile1: 'detail1',
@@ -138,6 +156,7 @@ db.lines.insertMany([
     notes: [
       'nota 1','nota 2'
     ],
+    isSelected: false,
     timestamp: new Date()
   },
 ])
@@ -152,6 +171,7 @@ db.timelines.insertMany([
     log: db.logs.find({})[0]._id,
     lines: [
       {
+        index: 1,
         detail: {
           detail1: 'detail1',
           detail2: 'detail2',
@@ -165,6 +185,7 @@ db.timelines.insertMany([
         vulnerabilites: [],
       },
       {
+        index: 2,
         detail: {
           detail1: 'detail1',
           detail2: 'detail2',
