@@ -82,7 +82,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
   {
     log: db.logs.find({})[0]._id,
@@ -97,7 +97,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
   {
     log: db.logs.find({})[1]._id,
@@ -112,7 +112,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
   {
     log: db.logs.find({})[1]._id,
@@ -127,7 +127,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
   {
     log: db.logs.find({})[3]._id,
@@ -142,7 +142,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
   {
     log: db.logs.find({})[2]._id,
@@ -157,7 +157,7 @@ db.lines.insertMany([
       'nota 1','nota 2'
     ],
     isSelected: false,
-    timestamp: '2019-02-13T18:01:47.512340Z'
+    timestamp: new Date()
   },
 ])
 

@@ -1,5 +1,5 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
@@ -14,6 +14,8 @@ const get = new RequestWrapper()
     const { query } = req
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
+    const dateFrom = getDateValue(query.dateFrom)
+    const dateTo = getDateValue(query.dateTo)
     const logOwner = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
     if (!logOwner) {
       throw { code: 404, msg: 'Log not found' }
@@ -30,19 +32,36 @@ const get = new RequestWrapper()
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
-    const lines = await Line.aggregate([{
-      $facet: {
-        paginatedResult: [
-          { $match: mongooseQuery },
-          { $skip: offset },
-          { $limit: limit }
-        ],
-        totalCount: [
-          { $match: mongooseQuery },
-          { $count: 'totalCount' }
-        ]
-      }
-    }])
+    if (dateFrom) {
+      mongooseQuery.timestamp = { $gte: dateFrom }
+    }
+    if (dateTo) {
+      const dateToEndDay = new Date(dateTo.getTime() + 24 * 60 * 60 * 1000)
+      mongooseQuery.timestamp = mongooseQuery.timestamp ?
+        { ...mongooseQuery.timestamp, $lte: dateToEndDay } : { $lte: dateToEndDay }
+    }
+    const lines = await Line.aggregate([
+      {
+        '$lookup': {
+          'from': 'vulnerabilities',
+          'localField': 'vulnerabilites',
+          'foreignField': '_id',
+          'as': 'vulnerabilites'
+        }
+      },
+      {
+        $facet: {
+          paginatedResult: [
+            { $match: mongooseQuery },
+            { $skip: offset },
+            { $limit: limit }
+          ],
+          totalCount: [
+            { $match: mongooseQuery },
+            { $count: 'totalCount' }
+          ]
+        }
+      }])
     resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 

@@ -349,7 +349,21 @@ paths:
       - $ref: '#/components/parameters/limitParam'
       - name: raw
         in: query
-        description: log text
+        description: line text
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: dateFrom
+        in: query
+        description: line date from
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: dateTo
+        in: query
+        description: line date to
         required: false
         schema:
           type: string
