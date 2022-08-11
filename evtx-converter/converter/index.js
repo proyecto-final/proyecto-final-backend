@@ -56,8 +56,9 @@ const convertFile = async (req, resp) => {
         } else {
           throw { code: 400, msg: 'Only linux platform is supported' }
         }
+        return { input: inputFileName, output: convertedName, metadata }
       }
-      return { input: inputFileName, output: convertedName, metadata }
+      return { input: inputFileName, metadata }
     }))
     // Send to server
     const url = `${process.env.HOST_CORRELATION}${req.path}`
@@ -81,7 +82,9 @@ const convertFile = async (req, resp) => {
     }).finally(() => {
       files2send.forEach(({ input, output }) => {
         fs.unlinkSync(input)
-        fs.unlinkSync(output)
+        if(output) {
+          fs.unlinkSync(output)
+        }
       })
     })
 

@@ -67,6 +67,31 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   return await Line.insertMany(evtxLogLines.flat())
 }
 
+
+const persistCommonLogLinesFrom = async (logs) => {
+  const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
+  const logLines = logs.map(({ file, log }) => {
+    const defaultLines  = file.data.toString().split('\n')
+    const lines2Save = defaultLines.filter(line => !!line).map((defaultLine, index) => {
+      const dateString = defaultLine.match(timestampRegex)
+      const timestamp = getDateValue(dateString) || null
+      const otherAttributes = {
+        processing: 'Line from .log file, not processed by chainsaw',
+        warnings: timestamp  ? 'Time not found in line or is not valid, using current date' : 'No warning provided'
+      }
+      return new Line({
+        log,
+        timestamp,
+        raw: defaultLine,
+        detail: otherAttributes,
+        index
+      })
+    })
+    return lines2Save
+  })
+  return await Line.insertMany(logLines.flat())
+}
+
 const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
   const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
@@ -109,13 +134,14 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   //   .filter(({ file }) => getExtension(file) !== 'evtx')
   const evtxLogs = logsWithFiles
     .filter(({ file }) => getExtension(file) === 'evtx')
+  const nonEvtxLogs = logsWithFiles.filter(({ file }) => getExtension(file) === 'log')
   // Process and merge results
   const processedLogs = (await processFilesWithChainsaw(evtxLogs))
     .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
   try {
     await persistEvtxLinesFrom(processedLogs)
+    await persistCommonLogLinesFrom(nonEvtxLogs)
   } catch (err) {
-    console.error(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
