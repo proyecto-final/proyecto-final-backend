@@ -117,11 +117,6 @@ const get = new RequestWrapper()
     }
     const timelines = await Timeline.aggregate([
       {
-        $project: {
-          lines: 0
-        }
-      },
-      {
         $facet: {
           paginatedResult: [
             { $match: mongooseQuery },
