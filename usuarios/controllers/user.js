@@ -74,7 +74,7 @@ const authenticate = new ControllerHandler()
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
       secure: process.env.ENVIRONMENT==='PROD',
-      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : 'Strict'
+      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : undefined
     }).json(user)
   }).wrap()
 
