@@ -21,8 +21,30 @@ module.exports = mongoose => {
       ref: 'log'
     },
     lines: [{
-      type: Schema.Types.ObjectId,
-      ref: 'timelineLine'
+      detail: {
+        type: Object,
+        required: true
+      },
+      raw: {
+        type: String,
+        required: true
+      },
+      timestamp: {
+        type: String,
+        require: true
+      },
+      line: {
+        type: Schema.Types.ObjectId,
+        ref: 'line'
+      },
+      tags: {
+        type: Array,
+        default: () => []
+      },
+      vulnerabilites: {
+        type: Array,
+        default: () => []
+      }
     }]
   },
   {

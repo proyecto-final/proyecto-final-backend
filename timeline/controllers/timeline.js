@@ -46,7 +46,10 @@ const create = new RequestWrapper(
     if (!log) {
       throw { code: 404, msg: 'Log not found' }
     }
-    const lines = await createLinesFrom(timeline2Create.lines, log)
+    const linesIds = timeline2Create.lines.map(line => line.id)
+    const lines = await createLinesFrom(linesIds, log)
+    lines.forEach(lineWithLogLineData => lineWithLogLineData.tags = timeline2Create.lines.find(lineFromRequest => lineFromRequest.id === lineWithLogLineData.line._id.toString())?.tags)
+    
     const timeline = new Timeline({
       title: timeline2Create.title,
       description: timeline2Create.description,
@@ -67,9 +70,9 @@ const destroy = new RequestWrapper()
     if (!timeline) {
       throw { code: 404, msg: 'Timeline not found' }
     }
-    const linesDeleted = await TimelineLine.deleteMany( {_id: timeline.lines.map(({_id}) => _id)})
+    const linesDeleted = timeline.lines.length
     await Timeline.deleteOne({_id: timelineId, projectId: getIntValue(projectId)})
-    resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted.deletedCount} lines` })
+    resp.status(200).json({ msg: `Timeline deleted with ${linesDeleted} lines` })
   }).wrap()
 
 const update = new RequestWrapper()
@@ -78,11 +81,19 @@ const update = new RequestWrapper()
   .setHandler(async (req, resp) => {
     const { body } = req
     const timeline = await Timeline.findOne({_id: req.params.timelineId, projectId: getIntValue(req.params.projectId)})
+    const requestLines = body.lines
     if (!timeline) {
-      throw { code: 404, msg: 'Log not found' }
+      throw { code: 404, msg: 'Timeline not found' }
     }
     if (body.title) {
       timeline.title = body.title
+    }
+    if(requestLines){
+      const linesIds = requestLines.map(line => line.id)
+      const linesCreated = await createLinesFrom(linesIds, timeline.log)
+      const findTagsInRequestById = id => requestLines.find(lineFromRequest => lineFromRequest.id === id)?.tags
+      linesCreated.forEach(lineWithLogLineData => lineWithLogLineData.tags = findTagsInRequestById(lineWithLogLineData.line._id.toString()))
+      timeline.lines = linesCreated
     }
     if (body.description !== undefined) {
       timeline.description = body.description
@@ -105,11 +116,6 @@ const get = new RequestWrapper()
       mongooseQuery.title = { '$regex': query.title, '$options': 'i' }
     }
     const timelines = await Timeline.aggregate([
-      {
-        $project: {
-          lines: 0
-        }
-      },
       {
         $facet: {
           paginatedResult: [

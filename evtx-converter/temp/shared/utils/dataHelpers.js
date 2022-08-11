@@ -17,4 +17,13 @@ const getIntValue = (value) => {
   }
 }
 
-module.exports = {getBooleanValue, getIntValue}
+const getDateValue = (value) => {
+  try {
+    return isNaN(new Date(value)) ? null : new Date(value)
+  } catch {
+    return null
+  }
+}
+
+
+module.exports = {getBooleanValue, getIntValue, getDateValue}

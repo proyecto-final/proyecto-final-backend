@@ -6,10 +6,10 @@ module.exports = mongoose => {
       type: Schema.Types.ObjectId,
       ref: 'log'
     },
-    vulnerabilites: {
-      type: Array,
-      default: () => []
-    },
+    vulnerabilites:  [{
+      type: Schema.Types.ObjectId,
+      ref: 'vulnerability'
+    }],
     detail: {
       type: Object,
       required: true
@@ -19,7 +19,7 @@ module.exports = mongoose => {
       required: true
     },
     timestamp: {
-      type: String,
+      type: Date,
       required: true
     },
     notes: {

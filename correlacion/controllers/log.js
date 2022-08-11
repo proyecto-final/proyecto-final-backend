@@ -1,5 +1,5 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
@@ -53,14 +53,14 @@ const persistEvtxLinesFrom = async (processedLogs) => {
       detectionData
     }))
     const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
-    const lines2Save = defaultLines.map(defaultLine => {
+    const lines2Save = defaultLines.map((defaultLine, index) => {
       const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
       const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
       const vulnerabilites = vulnerabilitesWithDetection
         .filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
           detectionData.identification.eventId === EventID)
         .map(({vulnerability}) => vulnerability)
-      return createLine(defaultLine, vulnerabilites, timestamp, log)
+      return createLine(defaultLine, vulnerabilites, timestamp, log, index)
     })
     evtxLogLines.push(lines2Save)
   }
@@ -90,7 +90,8 @@ const persistCommonLogLinesFrom = async (logs) => {
   return await Line.insertMany(logLines.flat())
 }
 
-const createLine = (defaultLine, vulnerabilites, timestamp, log) => {
+
+const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
   const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
         getAttribute(defaultLine, 'Event.EventData') || {}
@@ -117,7 +118,8 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log) => {
     timestamp,
     vulnerabilites,
     raw: rawLine,
-    detail: otherAttributes
+    detail: otherAttributes,
+    index
   })
 }
 
