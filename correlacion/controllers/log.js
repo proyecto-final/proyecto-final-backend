@@ -6,7 +6,7 @@ const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
-const { get: getAttribute, isDate } = require('lodash')
+const { get: getAttribute } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -67,17 +67,17 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   return await Line.insertMany(evtxLogLines.flat())
 }
 
-const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
 
 const persistCommonLogLinesFrom = async (logs) => {
+  const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
   const logLines = logs.map(({ file, log }) => {
     const defaultLines  = file.data.toString().split('\n')
     const lines2Save = defaultLines.filter(line => !!line).map((defaultLine, index) => {
       const dateString = defaultLine.match(timestampRegex)
-      const timestamp = dateString && isDate(dateString) ? new Date(dateString) : null
+      const timestamp = getDateValue(dateString) || null
       const otherAttributes = {
         processing: 'Line from .log file, not processed by chainsaw',
-        warnings: (!dateString || !isDate(dateString))  ? 'Time not found in line or is not valid, using current date' : 'No warning provided'
+        warnings: timestamp  ? 'Time not found in line or is not valid, using current date' : 'No warning provided'
       }
       return new Line({
         log,
@@ -91,7 +91,6 @@ const persistCommonLogLinesFrom = async (logs) => {
   })
   return await Line.insertMany(logLines.flat())
 }
-
 
 const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
@@ -135,7 +134,6 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   //   .filter(({ file }) => getExtension(file) !== 'evtx')
   const evtxLogs = logsWithFiles
     .filter(({ file }) => getExtension(file) === 'evtx')
-
   const nonEvtxLogs = logsWithFiles.filter(({ file }) => getExtension(file) === 'log')
 
   // Process and merge results
@@ -144,7 +142,6 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   try {
     await persistEvtxLinesFrom(processedLogs)
     await persistCommonLogLinesFrom(nonEvtxLogs)
-    
   } catch (err) {
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
