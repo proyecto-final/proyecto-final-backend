@@ -24,6 +24,7 @@ module.exports = mongoose => {
     },
     timestamp: {
       type: Date,
+      default: null,
       required: false
     },
     notes: {
