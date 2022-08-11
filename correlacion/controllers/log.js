@@ -135,7 +135,6 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
   const evtxLogs = logsWithFiles
     .filter(({ file }) => getExtension(file) === 'evtx')
   const nonEvtxLogs = logsWithFiles.filter(({ file }) => getExtension(file) === 'log')
-
   // Process and merge results
   const processedLogs = (await processFilesWithChainsaw(evtxLogs))
     .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
