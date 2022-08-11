@@ -74,7 +74,9 @@ const persistCommonLogLinesFrom = async (logs) => {
     const defaultLines  = file.data.toString().split('\n')
     const lines2Save = defaultLines.filter(line => !!line).map(defaultLine => {
       const dateString = defaultLine.match(timestampRegex)
-      const timestamp = new Date(dateString[0])
+      //si no matchea la linea que hago?
+      
+      const timestamp = dateString.length ? new Date(dateString[0]) : new Date()
       const otherAttributes = {
         warning: 'Line from .log file, not processed by chainsaw',
       }
@@ -144,6 +146,7 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
     await persistCommonLogLinesFrom(nonEvtxLogs)
     
   } catch (err) {
+    console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
