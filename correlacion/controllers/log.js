@@ -6,7 +6,7 @@ const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
-const { get: getAttribute } = require('lodash')
+const { get: getAttribute, isDate } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -67,24 +67,24 @@ const persistEvtxLinesFrom = async (processedLogs) => {
   return await Line.insertMany(evtxLogLines.flat())
 }
 
-const timestampRegex = /(0[1-9]|[1-2][0-9]|3[0-1])\/(0[1-9]|1[0-2])\/[0-9]{4} [0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]/g
+const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
 
 const persistCommonLogLinesFrom = async (logs) => {
   const logLines = logs.map(({ file, log }) => {
     const defaultLines  = file.data.toString().split('\n')
-    const lines2Save = defaultLines.filter(line => !!line).map(defaultLine => {
+    const lines2Save = defaultLines.filter(line => !!line).map((defaultLine, index) => {
       const dateString = defaultLine.match(timestampRegex)
-      //si no matchea la linea que hago?
-      
-      const timestamp = dateString.length ? new Date(dateString[0]) : new Date()
+      const timestamp = dateString && isDate(dateString) ? new Date(dateString) : null
       const otherAttributes = {
-        warning: 'Line from .log file, not processed by chainsaw',
+        processing: 'Line from .log file, not processed by chainsaw',
+        warnings: (!dateString || !isDate(dateString))  ? 'Time not found in line or is not valid, using current date' : 'No warning provided'
       }
       return new Line({
         log,
         timestamp,
         raw: defaultLine,
-        detail: otherAttributes
+        detail: otherAttributes,
+        index
       })
     })
     return lines2Save
@@ -146,7 +146,6 @@ const processAndPersistLogs = async (logs, files, convertedFiles) => {
     await persistCommonLogLinesFrom(nonEvtxLogs)
     
   } catch (err) {
-    console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
   await Promise.all(logs.map(log => {
