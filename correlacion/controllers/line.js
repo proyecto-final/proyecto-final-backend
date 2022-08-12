@@ -89,16 +89,16 @@ const update = new RequestWrapper()
         ]
       })
       lineUpdated.vulnerabilites = vulnerabilitesToAdd
-      const isSelectedValue = getBooleanValue(isSelected)
-      if(isSelectedValue !== null){
-        lineUpdated.isSelected = isSelectedValue
-      }
-      if(notes){
-        lineUpdated.notes = notes
-      }
-      await lineUpdated.save()
-      resp.status(200).json(lineUpdated)
     }
+    const isSelectedValue = getBooleanValue(isSelected)
+    if(isSelectedValue !== null){
+      lineUpdated.isSelected = isSelectedValue
+    }
+    if(notes){
+      lineUpdated.notes = notes
+    }
+    await lineUpdated.save()
+    resp.status(200).json(lineUpdated)
   }).wrap()
 
 module.exports = {
