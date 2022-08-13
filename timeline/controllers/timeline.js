@@ -138,11 +138,34 @@ const getSpecific = new RequestWrapper()
   .setHandler(
     async (req, resp) => {
       const { timelineId, projectId } = req.params
-      const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
-      if (!timeline) {
+      const timelines = await Timeline.aggregate([
+        {
+          '$lookup': {
+            'from': 'vulnerabilities',
+            'localField': 'lines.vulnerabilites',
+            'foreignField': '_id',
+            'as': 'linesVulnerabilites'
+          }
+        },
+        {
+          $match: {
+            _id: mongoose.Types.ObjectId(timelineId),
+            projectId: getIntValue(projectId)
+          }
+        }
+      ])
+      if (!timelines || timelines.length === 0) {
         throw { code: 404, msg: 'Timeline not found' }
       }
-      resp.status(200).json(timeline)
+      const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
+        .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
+      resp.status(200).json(timelines.map(timeline => ({
+        ...timeline,
+        lines: timeline.lines.map(line => ({
+          ...line,
+          vulnerabilites: getVulnerabilitesForLine(timeline, line)
+        })
+        )}))[0])
     }
   ).wrap()
 
