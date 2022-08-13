@@ -152,20 +152,20 @@ const getSpecific = new RequestWrapper()
             _id: mongoose.Types.ObjectId(timelineId),
             projectId: getIntValue(projectId)
           }
-        },
-        {
-          $set: {
-            'lines.vulnerabilites': '$linesVulnerabilites'
-          }
-        },
-        {
-          $unset: 'linesVulnerabilites'
         }
       ])
       if (!timelines || timelines.length === 0) {
         throw { code: 404, msg: 'Timeline not found' }
       }
-      resp.status(200).json(timelines[0])
+      const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
+        .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
+      resp.status(200).json(timelines.map(timeline => ({
+        ...timeline,
+        lines: timeline.lines.map(line => ({
+          ...line,
+          vulnerabilites: getVulnerabilitesForLine(timeline, line)
+        })
+        )}))[0])
     }
   ).wrap()
 
