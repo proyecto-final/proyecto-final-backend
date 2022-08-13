@@ -17,6 +17,7 @@ env:
   FIRST_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FIRST_SERVICE}}
   SECOND_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_SECOND_SERVICE}}
   THIRD_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
+  CORRELATION_URI: ${{secrets.CORRELATION_URI}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -76,7 +77,7 @@ jobs:
           mkdir evtx-converter/temp
           cp -r shared evtx-converter/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:evtx-converter evtx-converter
+          docker build --build-arg CORRELATION_URI=${{env.CORRELATION_URI}} -t $AWS_REPOSITORY:evtx-converter evtx-converter
           docker tag $AWS_REPOSITORY:evtx-converter $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:evtx-converter
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:evtx-converter
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:evtx-converter"
