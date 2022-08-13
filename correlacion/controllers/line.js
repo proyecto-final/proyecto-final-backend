@@ -23,7 +23,6 @@ const get = new RequestWrapper()
     const mongooseQuery = {
       log: logOwner._id
     }
-    
     const isSelectedValue = getBooleanValue(query.isSelected)
     if(isSelectedValue !== null){
       mongooseQuery.isSelected = isSelectedValue
@@ -72,6 +71,10 @@ const update = new RequestWrapper()
   .setHandler(async (req, resp) => {
     const { lineId, projectId, logId } = req.params
     const { notes, vulnerabilites,isSelected } = req.body
+    const logOwner = await Log.findOne({ _id: logId, projectId: getIntValue(projectId) })
+    if (!logOwner) {
+      throw { code: 404, msg: 'Log not found' }
+    }
     const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
@@ -101,7 +104,26 @@ const update = new RequestWrapper()
     resp.status(200).json(lineUpdated)
   }).wrap()
 
+const markAsSelected  = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const { projectId, logId } = req.params
+    const { lineIds } = req.body
+    const logOwner = await Log.findOne({ _id: logId, projectId: getIntValue(projectId) })
+    if (!logOwner) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    if (!lineIds) {
+      throw { code: 400, msg: 'LineIds not found' }
+    }
+    await Line.updateMany({ log:logId }, { isSelected: false })
+    await Line.updateMany({ _id: { $in: lineIds }, log:logId }, { isSelected: true })
+    resp.status(200).json({ msg: 'Ok' })
+  }).wrap()
+
 module.exports = {
   get,
-  update
+  update,
+  markAsSelected
 }

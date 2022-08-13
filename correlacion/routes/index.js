@@ -13,6 +13,7 @@ router.get('/project/:projectId/correlate/log/:logId/line',[], Line.get)
 router.patch('/project/:projectId/correlate/log/:logId/line/:lineId',[], Line.update)
 router.get('/project/:projectId/correlate/vulnerability',[], Vulnerability.get)
 router.post('/project/:projectId/correlate/vulnerability',[], Vulnerability.create)
+router.post('/project/:projectId/correlate/log/:logId/markAsSelected',[], Line.markAsSelected)
 
 
 module.exports = router
