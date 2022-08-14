@@ -6,7 +6,7 @@ const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
-const { get: getAttribute } = require('lodash')
+const { get: getAttribute, isEmpty } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -74,10 +74,10 @@ const persistCommonLogLinesFrom = async (logs) => {
     const defaultLines  = file.data.toString().split('\n')
     const lines2Save = defaultLines.filter(line => !!line).map((defaultLine, index) => {
       const dateString = defaultLine.match(timestampRegex)
-      const timestamp = getDateValue(dateString) || null
+      const timestamp = !isEmpty(dateString) ? getDateValue(dateString) : null
       const otherAttributes = {
         processing: 'Line from .log file, not processed by chainsaw',
-        warnings: timestamp  ? 'Time not found in line or is not valid, using current date' : 'No warning provided'
+        warnings: !timestamp  ? 'Time not found in line or is not valid.' : 'No warning provided.'
       }
       return new Line({
         log,
