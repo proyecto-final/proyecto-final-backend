@@ -260,7 +260,32 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
-
+  /api/project/{projectId}/correlate/log/{logId}/markAsSelected:
+    post:
+      summary: Marks some log lines as selected
+      tags: [Logs CRUD]
+      requestBody:
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties:
+                lineIds:
+                  type: array
+                  description: Log lines to be marked as selected
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Generic msg
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Message
   /api/project/:projectId/correlate/log/:logId/line/:lineId:
     patch:
       summary: Update lines
