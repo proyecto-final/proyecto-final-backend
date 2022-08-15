@@ -14,7 +14,8 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: true,
-      organizationId: organizationIds[0]
+      organizationId: organizationIds[0],
+      attemptsCount: 0
     },
     {
       username: 'pepa',
@@ -26,19 +27,34 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: false,
-      organizationId: organizationIds[0]
+      organizationId: organizationIds[0],
+      attemptsCount: 0
     },
     {
       username: 'pepo',
       password: 'd50d3319bccca99d3093b689745b168cc79ecfd0e18e3e80be6d8c6ad1061407',
       email: 'email3@gmail.com',
       name: 'pepo',
+      role: 'Owner',
+      enabled: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isAdmin: false,
+      organizationId: organizationIds[1],
+      attemptsCount: 0
+    },
+    {
+      username: 'juancue99',
+      password: 'd50d3319bccca99d3093b689745b168cc79ecfd0e18e3e80be6d8c6ad1061407',
+      email: 'email4@gmail.com',
+      name: 'Johncito',
       role: 'User',
       enabled: true,
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: false,
-      organizationId: organizationIds[1]
+      organizationId: organizationIds[1],
+      attemptsCount: 0
     }])
   },
   async down (queryInterface) {

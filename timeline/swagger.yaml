@@ -1,0 +1,201 @@
+
+
+openapi: 3.0.0
+info:
+  title: Sherlock Timeline Module API
+  description: Sherlock reports module interface
+  version: 0.1.9
+servers:
+  - url: http://localhost:3034/
+    description: development server
+  - url: http://localhost:3034/
+    description: Testing server
+
+components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
+  schemas:
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
+    TimelineResponse:
+      type: object
+      properties:
+        title: 
+          type: string
+          description: timeline title
+        description: 
+          type: string
+          description: timeline description
+        projectId:
+          type: number
+          description: project id
+        updatedAt:
+          type: string
+          description: last update date
+        createdAt:
+          type: string
+          description: creation date
+        lines: 
+          type: array
+          description: timeline lines
+      example:
+        title: timeline1
+        projectId: 1
+        description: Some description
+        createdAt: 2022-07-30T19:27:13.357Z
+        updatedAt: 2022-07-30T19:27:13.357Z
+        lines: [{"id": "62e557770cda67a071353287", "tags":[]}, {"id":"62e557770cda67a071353288", "tags":[]}]
+    TimelineRequest:
+      type: object
+      properties:
+        title: 
+          type: string
+          description: timeline title
+        description: 
+          type: string
+          description: timeline description
+        lines:
+          type: array
+          description: lines mongo ids
+        log:
+          type: string
+          description: log mongo id
+      example:
+        title: timeline1
+        log: 62e557770cda67a071353283 
+        description: Some description
+        lines: [{"id": "62e557770cda67a071353287", "tags":[]}, {"id":"62e557770cda67a071353288", "tags":[]}]
+tags:
+  - name: Timeline CRUD
+    description: timeline creation, modification and remove
+
+paths:
+  /api/project/{projectId}/timeline:
+    post:
+      summary: Creates a timeline
+      tags: [Timeline CRUD]
+      description: Creates a timeline
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TimelineRequest'
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                $ref: '#/components/schemas/TimelineResponse'
+    get:
+      summary: Get Timelines
+      tags: [Timeline CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: title
+        in: query
+        description: title of the timeline
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Timelines page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/TimelineResponse'
+  /api/project/{projectId}/timeline/:timelineId:
+    patch:
+      summary: Updates a timeline
+      tags: [Timeline CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example: 
+                title: timeline1
+                description: Some description
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                $ref: '#/components/schemas/TimelineResponse'
+    delete:
+      summary: Deletes a timeline
+      tags: [Timeline CRUD]
+      description: Deletes a timeline
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline elimination result response

@@ -9,8 +9,9 @@ const YAML = require('yamljs')
 const app = express()
 
 app.use(cors({
-  origin: 'http://sherlock-security.s3-website-us-east-1.amazonaws.com',
+  origin: 'https://d33yco26qnv6iv.cloudfront.net',
   credentials: true,
+  secure: process.env.ENVIRONMENT==='PROD',
   optionsSuccessStatus: 200 // For legacy browser support,
 }))
 app.use(express.json())
@@ -18,6 +19,10 @@ app.use(cookieParser())
 app.use(require('./middlewares/checkToken'))
 app.use('/api', require('./routes'))
 app.use('/api', require('./routes/external'))
+
+app.use(function(req, res){
+  res.status(404).json({msg: 'Not Found'})
+})
 
 app.listen(process.env.PORT, () => {
   console.log(`App running on port ${process.env.PORT}`)

@@ -22,7 +22,7 @@ const handleError = (resp, error) => {
     }
   }
   //DEFAULT ERROR HANDLING
-  return resp.status(500).json({msg: [`Internal server error ${error?.message}`] })
+  return resp.status(500).json({msg: [`Internal server error ${error?.msg || error?.message}`] })
 }
 
 

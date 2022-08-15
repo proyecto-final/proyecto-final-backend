@@ -51,24 +51,30 @@ async function findUserOrThrowBy (params, withProjects = false) {
   }
   return user
 }
-
+const MAX_ALLOWED_ATTEMPTS = 5
 const authenticate = new ControllerHandler()
   .setHandler(async(req, resp) => {
     const { body } = req
     const user = await findUserOrThrowBy({
-      username: body.username,
-      password: hash(body.password)
+      username: body.username
     }, true)
+    if (user.attemptsCount >= MAX_ALLOWED_ATTEMPTS) {
+      throw { msg: 'Account blocked. Too many attempts', code: 403 }
+    }
+    if (user.password !== hash(body.password)) {
+      await user.update({ attemptsCount:user.attemptsCount + 1 })
+      throw { msg: 'Invalid credentials', code: 403 }
+    }
     if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
     }
     const token = generateToken(user.id)
-    await user.update({ token })
+    await user.update({ token, attemptsCount: 0 })
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
-      sameSite: 'none',
-      secure: true
+      secure: process.env.ENVIRONMENT==='PROD',
+      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : undefined
     }).json(user)
   }).wrap()
 

@@ -2,8 +2,8 @@
 
 openapi: 3.0.0
 info:
-  title: Sherlock User Module API
-  description: Sherlock security user module interface
+  title: Sherlock Correlation Module API
+  description: Sherlock correlation module interface
   version: 0.1.9
 servers:
   - url: http://localhost:3032/
@@ -74,16 +74,125 @@ components:
         description: "This is a log file"
         projectId: 123456789
         status: "processing"
+    VulnerabilityResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Vulnerability ID
+        name:
+          type: string
+          description: Vulnerability name
+        references:
+          type: string
+          description: vulnerability references
+        projectId:
+          type: string
+          description: ID of the project
+        level:
+          type: string
+          description: vulnerability level
+          enum: 
+          - high
+          - medium
+          - low
+      example:
+        _id: 62ee8f56647000687263cf76
+        references: ["https://car.mitre.org/wiki/CAR-2016-04-005"]
+        level: low
+        name: Admin User Remote Logon
+    VulnerabilityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Vulnerability name
+        references:
+          type: string
+          description: vulnerability references
+        level:
+          type: string
+          description: vulnerability level
+          enum: 
+          - high
+          - medium
+          - low
+      example:
+        _id: 62ee8f56647000687263cf76
+        references: ["https://car.mitre.org/wiki/CAR-2016-04-005"]
+        level: low
+        name: Admin User Remote Logon
     Count:
       type: number
       description: Number of results in the database
       example: 10
+    LineUpdateRequest:
+      type: object
+      properties:
+        notes:
+          type: array
+          description: line notes
+        vulnerabilites:
+          type: array
+          description: line vulnerabilites
+      example:
+        notes:
+          - This is a note
+          - This is another note
+        vulnerabilites:
+          - _id: 62ee8f56647000687263cf76
+          - _id: 62ee8f56647000687263cf76
+    Line:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        log:
+          type: string
+          description: Log ID
+        vulnerabilities:
+          type: array
+          description: Vulnerability detected
+        detail:
+          type: object
+          description: Additional line informaiton
+        raw:
+          type: string
+          description: string version of line
+        timestamp:
+          type: string
+          description: time of line event
+        notes:
+          type: array
+          description: user added notes
+      example:
+        _id: 62d776f235ca54db99e4765e
+        log: 62e5ae6f36a29d448fc6bf0f
+        vulnerabilites:
+          - name: RDP Login from Localhost
+            references:
+              - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+              - https://www.fireeye.com/blog/threat-research/2019/01/bypassing-network-restrictions-through-rdp-tunneling.html
+        detail:
+          computer: PC01.example.corp
+
+        raw: 2019-02-13T18:04:58.363696Z - 4624 - Security
+        timestamp: 2019-02-13T18:04:58.363696Z
+        notes:
+          - This is a note
+          - This is another note
+
 tags:
   - name: Logs CRUD
     description: logs creation, modification and remove
+  - name: Lines CRUD
+    description: lines creation, modification and remove
+  - name: Vulnerability CRUD
+    description: vulnerability creation and visualization
 
 paths:
-  /project/:projectId/correlate/log:
+  /api/project/{projectId}/correlate/log:
     post:
       summary: Creates an array of logs
       tags: [Logs CRUD]
@@ -119,9 +228,9 @@ paths:
       parameters:
       - $ref: '#/components/parameters/offsetParam'
       - $ref: '#/components/parameters/limitParam'
-      - name: name
+      - name: title
         in: query
-        description: name of the organization
+        description: title of the log
         required: false
         schema:
           type: string
@@ -151,7 +260,69 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/LogHeader'
-  /project/:projectId/correlate/log/:logId:
+  /api/project/{projectId}/correlate/log/{logId}/markAsSelected:
+    post:
+      summary: Marks some log lines as selected
+      tags: [Logs CRUD]
+      requestBody:
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties:
+                lineIds:
+                  type: array
+                  description: Log lines to be marked as selected
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Generic msg
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  msg:
+                    type: string
+                    description: Message
+  /api/project/:projectId/correlate/log/:logId/line/:lineId:
+    patch:
+      summary: Update lines
+      tags: [Lines CRUD]
+      parameters:
+      - name: project id
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: string
+      - name: log id
+        in: path
+        description: log id (mongo)
+        required: true
+        schema:
+          type: string
+      - name: line id
+        in: path
+        description: line id (mongo)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineUpdateRequest'
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Line'
+  /api/project/{projectId}/correlate/log/{logId}:
     patch:
       summary: Edits a log
       tags: [Logs CRUD]
@@ -194,3 +365,153 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/Message'
+  /api/project/{projectId}/correlate/log/{logId}/line:
+    get:
+      summary: Get lines
+      tags: [Lines CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: raw
+        in: query
+        description: line text
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: dateFrom
+        in: query
+        description: line date from
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: dateTo
+        in: query
+        description: line date to
+        required: false
+        schema:
+          type: string
+          default: ""
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Line'
+  /api/project/{projectId}/correlate/log/{logId}/line/{lineId}:
+    patch:
+      summary: Update lines
+      tags: [Lines CRUD]
+      parameters:
+      - name: project id
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: string
+      - name: log id
+        in: path
+        description: log id (mongo)
+        required: true
+        schema:
+          type: string
+      - name: line id
+        in: path
+        description: line id (mongo)
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LineUpdateRequest'
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema: 
+               $ref: '#/components/schemas/Line'
+  /api/project/{projectId}/correlate/vulnerability:
+    post:
+      summary: Creates an array of logs
+      tags: [Vulnerability CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      description: Creates an array of logs
+      requestBody:
+        content: 
+         application/json:
+            schema:
+              type: object
+              $ref: '#/components/schemas/VulnerabilityRequest'
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/VulnerabilityResponse'
+    get:
+      summary: Get vulnerabilities
+      tags: [Vulnerability CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: name
+        in: query
+        description: vulnerability name
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: level
+        in: query
+        description: vulnerability level
+        schema:
+          type: string
+          default: ""
+          enum:
+          - high
+          - low
+          - medium
+        required: false
+      responses:
+        200:
+          description: Vulnerabilities page
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                      - $ref: '#/components/schemas/VulnerabilityResponse'
+

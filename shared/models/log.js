@@ -1,15 +1,16 @@
-
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const Log = Schema(
   {
     title: {
       type: String,
-      required: true
+      required: true,
+      maxLength: 32
     },
     description: {
       type: String,
-      required: false
+      required: false,
+      maxLength: 250
     },
     projectId: {
       type: Number,
@@ -30,5 +31,9 @@ module.exports = mongoose => {
   {
     timestamps: true
   })
-  return model('log', Log)
+  Log.methods.toJSON = function () {
+    const {__v, ...others} = this.toObject()
+    return others
+  }
+  return mongoose.models.log || model('log', Log)
 }
