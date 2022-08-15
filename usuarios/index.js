@@ -9,7 +9,7 @@ const YAML = require('yamljs')
 const app = express()
 
 app.use(cors({
-  origin: 'http://sherlock-security.s3-website-us-east-1.amazonaws.com',
+  origin: 'https://d33yco26qnv6iv.cloudfront.net',
   credentials: true,
   secure: process.env.ENVIRONMENT==='PROD',
   optionsSuccessStatus: 200 // For legacy browser support,
