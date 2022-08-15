@@ -6,6 +6,45 @@ const Timeline = require('../../shared/models/timeline')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
+const PDFDocument = require('pdfkit')
+const { json } = require('express')
+
+const generatePdfContent = async (timelineId) => {
+  const timeline = await Timeline.findById(timelineId)
+  const {name, description, lines, tags} = timeline
+  console.log(timeline)
+  const linesContent = lines.map(line => {
+    const {raw, detail, vulnerabilites, timestamp, log, notes } = line
+    return {
+      raw, 
+      timestamp,
+      detail, 
+      vulnerabilites, 
+      log, 
+      notes,
+      tags
+    }})
+  return JSON.stringify({name, description, lines: linesContent, tags})
+}
+
+const report = new RequestWrapper()
+  .hasMongoId('timelineId')
+  .hasMongoId('logId')
+  .hasId('projectId')
+  .setHandler(async (req, res) => {
+    console.log('llegue')
+    const { timelineId } = req.params
+    const doc = new PDFDocument()
+    const fileName = `report_${timelineId}.pdf`
+    res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
+    res.setHeader('Content-type', 'application/pdf')
+    doc.y = 300
+    doc.text( await generatePdfContent(timelineId), 50, 50)
+    doc.pipe(res)
+    doc.end()
+    console.log('finalizo')
+    return res.status(200)
+  }).wrap()
 
 const validateTimeline = (timeline) => {
   if (!timeline.lines || timeline.lines.length === 0 ) {
@@ -174,5 +213,6 @@ module.exports = {
   destroy,
   update,
   get,
-  getSpecific
+  getSpecific,
+  report
 }

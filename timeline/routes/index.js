@@ -25,7 +25,7 @@ router.patch('/project/:projectId/timeline/:timelineId',[], Timeline.update)
 
 router.get('/project/:projectId/timeline',[], Timeline.get)
 router.get('/project/:projectId/timeline/:timelineId',[], Timeline.getSpecific)
-router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',[], logInput)
+router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',[], Timeline.report)
 
 
 module.exports = router
