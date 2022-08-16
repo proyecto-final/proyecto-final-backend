@@ -33,22 +33,27 @@ function getChainsawPath () {
   return osFolder[os] || osFolder.linux
 }
 
-async function processLog ({log, filename}) {
+async function processLog (log) {
   // 1 Write
-  // TODO: READ HERE
+  const temporaryName = `${log.log._id.toString()}-${log.file.name}`
+  await log.file.mv(`${__dirname}/input/${temporaryName}`, function(err) {
+    if (err) {
+      throw { code: 500, msg: 'Error moving file'+err }
+    }
+  })
   // 2 Process
   const {chainsaw, mapping} = getChainsawPath()
-  const chainsawCommand = `${chainsaw} hunt ${__dirname}/input/${filename} -s ${__dirname}/sigma/ --mapping ${mapping}  -o ${__dirname}/output/${filename}.json --json`
+  const chainsawCommand = `${chainsaw} hunt ${__dirname}/input/${temporaryName} -s ${__dirname}/sigma/ --mapping ${mapping}  -o ${__dirname}/output/${temporaryName}.json --json`
   // TO DEBUG:console.log(chainsawCommand)
   try {
     await runCommand(chainsawCommand)
   }catch (err) {
     throw { code: 500, msg: 'Error running chainsaw'+err }
   } finally {
-    fs.unlinkSync(`${__dirname}/input/${filename}`)
+    fs.unlinkSync(`${__dirname}/input/${temporaryName}`)
   }
   // 3 Read output
-  const outputFile = `${__dirname}/output/${filename}.json`
+  const outputFile = `${__dirname}/output/${temporaryName}.json`
   try {
     const detections = JSON.parse(fs.readFileSync(outputFile))
     const minifiedDetections = detections.map(detection => ({

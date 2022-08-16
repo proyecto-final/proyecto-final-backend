@@ -25,9 +25,5 @@ const getDateValue = (value) => {
   }
 }
 
-const getExtension = (file) => {
-  return file.name.split('.').pop()
-}
 
-
-module.exports = {getBooleanValue, getIntValue, getDateValue, getExtension}
+module.exports = {getBooleanValue, getIntValue, getDateValue}
