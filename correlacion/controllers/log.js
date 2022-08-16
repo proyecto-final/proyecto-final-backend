@@ -42,7 +42,7 @@ const create = new RequestWrapper()
     // Move files
     const files2Move = [
       ...files.map((file, index) => ({log: logs[index], file})), 
-      ...convertedFiles.map((file, index) => ({log: logs[index], file}))
+      ...convertedFiles.map((file, index) => ({log: logs[index], file})).filter(({file}) => file),
     ]
     await Promise.all([...files2Move.map(({file, log}) => {
       const temporaryName = `${log._id.toString()}-id-${file.name}`

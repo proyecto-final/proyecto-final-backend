@@ -99,25 +99,20 @@ const persistEvtxLinesFrom = async (processedLog) => {
 
 
 const processAndPersistLog = async (log, filename, convertedFile) => {
-  try {
-    if (filename.endsWith('.evtx')) {
-      const processedLog = (await processFilesWithChainsaw([{log, filename}]))[0]
-      await persistEvtxLinesFrom({...processedLog, convertedFile})
-    } else if (filename.endsWith('.log')) {
-      await persistCommonLogLinesFrom({filename, log})
-    } else {
-      console.log('INVALID FILE', filename)
-    }
-    log.state = 'processed'
-    await log.save()
-  } catch (err) {
-    console.log(err)
-    throw { code: 500, msg: 'Couldn\'t process log files' }
+  if (filename.endsWith('.evtx')) {
+    const processedLog = (await processFilesWithChainsaw([{log, filename}]))[0]
+    await persistEvtxLinesFrom({...processedLog, convertedFile})
+  } else if (filename.endsWith('.log')) {
+    const fileData = fs.readFileSync(inputDirectory + filename)
+    await persistCommonLogLinesFrom({file: { data: fileData}, log})
+    fs.unlinkSync(inputDirectory + filename)
+  } else {
+    console.log('INVALID FILE', filename)
   }
+  log.state = 'processed'
+  await log.save()
 }
-// '0 */5 * * * *'
-cron.schedule('*/15 * * * * *', async () => {
-  console.log('running...')
+cron.schedule(process.env.RUN_INTERVAL || '0 */15 * * * *', async () => {
   // Read files
   try{
     const filesnames2Process = fs.readdirSync(inputDirectory).filter(filename => filename.includes('-id-'))
@@ -125,6 +120,7 @@ cron.schedule('*/15 * * * * *', async () => {
       console.log('Nothing to process')
       return
     }
+    console.log('Processing', filesnames2Process.length, 'files')
     for (const filename of filesnames2Process) {
       const filePath = `${inputDirectory}${filename}`
       if (filename.endsWith('.evtx')) {
@@ -134,12 +130,14 @@ cron.schedule('*/15 * * * * *', async () => {
         const log = await Log.findById(logId)
         await processAndPersistLog(log, filename, {data: convertedFile, name: convertedFileName})
       } else if (!filename.endsWith('.json')) {
-        // TODO
+        const logId = filename.split('-id-')[0]
+        const log = await Log.findById(logId)
+        await processAndPersistLog(log, filename)
       } else{
         console.log('ignored', filename)
       }
     }
-    
+    console.log('Processed', filesnames2Process.length, 'files')
   } catch(err) {
     console.log(err)
   }

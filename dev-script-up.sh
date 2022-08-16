@@ -6,7 +6,8 @@ docker stop evtx-converter-dev-container
 docker rm -f evtx-converter-dev-container
 
 docker build -t mongo:dev mongo 
-docker build -t mysql:dev mysql 
+docker build -t mysql:dev mysql
+cp -r ./shared ./evtx-converter/temp/
 docker build --build-arg CORRELATION_URI=http://192.168.0.4:3032/api -t evtx-converter:dev evtx-converter
 
 docker run --name mongo-dev-container -d -p 27017:27017 mongo:dev 
