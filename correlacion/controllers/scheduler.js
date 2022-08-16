@@ -9,6 +9,7 @@ const {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAd
 const { get: getAttribute, isEmpty } = require('lodash')
 
 const inputDirectory = `${__dirname}/../chainsaw/input/`
+const errorDirectory = `${__dirname}/../chainsaw/error/`
 
 const persistCommonLogLinesFrom = async (logFile) => {
   const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
@@ -123,18 +124,23 @@ cron.schedule(process.env.RUN_INTERVAL || '0 */15 * * * *', async () => {
     console.log('Processing', filesnames2Process.length, 'files')
     for (const filename of filesnames2Process) {
       const filePath = `${inputDirectory}${filename}`
-      if (filename.endsWith('.evtx')) {
-        const convertedFileName = filePath + '-converted.json'
-        const convertedFile = fs.readFileSync(convertedFileName)
-        const logId = filename.split('-id-')[0]
-        const log = await Log.findById(logId)
-        await processAndPersistLog(log, filename, {data: convertedFile, name: convertedFileName})
-      } else if (!filename.endsWith('.json')) {
-        const logId = filename.split('-id-')[0]
-        const log = await Log.findById(logId)
-        await processAndPersistLog(log, filename)
-      } else{
-        console.log('ignored', filename)
+      try{
+        if (filename.endsWith('.evtx')) {
+          const convertedFileName = filePath + '-converted.json'
+          const convertedFile = fs.readFileSync(convertedFileName)
+          const logId = filename.split('-id-')[0]
+          const log = await Log.findById(logId)
+          await processAndPersistLog(log, filename, {data: convertedFile, name: convertedFileName})
+        } else if (!filename.endsWith('.json')) {
+          const logId = filename.split('-id-')[0]
+          const log = await Log.findById(logId)
+          await processAndPersistLog(log, filename)
+        } else{
+          console.log('ignored', filename)
+        }
+      }catch (err) {
+        console.log(`File${filename} failed, moving to error folder`, err)
+        fs.renameSync(filePath, `${errorDirectory}${filename}`)
       }
     }
     console.log('Processed', filesnames2Process.length, 'files')
