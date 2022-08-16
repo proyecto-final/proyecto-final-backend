@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const swaggerUi = require('swagger-ui-express')
 const fileUpload = require('express-fileupload')
 const YAML = require('yamljs')
+require('./controllers/scheduler')
 require('dotenv').config()
 
 const MEGABYTES_5 = 5 * 1024 * 1024
