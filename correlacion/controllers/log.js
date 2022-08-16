@@ -52,7 +52,6 @@ const create = new RequestWrapper()
         }
       })
     })])
-    console.log(logs, files, convertedFiles)
     resp.status(200).json(logs)
   }).wrap()
 

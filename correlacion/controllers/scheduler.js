@@ -8,6 +8,8 @@ const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
 const { get: getAttribute, isEmpty } = require('lodash')
 
+const inputDirectory = `${__dirname}/../chainsaw/input/`
+
 const persistCommonLogLinesFrom = async (logFile) => {
   const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
   const { file, log } = logFile
@@ -81,7 +83,7 @@ const persistEvtxLinesFrom = async (processedLog) => {
     vulnerability: vulnerabilities.find(foundDetection => foundDetection.name === detectionData.name),
     detectionData
   }))
-  const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.toString())}]`)
+  const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
   const lines2Save = defaultLines.map((defaultLine, index) => {
     const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
     const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
@@ -91,7 +93,8 @@ const persistEvtxLinesFrom = async (processedLog) => {
       .map(({vulnerability}) => vulnerability)
     return createLine(defaultLine, vulnerabilites, timestamp, log, index)
   })
-  return await Line.insertMany(lines2Save)
+  await Line.insertMany(lines2Save)
+  fs.unlinkSync(convertedFile.name)
 }
 
 
@@ -105,19 +108,18 @@ const processAndPersistLog = async (log, filename, convertedFile) => {
     } else {
       console.log('INVALID FILE', filename)
     }
+    log.state = 'processed'
+    await log.save()
   } catch (err) {
     console.log(err)
     throw { code: 500, msg: 'Couldn\'t process log files' }
   }
-  log.state = 'processed'
-  await log.save()
 }
 // '0 */5 * * * *'
 cron.schedule('*/15 * * * * *', async () => {
   console.log('running...')
   // Read files
   try{
-    const inputDirectory = `${__dirname}/../chainsaw/input/`
     const filesnames2Process = fs.readdirSync(inputDirectory).filter(filename => filename.includes('-id-'))
     if (filesnames2Process.length === 0) {
       console.log('Nothing to process')
@@ -126,10 +128,11 @@ cron.schedule('*/15 * * * * *', async () => {
     for (const filename of filesnames2Process) {
       const filePath = `${inputDirectory}${filename}`
       if (filename.endsWith('.evtx')) {
-        const convertedFile = fs.readFileSync(filePath + '-converted.json')
+        const convertedFileName = filePath + '-converted.json'
+        const convertedFile = fs.readFileSync(convertedFileName)
         const logId = filename.split('-id-')[0]
         const log = await Log.findById(logId)
-        await processAndPersistLog(log, filename, convertedFile)
+        await processAndPersistLog(log, filename, {data: convertedFile, name: convertedFileName})
       } else if (!filename.endsWith('.json')) {
         // TODO
       } else{
