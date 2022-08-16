@@ -101,7 +101,7 @@ const persistEvtxLinesFrom = async (processedLog) => {
 const processAndPersistLog = async (log, filename, convertedFile) => {
   if (filename.endsWith('.evtx')) {
     const processedLog = (await processFilesWithChainsaw([{log, filename}]))[0]
-    await persistEvtxLinesFrom({...processedLog, convertedFile})
+    await persistEvtxLinesFrom({...processedLog, convertedFile, log})
   } else if (filename.endsWith('.log')) {
     const fileData = fs.readFileSync(inputDirectory + filename)
     await persistCommonLogLinesFrom({file: { data: fileData}, log})
