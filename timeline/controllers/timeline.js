@@ -7,24 +7,19 @@ const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const PDFDocument = require('pdfkit')
-const { json } = require('express')
 
-const generatePdfContent = async (timelineId) => {
+const createPDFStirngContent = ({title, description, lines}, doc) => {
+  doc.fontSize(20).text(title, {align: 'center'})
+  doc.fontSize(14).text(description, {align: 'justify'})
+  doc.fontSize(18).text('\n\nEvents', {align: 'justify'})
+  doc.fontSize(14).text(description, {align: 'justify'})
+  doc.fontSize(18).text('\n\nLog lines', {align: 'justify'})
+  doc.fontSize(14).text(lines.map(line => `${line.raw}, tags:${line.tags}`).join('\n'), {align: 'justify'})
+}
+
+const generatePdfContent = async (timelineId, doc) => {
   const timeline = await Timeline.findById(timelineId)
-  const {name, description, lines, tags} = timeline
-  console.log(timeline)
-  const linesContent = lines.map(line => {
-    const {raw, detail, vulnerabilites, timestamp, log, notes } = line
-    return {
-      raw, 
-      timestamp,
-      detail, 
-      vulnerabilites, 
-      log, 
-      notes,
-      tags
-    }})
-  return JSON.stringify({name, description, lines: linesContent, tags})
+  return createPDFStirngContent(timeline, doc)
 }
 
 const report = new RequestWrapper()
@@ -34,12 +29,11 @@ const report = new RequestWrapper()
   .setHandler(async (req, res) => {
     console.log('llegue')
     const { timelineId } = req.params
-    const doc = new PDFDocument()
+    const doc = new PDFDocument({size:'A4', margin: 50})
     const fileName = `report_${timelineId}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
-    doc.y = 300
-    doc.text( await generatePdfContent(timelineId), 50, 50)
+    await generatePdfContent(timelineId, doc)
     doc.pipe(res)
     doc.end()
     console.log('finalizo')
