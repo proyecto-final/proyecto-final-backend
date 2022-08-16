@@ -8,18 +8,33 @@ const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const PDFDocument = require('pdfkit')
 
-const createPDFStirngContent = ({title, description, lines}, doc) => {
+const createPDFStirngContent = async({title, description, lines}, log, doc) => {
   doc.fontSize(20).text(title, {align: 'center'})
   doc.fontSize(14).text(description, {align: 'justify'})
   doc.fontSize(18).text('\n\nEvents', {align: 'justify'})
-  doc.fontSize(14).text(description, {align: 'justify'})
-  doc.fontSize(18).text('\n\nLog lines', {align: 'justify'})
   doc.fontSize(14).text(lines.map(line => `${line.raw}, tags:${line.tags}`).join('\n'), {align: 'justify'})
+  doc.fontSize(18).text('\n\nLog Metadata', {align: 'justify'})
+  const logData= await Log.findOne({id: log})
+  doc.fontSize(14).text(`log: ${logData.title}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`log description: ${logData.description}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`log extension: ${logData.extension}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`state: ${logData.state}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`Project id: ${logData.projectId}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`creation time: ${logData.createdAt}\n`, {align: 'justify'})
+  doc.fontSize(14).text(`last update: ${logData.updatedAt}\n`, {align: 'justify'})
+  doc.fontSize(18).text('\n\nLog lines', {align: 'justify'})
+  const loglines = await Line.find({log}) 
+  doc.fontSize(14).text(loglines.map(({index, vulnerabilites, detail, raw, notes, timestamp}) => {
+    return `${index} - ${timestamp}\nRaw line:${raw}\nNotes: ${notes.join(',')}.\nVulnerabilities found: ${vulnerabilites.map(vulnerability => vulnerability.name).join(',')}\nDetails:${Object.values(detail).join(',')}`
+  } ).join('\n\n'), {align: 'justify'})
 }
 
-const generatePdfContent = async (timelineId, doc) => {
-  const timeline = await Timeline.findById(timelineId)
-  return createPDFStirngContent(timeline, doc)
+const generatePdfContent = async (timelineId, logId, doc) => {
+  const timeline = await Timeline.findOne({id: timelineId, log: logId})
+  if(!timeline){
+    throw {code: 400, msg: 'Timeline not found'}
+  }
+  return await createPDFStirngContent(timeline, logId, doc)
 }
 
 const report = new RequestWrapper()
@@ -27,16 +42,14 @@ const report = new RequestWrapper()
   .hasMongoId('logId')
   .hasId('projectId')
   .setHandler(async (req, res) => {
-    console.log('llegue')
-    const { timelineId } = req.params
+    const { timelineId,logId } = req.params
     const doc = new PDFDocument({size:'A4', margin: 50})
     const fileName = `report_${timelineId}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
-    await generatePdfContent(timelineId, doc)
+    await generatePdfContent(timelineId, logId, doc)
     doc.pipe(res)
     doc.end()
-    console.log('finalizo')
     return res.status(200)
   }).wrap()
 
