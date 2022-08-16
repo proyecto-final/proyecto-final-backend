@@ -139,8 +139,14 @@ cron.schedule(process.env.RUN_INTERVAL || '0 */15 * * * *', async () => {
           console.log('ignored', filename)
         }
       }catch (err) {
-        console.log(`File${filename} failed, moving to error folder`, err)
+        console.log(`File ${filename} failed, moving to error folder`, err)
         fs.renameSync(filePath, `${errorDirectory}${filename}`)
+        if (filename.includes('-id-')) {
+          const logId = filename.split('-id-')[0]
+          const log = await Log.findById(logId)
+          log.state = 'error'
+          await log.save()
+        }
       }
     }
     console.log('Processed', filesnames2Process.length, 'files')
