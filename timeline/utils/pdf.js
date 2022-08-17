@@ -1,8 +1,3 @@
-
-const mongoose = require('mongoose')
-const Log = require('../../shared/models/log')(mongoose)
-const Line = require('../../shared/models/line')(mongoose)
-
 const writeTitle = (title, doc) => doc.font('Helvetica').fontSize(20).text(title, {align: 'center'})
 const addSpace = (number, doc) => doc.text('\n'.repeat(number), {align: 'center'})
 const writeBody = (body, doc) => doc.font('Helvetica').fontSize(14).text(body, {align: 'justify'})
@@ -28,15 +23,13 @@ const writeLogIntoPDF = (log, doc) => {
 }
 const writeLogLineIntoPDF = (line, doc) => {
   const {index, timestamp, raw, notes, vulnerabilites, detail} = line
-  writeBoldBody( `${index} - ${timestamp}`,doc)
-  addSpace(1, doc)
-  writeBody(`line:${raw}`, doc)
-  addSpace(1, doc)
-  writeBody(`Notes: ${notes.join(',')}`, doc)
-  addSpace(1, doc)
-  writeBody(`Vulnerabilities found: ${vulnerabilites.map(vulnerability => vulnerability.name).join(',')}`, doc)
-  addSpace(1, doc)
-  writeBody(`Details:${Object.values(detail).join(',')}`, doc)
+  writeBoldBody(`${index} - ${timestamp}`, doc)
+  writeBody(`Line: ${raw}`, doc)
+  writeBody(`Notes: ${(notes.length === 0 ? ['No notes']: notes).join(',')}`, doc)
+  let namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
+  namedVulnerabilites =  (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites)
+  writeBody(`Vulnerabilities found: ${namedVulnerabilites.join(',')}`, doc)
+  writeBody(`Details: ${Object.values(detail).join(',')}`, doc)
   addSpace(2, doc)
 }
 
@@ -49,8 +42,7 @@ const createPDFStringContent = async({title, description, lines}, logData, logLi
   lines.forEach(line => {
     writeBoldBody(line.timestamp, doc)
     writeBody(`${line.raw}`, doc)
-    addSpace(1, doc)
-    writeBody(`tags:${line.tags}`, doc)
+    writeBody(`Tags: ${line.tags.join(',')}.`, doc)
     addSpace(2, doc)
   })
   addSpace(2, doc)

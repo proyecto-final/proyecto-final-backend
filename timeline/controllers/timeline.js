@@ -7,7 +7,7 @@ const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const PDFDocument = require('pdfkit')
-const {createPDFStringContent} = require('../../utils/pdf')
+const {createPDFStringContent} = require('../utils/pdf')
 
 const getReport = new RequestWrapper()
   .hasMongoId('timelineId')
@@ -17,7 +17,7 @@ const getReport = new RequestWrapper()
     const { timelineId, logId } = req.params
     const timeline = await Timeline.findOne({id: timelineId, log: logId})
     const logData = await Log.findOne({id: logId})
-    const logLines = await Line.find({logId})
+    const logLines = await Line.find({log: logId})
     if(!logData){
       throw {code: 404, msg: 'Log not found'}
     }
@@ -31,7 +31,7 @@ const getReport = new RequestWrapper()
     const fileName = `report_${timelineId}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
-    await createPDFStringContent(timelineId, logData, logLines, doc)
+    await createPDFStringContent(timeline, logData, logLines, doc)
     doc.pipe(res)
     doc.end()
     return res.status(200)
