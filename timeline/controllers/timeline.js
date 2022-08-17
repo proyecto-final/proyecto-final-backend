@@ -12,9 +12,12 @@ const createPDFStirngContent = async({title, description, lines}, log, doc) => {
   doc.fontSize(20).text(title, {align: 'center'})
   doc.fontSize(14).text(description, {align: 'justify'})
   doc.fontSize(18).text('\n\nEvents', {align: 'justify'})
-  doc.fontSize(14).text(lines.map(line => `${line.raw}, tags:${line.tags}`).join('\n'), {align: 'justify'})
+  lines.forEach(line => {
+    doc.font('Helvetica-Bold').fontSize(14).text(line.timestamp, {align: 'justify'})
+    doc.font('Helvetica').fontSize(14).text(`${line.raw}\ntags:${line.tags}\n\n`, {align: 'justify'})
+  })
   doc.fontSize(18).text('\n\nLog Metadata', {align: 'justify'})
-  const logData= await Log.findOne({id: log})
+  const logData = await Log.findOne({id: log})
   doc.fontSize(14).text(`log: ${logData.title}\n`, {align: 'justify'})
   doc.fontSize(14).text(`log description: ${logData.description}\n`, {align: 'justify'})
   doc.fontSize(14).text(`log extension: ${logData.extension}\n`, {align: 'justify'})
@@ -23,10 +26,11 @@ const createPDFStirngContent = async({title, description, lines}, log, doc) => {
   doc.fontSize(14).text(`creation time: ${logData.createdAt}\n`, {align: 'justify'})
   doc.fontSize(14).text(`last update: ${logData.updatedAt}\n`, {align: 'justify'})
   doc.fontSize(18).text('\n\nLog lines', {align: 'justify'})
-  const loglines = await Line.find({log}) 
-  doc.fontSize(14).text(loglines.map(({index, vulnerabilites, detail, raw, notes, timestamp}) => {
-    return `${index} - ${timestamp}\nRaw line:${raw}\nNotes: ${notes.join(',')}.\nVulnerabilities found: ${vulnerabilites.map(vulnerability => vulnerability.name).join(',')}\nDetails:${Object.values(detail).join(',')}`
-  } ).join('\n\n'), {align: 'justify'})
+  const loglines = await Line.find({log})
+  loglines.forEach(({index, timestamp, raw, notes, vulnerabilites, detail}) => {
+    doc.font('Helvetica-Bold').fontSize(14).text( `${index} - ${timestamp}\n`, {align: 'justify'})
+    doc.font('Helvetica').fontSize(14).text(`line:${raw}\nNotes: ${notes.join(',')}.\nVulnerabilities found: ${vulnerabilites.map(vulnerability => vulnerability.name).join(',')}\nDetails:${Object.values(detail).join(',')}\n\n`, {align: 'justify'})
+  }) 
 }
 
 const generatePdfContent = async (timelineId, logId, doc) => {
