@@ -124,9 +124,9 @@ cron.schedule(process.env.RUN_INTERVAL || '0 */15 * * * *', async () => {
     console.log('Processing', filesnames2Process.length, 'files')
     for (const filename of filesnames2Process) {
       const filePath = `${inputDirectory}${filename}`
+      const convertedFileName = filePath + '-converted.json'
       try{
         if (filename.endsWith('.evtx')) {
-          const convertedFileName = filePath + '-converted.json'
           const convertedFile = fs.readFileSync(convertedFileName)
           const logId = filename.split('-id-')[0]
           const log = await Log.findById(logId)
@@ -140,7 +140,8 @@ cron.schedule(process.env.RUN_INTERVAL || '0 */15 * * * *', async () => {
         }
       }catch (err) {
         console.log(`File ${filename} failed, moving to error folder`, err)
-        fs.renameSync(filePath, `${errorDirectory}${filename}`)
+        fs.rename(filePath, `${errorDirectory}${filename}`)
+        fs.rename(convertedFileName, `${errorDirectory}${convertedFileName}`)
         if (filename.includes('-id-')) {
           const logId = filename.split('-id-')[0]
           const log = await Log.findById(logId)
