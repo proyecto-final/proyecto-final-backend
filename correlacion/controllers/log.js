@@ -1,12 +1,8 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue, getDateValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getExtension } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
-const Line = require('./../../shared/models/line')(mongoose)
-const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
-const  {processFiles: processFilesWithChainsaw} = require('../chainsaw/chainsawAdapter.js')
-const { get: getAttribute, isEmpty } = require('lodash')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   const files = Array.isArray(fileOrFiles) ? fileOrFiles : [fileOrFiles]
@@ -27,151 +23,41 @@ const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
   return { files, metadatas, convertedFiles }
 }
 
-const getExtension = (file) => {
-  return file.name.split('.').pop()
-}
 
-const persistEvtxLinesFrom = async (processedLogs) => {
-  const evtxLogLines = []
-  for(const processedLog of processedLogs) {
-    const { convertedFile, log, detections } = processedLog
-    const converSingleLineJsonToValidOne = json => json.split('\n').join(',').slice(0, -1)
-    const existingVulnerabilities = await Vulnerability.find({name: {$in: detections.map(detection => detection.name)}})
-    const detections2Create = detections.filter(detection => !existingVulnerabilities.some(foundDetection => foundDetection.name === detection.name))
-    const uniqueCreatedVulnerabilities = detections2Create
-      .filter((detection, index) => detections2Create.findIndex(detection2 => detection2.name === detection.name) === index)
-      .map(detection => new Vulnerability({
-        name: detection.name,
-        references: detection.references,
-        level: detection.level,
-        isCustom: false
-      }))
-    await Vulnerability.insertMany(uniqueCreatedVulnerabilities)
-    const vulnerabilities = [...existingVulnerabilities, ...uniqueCreatedVulnerabilities]
-    const vulnerabilitesWithDetection = detections.map(detectionData => ({
-      vulnerability: vulnerabilities.find(foundDetection => foundDetection.name === detectionData.name),
-      detectionData
-    }))
-    const defaultLines  = JSON.parse(`[${converSingleLineJsonToValidOne(convertedFile.data.toString())}]`)
-    const lines2Save = defaultLines.map((defaultLine, index) => {
-      const timestamp = getAttribute(defaultLine, 'Event.System.TimeCreated.#attributes.SystemTime')
-      const {EventID} = getAttribute(defaultLine, 'Event.System') || {}
-      const vulnerabilites = vulnerabilitesWithDetection
-        .filter(({detectionData}) => detectionData.identification.timestamp2 === timestamp && 
-          detectionData.identification.eventId === EventID)
-        .map(({vulnerability}) => vulnerability)
-      return createLine(defaultLine, vulnerabilites, timestamp, log, index)
-    })
-    evtxLogLines.push(lines2Save)
-  }
-  return await Line.insertMany(evtxLogLines.flat())
-}
-
-
-const persistCommonLogLinesFrom = async (logs) => {
-  const timestampRegex = /((0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4} ([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9])|[0-2][0-9]:[0-5][0-9]:[0-5][0-9])|(([0-2][0-9]:[0-5][0-9]:[0-5][0-9]:[0-9][0-9][0-9]|[0-2][0-9]:[0-5][0-9]:[0-5][0-9]) (0[1-9]|[1-2][0-9]|3[0-1])(\/|-)(0[1-9]|1[0-2])(\/|-)[0-9]{4})/g
-  const logLines = logs.map(({ file, log }) => {
-    const defaultLines  = file.data.toString().split('\n')
-    const lines2Save = defaultLines.filter(line => !!line).map((defaultLine, index) => {
-      const dateString = defaultLine.match(timestampRegex)
-      const timestamp = !isEmpty(dateString) ? getDateValue(dateString) : null
-      const otherAttributes = {
-        processing: 'Line from .log file, not processed by chainsaw',
-        warnings: !timestamp  ? 'Time not found in line or is not valid.' : 'No warning provided.'
-      }
-      return new Line({
-        log,
-        timestamp,
-        raw: defaultLine,
-        detail: otherAttributes,
-        index
-      })
-    })
-    return lines2Save
-  })
-  return await Line.insertMany(logLines.flat())
-}
-
-const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
-  const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
-  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID} = 
-        getAttribute(defaultLine, 'Event.EventData') || {}
-  let ipData = ''
-  if (SourceAddress) {
-    ipData += ` - From: ${SourceAddress}:${SourcePort}`
-  }
-  if (DestAddress) {
-    ipData += ` - To: ${DestAddress}:${DestPort}`
-  }
-  let applicationString = ''
-  if (Application) {
-    applicationString = ` - ${Application}`
-  }
-  const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
-  const otherAttributes = {
-    application: Application,
-    applicationId: ProcessID,
-    computer: Computer,
-    userId: RemoteUserID
-  }
-  return new Line({
-    log,
-    timestamp,
-    vulnerabilites,
-    raw: rawLine,
-    detail: otherAttributes,
-    index
-  })
-}
-
-const processAndPersistLogs = async (logs, files, convertedFiles) => {
-  const logsWithFiles = logs.map((log, index) => ({
-    log,
-    file: files[index]
-  }))
-  // Get different types
-  // const nonEvtxLogs = logsWithFiles
-  //   .filter(({ file }) => getExtension(file) !== 'evtx')
-  const evtxLogs = logsWithFiles
-    .filter(({ file }) => getExtension(file) === 'evtx')
-  const nonEvtxLogs = logsWithFiles.filter(({ file }) => getExtension(file) === 'log')
-  // Process and merge results
-  const processedLogs = (await processFilesWithChainsaw(evtxLogs))
-    .map((processedLog, index) => ({...processedLog, convertedFile: convertedFiles[index]}))
-  try {
-    await persistEvtxLinesFrom(processedLogs)
-    await persistCommonLogLinesFrom(nonEvtxLogs)
-  } catch (err) {
-    throw { code: 500, msg: 'Couldn\'t process log files' }
-  }
-  await Promise.all(logs.map(log => {
-    log.state = 'processed'
-    return log.save()
-  }))
-  // const logs2Persist = [...nonEvtxLogs, ...processedLogs]
-  // persist lines of evtxLogWithFiles+processedLogs and nonEvtxLogWithFiles
-  return logsWithFiles
-}
 const create = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, resp) => {
     const fileOrFiles = req.files?.files
     const jsonFileOrFiles = req.files?.convertedFiles
     const { files, metadatas, convertedFiles } = checkLogs(fileOrFiles, req.body.metadata, jsonFileOrFiles)
-    const logsWithMetadata = files.map((file, index) => 
-      ({
-        ...metadatas[index],
-        projectId: getIntValue(req.params.projectId),
-        extension: getExtension(file),
-        file
-      }))
     // HEADER
-    const logs = logsWithMetadata.map(logMetadata => new Log({...logMetadata, projectId: getIntValue(req.params.projectId)}))
+    const logs = files.map((file, index) => new Log({
+      ...metadatas[index],
+      projectId: getIntValue(req.params.projectId),
+      extension: getExtension(file),
+    }))
     await Promise.all(logs.map(async log => await log.validate()))
     await Promise.all(logs.map(async log => await log.save()))
-    // BODY
-    await processAndPersistLogs(logs, files, convertedFiles)
-
+    // Move files to process
+    const evtxFiles = files.filter(file => getExtension(file) === 'evtx')
+    const files2Move = files.map((file, index)=> ({
+      file,
+      log: logs[index],
+      convertedFile: convertedFiles[evtxFiles.indexOf(file)]
+    }))
+    const inputDirectory =`${__dirname}/../chainsaw/input/`
+    await Promise.all([...files2Move.map(async ({file, log, convertedFile}) => {
+      const temporaryName = `${log._id.toString()}-id-${file.name}`
+      try {
+        await file.mv(`${inputDirectory}${temporaryName}`)
+        if (convertedFile) {
+          const convertedFileTemporaryName = `${log._id.toString()}-id-${convertedFile.name}`
+          await convertedFile.mv(`${inputDirectory}${convertedFileTemporaryName}`)
+        }
+      } catch (err) {
+        throw { code: 500, msg: 'Error moving file' }
+      }
+    })])
     resp.status(200).json(logs)
   }).wrap()
 

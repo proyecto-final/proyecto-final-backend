@@ -24,7 +24,7 @@ module.exports = mongoose => {
     state: {
       type: String,
       required: true,
-      enum: ['processing', 'processed'],
+      enum: ['processing', 'processed', 'error'],
       default: 'processing'
     }
   },
