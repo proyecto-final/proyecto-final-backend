@@ -51,7 +51,7 @@ const create = new RequestWrapper()
       try {
         await file.mv(`${inputDirectory}${temporaryName}`)
         if (convertedFile) {
-          const convertedFileTemporaryName = `${log._id.toString()}-id-${file.name}`
+          const convertedFileTemporaryName = `${log._id.toString()}-id-${convertedFile.name}`
           await convertedFile.mv(`${inputDirectory}${convertedFileTemporaryName}`)
         }
       } catch (err) {
