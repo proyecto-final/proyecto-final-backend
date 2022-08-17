@@ -201,7 +201,7 @@ paths:
           description: Timeline elimination result response
   /api/project/{projectId}/log/{logId}/timeline/{timelineId}/report:
     post:
-      summary: Updates a timeline
+      summary: Generate pdf summary from timeline
       tags: [Timeline CRUD]
       parameters:
       - name: projectId
@@ -214,7 +214,7 @@ paths:
         in: path
         description: log id
         required: true
-        schemas: 
+        schema: 
           type: integer
       - name: timelineId
         in: path
@@ -226,4 +226,6 @@ paths:
         '200':
           description: Timeline pdf summary
           content:
-            application/pdf
+            application/pdf:
+              schema:
+                format: binary
