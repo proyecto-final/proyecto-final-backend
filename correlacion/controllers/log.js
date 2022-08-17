@@ -38,19 +38,25 @@ const create = new RequestWrapper()
     }))
     await Promise.all(logs.map(async log => await log.validate()))
     await Promise.all(logs.map(async log => await log.save()))
-    // BODY
-    // Move files
-    const files2Move = [
-      ...files.map((file, index) => ({log: logs[index], file})), 
-      ...convertedFiles.map((file, index) => ({log: logs[index], file})).filter(({file}) => file),
-    ]
-    await Promise.all([...files2Move.map(({file, log}) => {
+    // Move files to process
+    const evtxFiles = files.filter(file => getExtension(file) === 'evtx')
+    const files2Move = files.map((file, index)=> ({
+      file,
+      log: logs[index],
+      convertedFile: convertedFiles[evtxFiles.indexOf(file)]
+    }))
+    const inputDirectory =`${__dirname}/../chainsaw/input/`
+    await Promise.all([...files2Move.map(async ({file, log, convertedFile}) => {
       const temporaryName = `${log._id.toString()}-id-${file.name}`
-      return file.mv(`${__dirname}/../chainsaw/input/${temporaryName}`, function(err) {
-        if (err) {
-          throw { code: 500, msg: 'Error moving file'+err }
+      try {
+        await file.mv(`${inputDirectory}${temporaryName}`)
+        if (convertedFile) {
+          const convertedFileTemporaryName = `${log._id.toString()}-id-${file.name}`
+          await convertedFile.mv(`${inputDirectory}${convertedFileTemporaryName}`)
         }
-      })
+      } catch (err) {
+        throw { code: 500, msg: 'Error moving file' }
+      }
     })])
     resp.status(200).json(logs)
   }).wrap()
