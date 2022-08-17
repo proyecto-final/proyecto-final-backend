@@ -199,3 +199,31 @@ paths:
       responses:
         '200':
           description: Timeline elimination result response
+  /api/project/{projectId}/log/{logId}/timeline/{timelineId}/report:
+    post:
+      summary: Updates a timeline
+      tags: [Timeline CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: logId
+        in: path
+        description: log id
+        required: true
+        schemas: 
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline pdf summary
+          content:
+            application/pdf
