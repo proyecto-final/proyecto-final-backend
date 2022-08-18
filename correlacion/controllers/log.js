@@ -2,6 +2,7 @@ const RequestWrapper = require('./../../shared/utils/requestWrapper')
 const { getIntValue, getExtension } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
+const Line = require('./../../shared/models/line')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 
 const checkLogs = (fileOrFiles, metadata, convertedFileOrFiles) => {
@@ -64,11 +65,15 @@ const create = new RequestWrapper()
 const destroy = new RequestWrapper().hasMongoId('logId').hasId('projectId')
   .setHandler(async(req, resp) => {
     const { logId, projectId } = req.params
+    const deletedLines = await Line.deleteMany({ log: logId})
     const deletedLog = await Log.deleteOne({_id: logId, projectId: getIntValue(projectId)})
+    if(deletedLines === 0){
+      throw { code: 404, msg: 'Lines not found' }
+    }
     if (!deletedLog || deletedLog.deletedCount === 0){
       throw { code: 404, msg: 'Log not found' }
     }
-    resp.status(200).json({ msg: 'OK' })
+    resp.status(200).json({ msg: `Log deleted with ${deletedLines.deletedCount} lines.` })
   }).wrap()
 
 const get = new RequestWrapper()
