@@ -177,10 +177,18 @@ const refresh = new RequestWrapper()
     if(!timeline){
       throw { code: 404, msg: 'Timeline not found' }
     }
-    const tags = timeline.lines.sort((line, line2) => line.index < line2.index ? -1 : 1 ).map(line => line.tags)
-    const lines = await createLinesFrom(timeline.lines.map(line => line.line._id), timeline.log)
-    tags.forEach((tags, index) => lines[index].tags = tags)
-    timeline.lines = lines
+    const tagsXline = {}
+    timeline.lines.forEach(timeline => {
+      tagsXline[timeline.line] = timeline.tags
+    })
+    const lines = await createLinesFrom(timeline.lines.map(timeline => timeline.line), timeline.log)
+    const lines2Update = []
+    Object.entries(tagsXline).forEach(([lineId, tags]) => {
+      const filteredLines = lines.filter(timeline => timeline.line._id.toString() === lineId)
+      filteredLines.forEach((timeline) => timeline.tags = tags)
+      lines2Update.push(...filteredLines)
+    })
+    timeline.lines = lines2Update
     timeline.save()
     resp.status(200).json(timeline) 
   }
