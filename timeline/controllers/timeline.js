@@ -13,8 +13,8 @@ const validateTimeline = (timeline) => {
   }
 }
 
-const createLinesFrom = async (lines, log) => {
-  const logLines = await Line.find({_id: {$in: lines}, log})
+const createLinesFrom = async (lines, logs) => {
+  const logLines = await Line.find({_id: {$in: lines}, log: {$in: logs}})
   if(logLines.length === 0){
     throw {code: 400, msg: 'Lines are not valid'}
   }
@@ -36,24 +36,24 @@ const createLinesFrom = async (lines, log) => {
 const create = new RequestWrapper(
   check('title', 'Timeline title is required').not().isEmpty(),
   check('lines', 'Timeline lines are required').not().isEmpty(),
-  check('log', 'Log must a mongo id').isMongoId(),
+  check('logs', 'Log must at least one mongo id').isArray().isMongoId(),
 )
   .hasId('projectId')
   .setHandler(async (req, resp) => {
     const timeline2Create = req.body
     validateTimeline(timeline2Create)
-    const log = await Log.findOne({_id: timeline2Create.log, projectId: getIntValue(req.params.projectId)})
-    if (!log) {
+    const logs = await Log.find({_id: {$in: timeline2Create.logs}, projectId: getIntValue(req.params.projectId)})
+    if (!logs) {
       throw { code: 404, msg: 'Log not found' }
     }
     const linesIds = timeline2Create.lines.map(line => line.id)
-    const lines = await createLinesFrom(linesIds, log)
+    const lines = await createLinesFrom(linesIds, logs)
     lines.forEach(lineWithLogLineData => lineWithLogLineData.tags = timeline2Create.lines.find(lineFromRequest => lineFromRequest.id === lineWithLogLineData.line._id.toString())?.tags)
     
     const timeline = new Timeline({
       title: timeline2Create.title,
       description: timeline2Create.description,
-      log: log,
+      logs: logs,
       projectId: getIntValue(req.params.projectId),
       lines
     })
@@ -90,7 +90,7 @@ const update = new RequestWrapper()
     }
     if(requestLines){
       const linesIds = requestLines.map(line => line.id)
-      const linesCreated = await createLinesFrom(linesIds, timeline.log)
+      const linesCreated = await createLinesFrom(linesIds, timeline.logs)
       const findTagsInRequestById = id => requestLines.find(lineFromRequest => lineFromRequest.id === id)?.tags
       linesCreated.forEach(lineWithLogLineData => lineWithLogLineData.tags = findTagsInRequestById(lineWithLogLineData.line._id.toString()))
       timeline.lines = linesCreated
@@ -171,25 +171,18 @@ const getSpecific = new RequestWrapper()
 
 const refresh = new RequestWrapper()
   .hasMongoId('timelineId')
+  .hasId('projectId')
   .setHandler(async (req, resp) => {
-    const { timelineId } = req.params
-    const timeline = await Timeline.findOne({_id: timelineId})
+    const { timelineId, projectId } = req.params
+    const timeline = await Timeline.findOne({_id: timelineId, projectId})
     if(!timeline){
       throw { code: 404, msg: 'Timeline not found' }
     }
-    const tagsXline = {}
-    timeline.lines.forEach(timeline => {
-      tagsXline[timeline.line] = timeline.tags
-    })
-    const lines = await createLinesFrom(timeline.lines.map(timeline => timeline.line), timeline.log)
-    const lines2Update = []
-    Object.entries(tagsXline).forEach(([lineId, tags]) => {
-      const filteredLines = lines.filter(timeline => timeline.line._id.toString() === lineId)
-      filteredLines.forEach((timeline) => timeline.tags = tags)
-      lines2Update.push(...filteredLines)
-    })
-    timeline.lines = lines2Update
-    timeline.save()
+    const lines = await createLinesFrom(timeline.lines.map(timeline => timeline.line), timeline.logs)
+    const getTagsFor = line => timeline.lines.find(existingLine =>  existingLine.line._id.toString() === line.line._id.toString())?.tags || []
+    const linesWithTags = lines.map(line => ({...line, tags: getTagsFor(line) }))
+    timeline.lines = linesWithTags
+    await timeline.save()
     resp.status(200).json(timeline) 
   }
   ).wrap()

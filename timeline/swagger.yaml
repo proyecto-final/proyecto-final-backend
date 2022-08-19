@@ -75,11 +75,11 @@ components:
           type: array
           description: lines mongo ids
         log:
-          type: string
-          description: log mongo id
+          type: array
+          description: logs mongo id
       example:
         title: timeline1
-        log: 62e557770cda67a071353283 
+        logs: ["62e557770cda67a071353283"] 
         description: Some description
         lines: [{"id": "62e557770cda67a071353287", "tags":[]}, {"id":"62e557770cda67a071353288", "tags":[]}]
 tags:
@@ -141,7 +141,8 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/TimelineResponse'
-  /api/project/{projectId}/timeline/:timelineId:
+
+  /api/project/{projectId}/timeline/{timelineId}/refresh:
     post:
         summary: Refresh a timeline
         tags: [Timeline CRUD]
@@ -172,6 +173,7 @@ paths:
                 schema: 
                   type: object
                   $ref: '#/components/schemas/TimelineResponse'
+  /api/project/{projectId}/timeline/{timelineId}:
     patch:
       summary: Updates a timeline
       tags: [Timeline CRUD]
