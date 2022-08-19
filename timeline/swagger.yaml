@@ -199,3 +199,60 @@ paths:
       responses:
         '200':
           description: Timeline elimination result response
+  /api/project/{projectId}/timeline/{timelineId}/generate-link:
+    post:
+      summary: Generates a timeline invitation link
+      tags: [Timeline CRUD]
+      description: Generates a timeline invitation link
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: token to be used in the link
+  /project/:nothing/timeline-external/:token:
+    get:
+      summary: Gets a timeline without being logged in
+      tags: [Timeline CRUD]
+      description: Gets a timeline without being logged in
+      parameters:
+      - name: nothing
+        in: path
+        description: Put any value here
+        required: true
+        schema:
+          type: integer
+      - name: token
+        in: path
+        description: "Token string to get the timeline"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                $ref: '#/components/schemas/TimelineResponse'
+                
+
