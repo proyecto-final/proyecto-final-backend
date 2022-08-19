@@ -15,7 +15,7 @@ const getReport = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, res) => {
     const { timelineId, logId } = req.params
-    const timeline = await Timeline.findOne({id: timelineId, log: logId})
+    const timeline = await Timeline.findOne({$and: [{_id: timelineId}, {log: logId}]})
     const logData = await Log.findOne({id: logId})
     const logLines = await Line.find({log: logId})
     if(!logData){
