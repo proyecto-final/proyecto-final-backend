@@ -199,7 +199,7 @@ paths:
       responses:
         '200':
           description: Timeline elimination result response
-  /api/project/{projectId}/timeline/{timelineId}/generate-link:
+  /api/project/{projectId}/timeline/{timelineId}/generate-token:
     post:
       summary: Generates a timeline invitation link
       tags: [Timeline CRUD]
