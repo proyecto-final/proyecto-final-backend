@@ -223,11 +223,25 @@ const getByToken = new RequestWrapper(
   param('token').not().isEmpty().withMessage('Token is required'))
   .setHandler(async (req, resp) => {
     const { token  } = req.params
-    const timeline = await Timeline.findOne({ accessToken: token })
-    if (!timeline || !timeline.accessToken) {
+    const timelines = await Timeline.aggregate([
+      {
+        '$lookup': {
+          'from': 'vulnerabilities',
+          'localField': 'lines.vulnerabilites',
+          'foreignField': '_id',
+          'as': 'linesVulnerabilites'
+        }
+      },
+      {
+        $match: {
+          accessToken: token
+        }
+      }
+    ])
+    if (!timelines || timelines.length === 0) {
       throw { code: 404, msg: 'Timeline not found' }
     }
-    resp.status(200).json(timeline)
+    resp.status(200).json(timelines[0])
   }).wrap()
   
 module.exports = {
