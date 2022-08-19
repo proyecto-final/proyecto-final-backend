@@ -254,5 +254,33 @@ paths:
               schema: 
                 type: object
                 $ref: '#/components/schemas/TimelineResponse'
-                
-
+  /api/project/{projectId}/log/{logId}/timeline/{timelineId}/report:
+    post:
+      summary: Generate pdf summary from timeline
+      tags: [Timeline CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: logId
+        in: path
+        description: log id
+        required: true
+        schema: 
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline pdf summary
+          content:
+            application/pdf:
+              schema:
+                format: binary
