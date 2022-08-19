@@ -20,6 +20,10 @@ module.exports = mongoose => {
       type: Schema.Types.ObjectId,
       ref: 'log'
     },
+    accessToken: {
+      type: String,
+      default: null
+    },
     lines: [{
       detail: {
         type: Object,
@@ -51,7 +55,7 @@ module.exports = mongoose => {
     timestamps: true
   })
   Timeline.methods.toJSON = function () {
-    const {__v, ...others} = this.toObject()
+    const {__v, accessToken, ...others} = this.toObject()
     return others
   }
   return model('timeline', Timeline)

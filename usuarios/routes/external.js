@@ -7,6 +7,7 @@ const { and, hasAccessToProject, isEnabled} = permission
 
 const userCrudPermission = new ControllerHandler()
   .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap()
+const noPermission = new ControllerHandler().wrap()
 
 //CORRELATION
 router.post('/project/:projectId/correlate/log',userCrudPermission)
@@ -25,6 +26,7 @@ router.get('/project/:projectId/timeline/',userCrudPermission)
 router.get('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.delete('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.patch('/project/:projectId/timeline/:timelineId',userCrudPermission)
-router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',userCrudPermission)
+router.post('/project/:projectId/timeline/:timelineId/generate-token',userCrudPermission)
+router.get('/project/:nothing/timeline/external/:token', noPermission)
 
 module.exports = router
