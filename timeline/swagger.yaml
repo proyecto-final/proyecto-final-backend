@@ -228,7 +228,7 @@ paths:
                   token:
                     type: string
                     description: token to be used in the link
-  /project/:nothing/timeline-external/:token:
+  /project/:nothing/timeline/external/:token:
     get:
       summary: Gets a timeline without being logged in
       tags: [Timeline CRUD]

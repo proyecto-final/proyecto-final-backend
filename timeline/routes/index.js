@@ -27,7 +27,7 @@ router.get('/project/:projectId/timeline',[], Timeline.get)
 router.get('/project/:projectId/timeline/:timelineId',[], Timeline.getSpecific)
 router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',[], logInput)
 router.post('/project/:projectId/timeline/:timelineId/generate-token', Timeline.generateToken)
-router.get('/project/:nothing/timeline-external/:token', Timeline.getByToken)
+router.get('/project/:nothing/timeline/external/:token', Timeline.getByToken)
 
 
 module.exports = router
