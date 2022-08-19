@@ -35,8 +35,7 @@ const createLinesFrom = async (lines, logs) => {
 
 const create = new RequestWrapper(
   check('title', 'Timeline title is required').not().isEmpty(),
-  check('lines', 'Timeline lines are required').not().isEmpty(),
-  check('logs', 'Log must at least one mongo id').isArray().isMongoId(),
+  check('lines', 'Timeline lines are required').not().isEmpty()
 )
   .hasId('projectId')
   .setHandler(async (req, resp) => {
