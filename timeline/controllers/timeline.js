@@ -220,7 +220,7 @@ const generateToken = new RequestWrapper()
   }).wrap()
 
 const getByToken = new RequestWrapper(
-  param('token').not().isEmpty().withMessage('Name is required'))
+  param('token').not().isEmpty().withMessage('Token is required'))
   .setHandler(async (req, resp) => {
     const { token  } = req.params
     const timeline = await Timeline.findOne({ accessToken: token })
