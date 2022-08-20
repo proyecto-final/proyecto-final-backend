@@ -163,6 +163,16 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 
+const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
+  .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
+const getTimelineWithVulnerabilities = timelines => timelines.map(timeline => ({
+  ...timeline,
+  lines: timeline.lines.map(line => ({
+    ...line,
+    vulnerabilites: getVulnerabilitesForLine(timeline, line)
+  })
+  )}))[0]
+
 const getSpecific = new RequestWrapper()
   .hasId('projectId')
   .hasMongoId('timelineId')
@@ -188,15 +198,7 @@ const getSpecific = new RequestWrapper()
       if (!timelines || timelines.length === 0) {
         throw { code: 404, msg: 'Timeline not found' }
       }
-      const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
-        .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
-      resp.status(200).json(timelines.map(timeline => ({
-        ...timeline,
-        lines: timeline.lines.map(line => ({
-          ...line,
-          vulnerabilites: getVulnerabilitesForLine(timeline, line)
-        })
-        )}))[0])
+      resp.status(200).json(getTimelineWithVulnerabilities(timelines))
     }
   ).wrap()
 
@@ -241,7 +243,7 @@ const getByToken = new RequestWrapper(
     if (!timelines || timelines.length === 0) {
       throw { code: 404, msg: 'Timeline not found' }
     }
-    resp.status(200).json(timelines[0])
+    resp.status(200).json(getTimelineWithVulnerabilities(timelines))
   }).wrap()
   
 module.exports = {
