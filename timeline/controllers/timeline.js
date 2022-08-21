@@ -12,14 +12,13 @@ const {createPDFStringContent} = require('../utils/pdf')
 
 const getReport = new RequestWrapper()
   .hasMongoId('timelineId')
-  .hasMongoId('logId')
   .hasId('projectId')
   .setHandler(async (req, res) => {
-    const { timelineId, logId, projectId } = req.params
-    const timeline = await Timeline.findOne({$and: [{_id: timelineId}, {projectId}, {log: logId}]})
-    const logData = await Log.findOne({id: logId})
-    const logLines = await Line.find({log: logId})
-    if(!logData){
+    const { timelineId, projectId } = req.params
+    const timeline = await Timeline.findOne({$and: [{_id: timelineId}, {projectId}]})
+    const logs = await Log.find({_id: {$in: timeline.logs}})
+    const logLines = await Line.find({log: {$in: logs}})
+    if(!logs){
       throw {code: 404, msg: 'Log not found'}
     }
     if(!logLines){
@@ -32,7 +31,7 @@ const getReport = new RequestWrapper()
     const fileName = `report_${timelineId}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
-    await createPDFStringContent(timeline, logData, logLines, doc)
+    await createPDFStringContent(timeline, logs, logLines, doc)
     doc.pipe(res)
     doc.end()
     return res.status(200)
@@ -262,6 +261,7 @@ const refresh = new RequestWrapper()
     resp.status(200).json(timeline) 
   }
   ).wrap()
+
 module.exports = {
   create,
   destroy,
