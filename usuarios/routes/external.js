@@ -27,5 +27,6 @@ router.post('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.delete('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.patch('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',userCrudPermission)
+router.post('/project/:projectId/timeline/:timelineId/refresh',[], userCrudPermission)
 
 module.exports = router
