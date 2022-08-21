@@ -16,14 +16,14 @@ module.exports = mongoose => {
       type: Number,
       required: true
     },
-    accessToken: {
-      type: String,
-      default: null
-    },
     logs: [{
       type: Schema.Types.ObjectId,
       ref: 'log'
     }],
+    accessToken: {
+      type: String,
+      default: null
+    },
     lines: [{
       detail: {
         type: Object,

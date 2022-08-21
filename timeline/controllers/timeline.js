@@ -268,6 +268,7 @@ module.exports = {
   update,
   get,
   getSpecific,
+  refresh,
   generateToken,
   getByToken,
   refresh,
