@@ -1,7 +1,8 @@
 const RequestWrapper = require('../../shared/utils/requestWrapper')
 const { getIntValue } = require('../../shared/utils/dataHelpers')
-const { check} = require('express-validator')
+const { param, check } = require('express-validator')
 const mongoose = require('mongoose')
+const crypto = require('crypto')
 const Timeline = require('../../shared/models/timeline')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
@@ -161,6 +162,16 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 
+const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
+  .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
+const getTimelineWithVulnerabilities = timelines => timelines.map(timeline => ({
+  ...timeline,
+  lines: timeline.lines.map(line => ({
+    ...line,
+    vulnerabilites: getVulnerabilitesForLine(timeline, line)
+  })
+  )}))[0]
+
 const getSpecific = new RequestWrapper()
   .hasId('projectId')
   .hasMongoId('timelineId')
@@ -186,15 +197,7 @@ const getSpecific = new RequestWrapper()
       if (!timelines || timelines.length === 0) {
         throw { code: 404, msg: 'Timeline not found' }
       }
-      const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
-        .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
-      resp.status(200).json(timelines.map(timeline => ({
-        ...timeline,
-        lines: timeline.lines.map(line => ({
-          ...line,
-          vulnerabilites: getVulnerabilitesForLine(timeline, line)
-        })
-        )}))[0])
+      resp.status(200).json(getTimelineWithVulnerabilities(timelines))
     }
   ).wrap()
 
@@ -216,6 +219,50 @@ const refresh = new RequestWrapper()
   }
   ).wrap()
 
+const getRandomToken = () => {
+  const randomToken = crypto.randomBytes(20).toString('hex')
+  return randomToken
+}
+
+const generateToken = new RequestWrapper()
+  .hasMongoId('timelineId')
+  .hasId('projectId').setHandler(async (req, resp) => {
+    const {timelineId, projectId } = req.params
+    const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)})
+    if (!timeline) {
+      throw { code: 404, msg: 'Timeline not found' }
+    }
+    const token = getRandomToken()
+    timeline.accessToken = token
+    await timeline.save()
+    resp.status(200).json({ token })
+  }).wrap()
+
+const getByToken = new RequestWrapper(
+  param('token').not().isEmpty().withMessage('Token is required'))
+  .setHandler(async (req, resp) => {
+    const { token  } = req.params
+    const timelines = await Timeline.aggregate([
+      {
+        '$lookup': {
+          'from': 'vulnerabilities',
+          'localField': 'lines.vulnerabilites',
+          'foreignField': '_id',
+          'as': 'linesVulnerabilites'
+        }
+      },
+      {
+        $match: {
+          accessToken: token
+        }
+      }
+    ])
+    if (!timelines || timelines.length === 0) {
+      throw { code: 404, msg: 'Timeline not found' }
+    }
+    resp.status(200).json(getTimelineWithVulnerabilities(timelines))
+  }).wrap()
+  
 module.exports = {
   create,
   destroy,
@@ -223,5 +270,7 @@ module.exports = {
   get,
   getSpecific,
   refresh,
+  generateToken,
+  getByToken,
   getReport
 }

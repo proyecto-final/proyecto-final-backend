@@ -75,7 +75,7 @@ const update = new RequestWrapper()
     if (!logOwner) {
       throw { code: 404, msg: 'Log not found' }
     }
-    const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
+    const lineUpdated = await Line.findOne({ _id: lineId, log: logId,projectId: getIntValue(projectId) }).populate('vulnerabilites')
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }
