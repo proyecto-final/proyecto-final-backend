@@ -18,7 +18,7 @@ const getReport = new RequestWrapper()
     const timeline = await Timeline.findOne({$and: [{_id: timelineId}, {projectId}]})
     const logs = await Log.find({_id: {$in: timeline.logs}})
     const logLines = await Line.find({log: {$in: logs}})
-    if(!logs){
+    if(!logs && logs.length === 0){
       throw {code: 404, msg: 'Log not found'}
     }
     if(!logLines){

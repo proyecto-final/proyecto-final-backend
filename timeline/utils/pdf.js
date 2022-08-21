@@ -23,7 +23,7 @@ const writeLogLineIntoPDF = (line, doc) => {
   namedVulnerabilites =  (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites)
   writeBody(`Vulnerabilities found: ${namedVulnerabilites.join(',')}`, doc)
   writeBody(`Details: ${Object.values(detail).join(',')}`, doc)
-  addSpace(2, doc)
+  addSpace(1, doc)
 }
 
 const createPDFStringContent = async({title, description, lines}, logs, logLines, doc) => {
@@ -36,11 +36,12 @@ const createPDFStringContent = async({title, description, lines}, logs, logLines
     writeBoldBody(line.timestamp, doc)
     writeBody(`${line.raw}`, doc)
     writeBody(`Tags: ${line.tags.join(',')}.`, doc)
-    addSpace(2, doc)
+    addSpace(1, doc)
   })
   addSpace(2, doc)
   writeSubTitle('Log Metadata',doc)
   logs.forEach(log => writeLogIntoPDF(log, doc))
+  addSpace(2, doc)
   writeSubTitle('Log Lines', doc)
   logLines.forEach(line => writeLogLineIntoPDF(line, doc))
 }
