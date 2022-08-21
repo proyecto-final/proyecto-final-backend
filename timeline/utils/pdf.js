@@ -6,20 +6,13 @@ const writeBoldBody = (body, doc) => doc.font('Helvetica-Bold').fontSize(14).tex
 
 const writeLogIntoPDF = (log, doc) => {
   const {projectId, title, description, state, extension, createdAt, updatedAt} = log
-  writeBody(`log: ${title}`, doc)
-  addSpace(1, doc)
+  writeBoldBody(`log: ${title}`, doc)
   writeBody(`log description: ${description}`, doc)
-  addSpace(1, doc)
   writeBody(`log extension: ${extension}`, doc)
-  addSpace(1, doc)
   writeBody(`state: ${state}`, doc)
-  addSpace(1, doc)
   writeBody(`Project id: ${projectId}`, doc)
-  addSpace(1, doc)
   writeBody(`creation time: ${createdAt}`, doc)
-  addSpace(1, doc)
   writeBody(`last update: ${updatedAt}`, doc)
-  addSpace(3, doc)
 }
 const writeLogLineIntoPDF = (line, doc) => {
   const {index, timestamp, raw, notes, vulnerabilites, detail} = line
@@ -33,7 +26,7 @@ const writeLogLineIntoPDF = (line, doc) => {
   addSpace(2, doc)
 }
 
-const createPDFStringContent = async({title, description, lines}, logData, logLines, doc) => {
+const createPDFStringContent = async({title, description, lines}, logs, logLines, doc) => {
   
   writeTitle(title, doc)
   writeBody(description, doc)
@@ -47,7 +40,7 @@ const createPDFStringContent = async({title, description, lines}, logData, logLi
   })
   addSpace(2, doc)
   writeSubTitle('Log Metadata',doc)
-  writeLogIntoPDF(logData, doc)
+  logs.forEach(log => writeLogIntoPDF(log, doc))
   writeSubTitle('Log Lines', doc)
   logLines.forEach(line => writeLogLineIntoPDF(line, doc))
 }
