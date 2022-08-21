@@ -72,7 +72,7 @@ const create = new RequestWrapper(
     const timeline2Create = req.body
     validateTimeline(timeline2Create)
     const logs = await Log.find({_id: {$in: timeline2Create.logs}, projectId: getIntValue(req.params.projectId)})
-    if (!logs) {
+    if (!logs && logs.length === 0) {
       throw { code: 404, msg: 'Log not found' }
     }
     const linesIds = timeline2Create.lines.map(line => line.id)
