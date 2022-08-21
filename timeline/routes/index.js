@@ -3,6 +3,7 @@ const router = Router()
 const Timeline = require('../controllers/timeline')
 
 router.post('/project/:projectId/timeline',[], Timeline.create)
+router.post('/project/:projectId/timeline/:timelineId/refresh',[], Timeline.refresh)
 router.delete('/project/:projectId/timeline/:timelineId',[], Timeline.destroy)
 router.patch('/project/:projectId/timeline/:timelineId',[], Timeline.update)
 
