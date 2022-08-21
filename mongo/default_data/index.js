@@ -2327,7 +2327,7 @@ db.timelines.insertMany([
     title: 'timelineTest1',
     description: 'a test timeline',
     projectId: 1,
-    log: db.logs.find({})[0]._id,
+    logs: [db.logs.find({})[0]._id],
     lines: [
       {
         index: 1,
