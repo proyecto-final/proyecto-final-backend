@@ -7,7 +7,7 @@ module.exports = mongoose => {
     required: true
   },
   reputation: {
-    type: Double,
+    type: Number,
     required: true
   },
   isTor:{
