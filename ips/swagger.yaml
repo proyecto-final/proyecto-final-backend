@@ -1,0 +1,152 @@
+
+
+openapi: 3.0.0
+info:
+  title: Sherlock IP Module API
+  description: Sherlock IP module interface
+  version: 0.1.9
+servers:
+  - url: http://localhost:3031/
+    description: development server
+  - url: http://localhost:3031/
+    description: Testing server
+
+components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
+  schemas:
+    LogRequest:
+      type: object
+      properties:
+        title: 
+          type: string
+          description: Log title
+        description:
+          type: string
+          description: Log description
+    Message:
+      type: object
+      properties:
+        msg: 
+          type: string
+          description: message
+      example:
+        msg: OK
+    Ip:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        title:
+          type: string
+          description: Log title
+        description:
+          type: string
+          description: Log description
+        projectId:
+          type: string
+          description: ID of the project
+        status:
+          type: string
+          description: status of the log
+          enum: 
+          - processing
+          - processed
+      example:
+        _id: 62d776f235ca54db99e4765e
+        title: pepe.txt
+        description: "This is a log file"
+        projectId: 123456789
+        status: "processing"
+
+tags:
+  - name: IP CRUD
+    description: logs creation, modification and remove
+
+paths:
+  /api/project/{projectId}/ip-analysis:
+    post:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content: 
+          application/json:
+            schema:
+              type: object
+              properties:
+                logs:
+                  type: array
+                  description: Logs to be analysed
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: A JSON array of user names
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ip'
+    get:
+      summary: Get ips
+      tags: [Ip CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      - name: title
+        in: query
+        description: title of the log
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: status
+        in: query
+        description: used to filter organizations by enabled status
+        schema:
+          type: string
+          default: ""
+          enum:
+          - processing
+          - processed
+        required: false
+      responses:
+        200:
+          description: Logs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Ip'
