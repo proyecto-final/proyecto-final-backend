@@ -38,31 +38,31 @@ module.exports = mongoose => {
     ip: {
         raw: {
         type: String,
-        required: true
+        required: false
       },
       reputation: {
         type: Number,
-        required: true
+        required: false
       },
       isTor:{
         type: Boolean,
-        required: true
+        required: false
       },
       country: {
         type: String,
-        required: true
+        required: false
       },
       city: {
         type: String,
-        required: true
+        required: false
       },
       ASN: {
         type: String,
-        required: true
+        required: false
       },
       ISP: {
         type: String,
-        required: true
+        required: false
       },
       VPN: {
         type: Boolean,
