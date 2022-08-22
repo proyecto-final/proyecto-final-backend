@@ -27,9 +27,10 @@ router.get('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.post('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.delete('/project/:projectId/timeline/:timelineId',userCrudPermission)
 router.patch('/project/:projectId/timeline/:timelineId',userCrudPermission)
-router.get('/project/:projectId/log/:logId/timeline/:timelineId/report',userCrudPermission)
+router.get('/project/:projectId/timeline/:timelineId/report',userCrudPermission)
 router.post('/project/:projectId/timeline/:timelineId/refresh',[], userCrudPermission)
 router.post('/project/:projectId/timeline/:timelineId/generate-token',userCrudPermission)
 router.get('/project/:nothing/timeline/external/:token', noPermission)
+router.post('/project/:projectId/timeline/:timelineId/refresh',[], userCrudPermission)
 
 module.exports = router
