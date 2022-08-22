@@ -19,11 +19,14 @@ const writeLogLineIntoPDF = (line, doc) => {
   writeBoldBody(`${index} - ${timestamp}`, doc)
   writeBody(`Line: ${raw}`, doc)
   writeBody(`Notes: ${(notes.length === 0 ? ['No notes']: notes).join(',')}`, doc)
-  let namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
-  namedVulnerabilites =  (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites)
-  writeBody(`Vulnerabilities found: ${namedVulnerabilites.join(',')}`, doc)
+  writeBody(`Vulnerabilities found: ${getVulnerabilitesNames(vulnerabilites)}`, doc)
   writeBody(`Details: ${Object.values(detail).join(',')}`, doc)
   addSpace(1, doc)
+}
+
+const getVulnerabilitesNames = (vulnerabilites) => {
+  const namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
+  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites).join(',')
 }
 
 const createPDFStringContent = async({title, description, lines}, logs, logLines, doc) => {
@@ -32,10 +35,11 @@ const createPDFStringContent = async({title, description, lines}, logs, logLines
   writeBody(description, doc)
   addSpace(2, doc)
   writeSubTitle('Events',doc)
-  lines.forEach(line => {
-    writeBoldBody(line.timestamp, doc)
-    writeBody(`${line.raw}`, doc)
-    writeBody(`Tags: ${line.tags.join(',')}.`, doc)
+  lines.forEach(({timestamp, raw, vulnerabilites, tags}) => {
+    writeBoldBody(timestamp, doc)
+    writeBody(`${raw}`, doc)
+    writeBody(`Tags: ${tags.join(',')}.`, doc)
+    writeBody(`Event Vulnerabilites: ${getVulnerabilitesNames(vulnerabilites)}`, doc)
     addSpace(1, doc)
   })
   addSpace(2, doc)
