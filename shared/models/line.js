@@ -34,6 +34,48 @@ module.exports = mongoose => {
     index: {
       type: Number,
       required: true
+    },
+    ip: {
+        raw: {
+        type: String,
+        required: true
+      },
+      reputation: {
+        type: Number,
+        required: true
+      },
+      isTor:{
+        type: Boolean,
+        required: true
+      },
+      country: {
+        type: String,
+        required: true
+      },
+      city: {
+        type: String,
+        required: true
+      },
+      ASN: {
+        type: String,
+        required: true
+      },
+      ISP: {
+        type: String,
+        required: true
+      },
+      VPN: {
+        type: Boolean,
+        default: false
+      },
+      createdAt:{
+        type: Date,
+        default: Date.now
+        },
+      updatedAt:{
+        type: Date,
+        default: Date.now
+        },
     }
   })
   Line.methods.toJSON = function () {
