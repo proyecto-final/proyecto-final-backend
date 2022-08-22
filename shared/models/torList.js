@@ -2,7 +2,7 @@
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const TorList = Schema({
-  List: [{
+  list: [{
     type: String,
     required: true
   }],
