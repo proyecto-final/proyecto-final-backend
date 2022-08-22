@@ -29,8 +29,8 @@ const getVulnerabilitesNames = (vulnerabilites) => {
   return (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites).join(',')
 }
 
-const createPDFStringContent = async({title, description, lines}, logs, logLines, doc) => {
-  
+const createPDFStringContent = async(timeline, logs, logLines, doc) => {
+  const {title, description, lines} = timeline
   writeTitle(title, doc)
   writeBody(description, doc)
   addSpace(2, doc)
