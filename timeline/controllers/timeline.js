@@ -6,6 +6,7 @@ const crypto = require('crypto')
 const Timeline = require('../../shared/models/timeline')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
+require('../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const PDFDocument = require('pdfkit')
 const {createPDFStringContent} = require('../utils/pdf')
@@ -15,7 +16,7 @@ const getReport = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, res) => {
     const { timelineId, projectId } = req.params
-    const timeline = await Timeline.findOne({$and: [{_id: timelineId}, {projectId}]})
+    const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)}).populate('lines.vulnerabilites')
     const logs = await Log.find({_id: {$in: timeline.logs}})
     const logLines = await Line.find({log: {$in: logs}})
     if(!logs && logs.length === 0){
@@ -28,7 +29,7 @@ const getReport = new RequestWrapper()
       throw {code: 404, msg: 'Timeline not found'}
     }
     const doc = new PDFDocument({size:'A4', margin: 50})
-    const fileName = `report_${timelineId}.pdf`
+    const fileName = `report_${timeline._id}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
     await createPDFStringContent(timeline, logs, logLines, doc)
@@ -271,6 +272,5 @@ module.exports = {
   refresh,
   generateToken,
   getByToken,
-  refresh,
   getReport
 }
