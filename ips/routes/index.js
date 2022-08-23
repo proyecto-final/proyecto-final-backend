@@ -1,6 +1,6 @@
 const {Router} = require('express')
 const router = Router()
-
+const Ip = require('../controllers/ips')
 /*TODO: cuando se generen las acciones posta hay que migrarlas a un controller 
         y llamarlas desde aca con un require */
 const logInput = async(req, resp) => {
@@ -27,6 +27,7 @@ const checkModule = (req, resp) => {
 
 //NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.post('/project/:projectId/ip-analysis/log/:logId',[], logInput)
+router.get('/project/:projectId/ip-analysis/shodan', Ip.getLocationInfo)
 router.get('/checkModule',[], checkModule)
 
 module.exports = router
