@@ -8,7 +8,6 @@ const getIpLocationData = async (ip) => {
     try {
         return await axios.get(`https://api.shodan.io/shodan/host/${ip}?key=${SHODAN_API_KEY}`)
     } catch (err){
-        console.log('error magic: ', err)
         throw {code: err.response?.status || 500, msg: err.message || 'Integration with Shodan failed'} 
     }
 }
