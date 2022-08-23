@@ -26,6 +26,10 @@ module.exports = mongoose => {
       required: true,
       enum: ['processing', 'processed', 'error'],
       default: 'processing'
+    },
+    differentEvents: {
+      type: Array,
+      default: () => [],
     }
   },
   {

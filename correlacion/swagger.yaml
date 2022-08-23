@@ -68,12 +68,21 @@ components:
           enum: 
           - processing
           - processed
+        differentEvents:
+          type: array
+          description: list of different events
+          items:
+            type: string
+            description: event ID
       example:
         _id: 62d776f235ca54db99e4765e
         title: pepe.txt
         description: "This is a log file"
         projectId: 123456789
         status: "processing"
+        differentEvents:
+          - "123456789"
+          - "987654321"
     VulnerabilityResponse:
       type: object
       properties:
@@ -389,6 +398,13 @@ paths:
       - name: dateTo
         in: query
         description: line date to
+        required: false
+        schema:
+          type: string
+          default: ""
+      - name: events
+        in: query
+        description: "event ids separated by COMMA! like: \"1,2,3\"" 
         required: false
         schema:
           type: string
