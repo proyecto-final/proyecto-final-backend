@@ -4,7 +4,8 @@ module.exports = mongoose => {
   const TorList = Schema({
   ip: {
     type: String,
-    require: false
+    required: true,
+    unique: true
   },
   createdAt:{
     type: Date,
