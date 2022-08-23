@@ -2,10 +2,10 @@
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const TorList = Schema({
-  list: [{
+  ip: {
     type: String,
     require: false
-  }],
+  },
   createdAt:{
     type: Date,
     default: Date.now

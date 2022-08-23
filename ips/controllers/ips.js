@@ -1,6 +1,9 @@
 const axios = require('axios')
 const RequestWrapper = require('../../shared/utils/requestWrapper')
 const { check } = require('express-validator')
+const mongoose = require('mongoose')
+const TorList = require('../../shared/models/torList')(mongoose)
+
 
 const SHODAN_API_KEY = process.env.SHODAN_API_KEY
 const ABUSEIP_API_KEY = process.env.ABUSEIP_API_KEY
@@ -38,9 +41,15 @@ const getReputationInfo = new RequestWrapper(
     res.status(200).json(data)
 }).wrap()
 
+const isTorAddress = new RequestWrapper().setHandler(async (req, res) => {
+    const {ip} = req.query
+    const torNode = await TorList.findOne({ip})
+    res.status(200).json({isTor: !!torNode})
+}).wrap()
 
 
 module.exports = {
     getLocationInfo,
+    isTorAddress,
     getReputationInfo
 }
