@@ -1,8 +1,7 @@
 const axios = require('axios')
 const RequestWrapper = require('../../shared/utils/requestWrapper')
 const { check } = require('express-validator')
-const mongoose = require('mongoose')
-const TorList = require('../../shared/models/torList')(mongoose)
+const TorList = require('../../shared/models/torList')
 
 
 const SHODAN_API_KEY = process.env.SHODAN_API_KEY

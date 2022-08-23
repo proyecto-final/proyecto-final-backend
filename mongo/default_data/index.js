@@ -5,7 +5,7 @@ db.createCollection('vulnerabilities')
 db.createCollection('ips')
 db.createCollection('torLists')
 
-db.torLists.insertMany([
+db.torLists.insertMany(
 [
   {
     ip: '93.95.230.253',
@@ -7187,7 +7187,6 @@ db.torLists.insertMany([
     createdAt: new Date(),
     updatedAt: new Date()
   }
-]
 ])
 
 
