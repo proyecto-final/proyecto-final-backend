@@ -3,7 +3,6 @@ const RequestWrapper = require('../../shared/utils/requestWrapper')
 const { check } = require('express-validator')
 const TorList = require('../../shared/models/torList')
 
-
 const SHODAN_API_KEY = process.env.SHODAN_API_KEY
 const ABUSEIP_API_KEY = process.env.ABUSEIP_API_KEY
 
@@ -40,7 +39,9 @@ const getReputationInfo = new RequestWrapper(
     res.status(200).json(data)
 }).wrap()
 
-const isTorAddress = new RequestWrapper().setHandler(async (req, res) => {
+const isTorAddress = new RequestWrapper(
+    check('ip', 'ip is required').isIP()
+).setHandler(async (req, res) => {
     const {ip} = req.query
     const torNode = await TorList.findOne({ip})
     res.status(200).json({isTor: !!torNode})
