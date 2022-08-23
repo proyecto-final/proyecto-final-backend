@@ -17,7 +17,6 @@ const getIpReputation = async (ip) => {
     try {
         return await axios.get(`https://api.abuseipdb.com/api/v2/check?maxAgeInDays=90&verbose&ipAddress=${ip}`, {headers: {Key: ABUSEIP_API_KEY, Accept: 'application/json'}})
     } catch(err) {
-        console.log(err)
         throw {code: err.response?.status || 500, msg: err.message || 'Integration with AbuseIp failed'} 
     }
 }
