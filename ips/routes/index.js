@@ -26,11 +26,11 @@ const checkModule = (req, resp) => {
     })
 }
 
-//NOTA: cuando lo vayan a usar este projectId recuerden que viene adentro de req.params como {projectId: value}
 router.post('/project/:projectId/ip-analysis/log/:logId',[], logInput)
 router.get('/project/:projectId/ip-analysis/shodan', Ip.getLocationInfo)
 router.post('/project/:projectId/ip-analysis/torList/refresh', TorList.getTorNodeInfo)
 router.get('/project/:projectId/ip-analysis/tor', TorList.isTorAdress)
+router.get('/project/:projectId/ip-analysis/abuseIP', Ip.getReputationInfo)
 router.get('/checkModule',[], checkModule)
 
 module.exports = router
