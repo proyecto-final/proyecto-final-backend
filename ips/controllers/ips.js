@@ -14,6 +14,7 @@ const getLocationInfo = new RequestWrapper(
 
 
 
+
 module.exports = {
-    getLocationInfo
+    getLocationInfo,
 }
