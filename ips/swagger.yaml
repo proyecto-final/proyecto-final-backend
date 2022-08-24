@@ -53,27 +53,54 @@ components:
         _id:
           type: string
           description: Log ID
-        title:
+        raw:
           type: string
-          description: Log title
-        description:
+          description: IP raw value
+        reputation:
           type: string
-          description: Log description
-        projectId:
+          description: IP reputation
+        reports:
+          type: array
+          description: IP reports
+        isTor:
+          type: boolean
+          description: is TOR
+        country:
           type: string
-          description: ID of the project
-        status:
+          description: ip country
+        city:
+          type: string
+          description: ip city
+        ASN:
+          type: string
+          description: IP ASN
+        ISP:
+          type: string
+          description: IP ISP
+        VPN:
+          type: boolean
+          description: is VPN
+        lastReportedAt:
           type: string
           description: status of the log
-          enum: 
-          - processing
-          - processed
       example:
         _id: 62d776f235ca54db99e4765e
-        title: pepe.txt
-        description: "This is a log file"
+        reputation: 0
+        lastReportedAt: 2020-01-01T00:00:00.000Z
+        reports:
+        - reportedAt: "2022-08-24T01:06:19+00:00"
+          comment: "SS5: Brutforce ssh Login"
+          categories:
+            - "Brutforce"
+            - "SSH"
         projectId: 123456789
         status: "processing"
+        isTor: true
+        country: "US"
+        city: "New York"
+        ASN: "ASN1"
+        ISP: "ISP1"
+        VPN: true
 
 tags:
   - name: IP CRUD
@@ -100,13 +127,12 @@ paths:
           type: string
       responses:
         '200':
-          description: A JSON array of user names
+          description: IP information
           content:
             application/json:
               schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ip'
+                type: object
+                
   /api/project/{projectId}/ip-analysis/tor:
     get:
       summary: Analyses ips from logs
@@ -127,18 +153,16 @@ paths:
           type: string
       responses:
         '200':
-          description: A JSON array of user names
+          description: IP information
           content:
             application/json:
               schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ip'
-  /api/project/{projectId}/ip-analysis/torList/refresh:
-    post:
-      summary: Refresh tor list 
+                type: object
+  /api/project/{projectId}/ip-analysis/abuseIP:
+    get:
+      summary: Analyses ips from logs
       tags: [IP CRUD]
-      description: Refresh tor list 
+      description: Analyses ips from logs  
       parameters:
       - name: projectId
         in: path
@@ -146,12 +170,46 @@ paths:
         required: true
         schema:
           type: integer
+      - name: ip
+        in: query
+        description: ip
+        required: true
+        schema:
+          type: string
       responses:
         '200':
-          description: A JSON array of user names
+          description: IP information
           content:
             application/json:
               schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/Ip'
+                type: object
+
+  /api/project/{projectId}/ip-analysis:
+    post:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip:
+                  type: string
+                  description: ip
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema: 
+               $ref: '#/components/schemas/Ip'
+
