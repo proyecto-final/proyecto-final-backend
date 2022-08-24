@@ -135,8 +135,8 @@ paths:
           content:
             application/json:
               schema: 
-                type: object
-                
+                type: Object
+                $ref: '#/components/schemas/Ip'
   /api/project/{projectId}/ip-analysis/tor:
     get:
       summary: Analyses ips from logs
@@ -216,4 +216,3 @@ paths:
             application/json:
               schema: 
                $ref: '#/components/schemas/Ip'
-

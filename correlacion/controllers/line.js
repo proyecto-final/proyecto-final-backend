@@ -1,5 +1,5 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue, getDateValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue, getBooleanValue, getIntArrayFromStringCsv } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
@@ -12,6 +12,7 @@ const get = new RequestWrapper()
   .handlePagination()
   .setHandler(async (req, resp) => {
     const { query } = req
+    const events = getIntArrayFromStringCsv(query.events)
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
     const dateFrom = getDateValue(query.dateFrom)
@@ -27,7 +28,6 @@ const get = new RequestWrapper()
     if(isSelectedValue !== null){
       mongooseQuery.isSelected = isSelectedValue
     }
-
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
@@ -38,6 +38,9 @@ const get = new RequestWrapper()
       const dateToEndDay = new Date(dateTo.getTime() + 24 * 60 * 60 * 1000)
       mongooseQuery.timestamp = mongooseQuery.timestamp ?
         { ...mongooseQuery.timestamp, $lte: dateToEndDay } : { $lte: dateToEndDay }
+    }
+    if (events?.length > 0) {
+      mongooseQuery['detail.eventId'] = {$in: events}
     }
     const lines = await Line.aggregate([
       {
