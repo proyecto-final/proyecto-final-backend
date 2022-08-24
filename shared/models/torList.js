@@ -2,10 +2,11 @@
 module.exports = mongoose => {
   const { Schema, model } = mongoose
   const TorList = Schema({
-  list: [{
+  ip: {
     type: String,
-    required: true
-  }],
+    required: true,
+    unique: true
+  },
   createdAt:{
     type: Date,
     default: Date.now
@@ -19,5 +20,5 @@ module.exports = mongoose => {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return mongoose.models.torList || model('TorList', TorList)
+  return mongoose.models.TorList || model('TorList', TorList)
 }

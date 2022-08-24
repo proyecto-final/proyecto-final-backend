@@ -4,6 +4,7 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const swaggerUi = require('swagger-ui-express')
 const YAML = require('yamljs')
+require('./controllers/scheduler')
 
 const app = express()
 

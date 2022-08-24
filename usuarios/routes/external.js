@@ -33,4 +33,8 @@ router.post('/project/:projectId/timeline/:timelineId/generate-token',userCrudPe
 router.get('/project/:nothing/timeline/external/:token', noPermission)
 router.post('/project/:projectId/timeline/:timelineId/refresh',[], userCrudPermission)
 
+router.get('/project/:projectId/ip-analysis/shodan', [],userCrudPermission)
+router.get('/project/:projectId/ip-analysis/tor', [],userCrudPermission)
+router.get('/project/:projectId/ip-analysis/abuseIP', [], userCrudPermission)
+
 module.exports = router
