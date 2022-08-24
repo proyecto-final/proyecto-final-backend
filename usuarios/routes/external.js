@@ -36,5 +36,7 @@ router.post('/project/:projectId/timeline/:timelineId/refresh',[], userCrudPermi
 router.get('/project/:projectId/ip-analysis/shodan', [],userCrudPermission)
 router.get('/project/:projectId/ip-analysis/tor', [],userCrudPermission)
 router.get('/project/:projectId/ip-analysis/abuseIP', [], userCrudPermission)
+router.get('/project/:projectId/ip-analysis', [], userCrudPermission)
+router.get('/project/:projectId/ip-analysis/log/:logId', [], userCrudPermission)
 
 module.exports = router
