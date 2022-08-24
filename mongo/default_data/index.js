@@ -9288,7 +9288,8 @@ db.logs.insertMany([
     extension: '.log',
     state: 'processed',
     updatedAt: new Date(),
-    createdAt: new Date()
+    createdAt: new Date(),
+    differentEvents: []
   },
   {
     title: 'log2',
@@ -9297,7 +9298,8 @@ db.logs.insertMany([
     extension: '.log',
     state: 'processed',
     updatedAt: new Date(),
-    createdAt: new Date()
+    createdAt: new Date(),
+    differentEvents: []
   },
   {
     title: 'log3',
@@ -9306,7 +9308,8 @@ db.logs.insertMany([
     extension: '.evtx',
     state: 'processed',
     updatedAt: new Date(),
-    createdAt: new Date()
+    createdAt: new Date(),
+    differentEvents: []
   },
   {
     title: 'log4',
@@ -9315,7 +9318,8 @@ db.logs.insertMany([
     extension: '.evtx',
     state: 'processed',
     updatedAt: new Date(),
-    createdAt: new Date()
+    createdAt: new Date(),
+    differentEvents: []
   },
 ])
 

@@ -78,7 +78,7 @@ const convertFile = async (req, resp) => {
       resp.status(200).json(response.data)
     }).catch((err) => {
       console.log('axios error',err)
-      resp.status(err?.status || err?.response?.status || 500).json({ msg: err || 'Server error' })
+      resp.status(err?.status || err?.response?.status || 500).json({ msg: err?.response?.data?.msg || err || 'Server error' })
     }).finally(() => {
       files2send.forEach(({ input, output }) => {
         fs.unlinkSync(input)

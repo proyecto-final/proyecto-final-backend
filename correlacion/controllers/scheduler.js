@@ -98,13 +98,16 @@ const persistEvtxLinesFrom = async (processedLog) => {
   })
   await Line.insertMany(lines2Save)
   fs.unlinkSync(convertedFile.name)
+  return lines2Save
 }
 
 
 const processAndPersistLog = async (log, filename, convertedFile) => {
   if (filename.endsWith('.evtx')) {
     const processedLog = (await processFilesWithChainsaw([{log, filename}]))[0]
-    await persistEvtxLinesFrom({...processedLog, convertedFile, log})
+    const logLines = await persistEvtxLinesFrom({...processedLog, convertedFile, log})
+    const differentEvents = new Set(logLines.map(line => line.detail.eventId?.toString()))
+    log.differentEvents = Array.from(differentEvents)
   } else if (filename.endsWith('.log')) {
     const fileData = fs.readFileSync(inputDirectory + filename)
     await persistCommonLogLinesFrom({file: { data: fileData}, log})
