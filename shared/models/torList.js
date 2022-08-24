@@ -20,5 +20,5 @@ module.exports = mongoose => {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return mongoose.models.torList || model('TorList', TorList)
+  return mongoose.models.TorList || model('TorList', TorList)
 }
