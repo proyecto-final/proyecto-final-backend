@@ -19,6 +19,10 @@ module.exports = mongoose => {
       type: Boolean,
       required: true
     },
+    totalReports: {
+      type: Number,
+      required: true
+    },
     country: {
       type: String,
       required: true

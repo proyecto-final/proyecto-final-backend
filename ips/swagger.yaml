@@ -65,6 +65,9 @@ components:
         isTor:
           type: boolean
           description: is TOR
+        totalReports:
+          type: number
+          description: number of reports
         country:
           type: string
           description: ip country
@@ -97,6 +100,7 @@ components:
         status: "processing"
         isTor: true
         country: "US"
+        totalReports: 10
         city: "New York"
         ASN: "ASN1"
         ISP: "ISP1"
