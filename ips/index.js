@@ -9,25 +9,23 @@ require('./controllers/scheduler')
 const app = express()
 
 app.use(cors({
-    origin: 'https://d33yco26qnv6iv.cloudfront.net',
-    credentials: true,
-    optionsSuccessStatus: 200 // For legacy browser support,
+  origin: 'https://d33yco26qnv6iv.cloudfront.net',
+  credentials: true,
+  optionsSuccessStatus: 200 // For legacy browser support,
 }))
 app.use(express.json())
 app.use('/api', require('./routes'))
 app.listen(process.env.PORT, () => {
-    console.log(`App running on port ${process.env.PORT}`)
+  console.log(`App running on port ${process.env.PORT}`)
 })
 
-
-
 mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedtopology: true
+  useNewUrlParser: true,
+  useUnifiedtopology: true
 }).then(() => {
-    console.log('Connected to MongoDB')
+  console.log('Connected to MongoDB')
 }).catch(err => {
-    console.log(err)
+  console.log(err)
 })
 
 
