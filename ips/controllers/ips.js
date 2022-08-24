@@ -3,12 +3,21 @@ const RequestWrapper = require('../../shared/utils/requestWrapper')
 const { check } = require('express-validator')
 
 const SHODAN_API_KEY = process.env.SHODAN_API_KEY
+const ABUSEIP_API_KEY = process.env.ABUSEIP_API_KEY
 
 const getIpLocationData = async (ip) => {
     try {
         return await axios.get(`https://api.shodan.io/shodan/host/${ip}?key=${SHODAN_API_KEY}`)
     } catch (err){
         throw {code: err.response?.status || 500, msg: err.message || 'Integration with Shodan failed'} 
+    }
+}
+
+const getIpReputation = async (ip) => {
+    try {
+        return await axios.get(`https://api.abuseipdb.com/api/v2/check?maxAgeInDays=90&verbose&ipAddress=${ip}`, {headers: {Key: ABUSEIP_API_KEY, Accept: 'application/json'}})
+    } catch(err) {
+        throw {code: err.response?.status || 500, msg: err.message || 'Integration with AbuseIp failed'} 
     }
 }
 
@@ -21,7 +30,16 @@ const getLocationInfo = new RequestWrapper(
 }).wrap()
 
 
+const getReputationInfo = new RequestWrapper(
+    check('ip', 'ip is required').isIP()
+).setHandler(async (req, res) => {
+    const {ip} = req.query
+    const {data} = await getIpReputation(ip)
+    res.status(200).json(data)
+}).wrap()
+
 
 module.exports = {
-    getLocationInfo
+    getLocationInfo,
+    getReputationInfo
 }
