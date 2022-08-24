@@ -7,7 +7,7 @@ module.exports = mongoose => {
       required: true
     },
     reputation: {
-      type: [Number, String],
+      type: Number,
       required: true
     },
     reports: {

@@ -62,7 +62,6 @@ const getIpInformationFromIntegrations = async ip => {
   const isTorData = await isTor(ip)
   const {city, country_name, asn } = shodanData
   const { isp, reports, lastReportedAt, abuseConfidenceScore, countryName, totalReports } = abuseIpData.data
-  console.log(abuseIpData)
   return new Ip({
     raw: ip,
     isTor: isTorData,
