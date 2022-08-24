@@ -73,7 +73,7 @@ const ROUTES = [
         }
     },
     {
-        url: /^\/api\/(ips).*$/,
+        url: /^\/api\/project\/[0-9]\/ip-analysis\/.*$/,
         auth: true,
         rateLimit: {
             windowMs: 15 * 60 * 1000,
