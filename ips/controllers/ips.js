@@ -9,6 +9,7 @@ const getIpLocationData = async (ip) => {
   try {
     return await axios.get(`https://api.shodan.io/shodan/host/${ip}?key=${SHODAN_API_KEY}`)
   } catch (err){
+    console.log(err)
     throw {code: err.response?.status || 500, msg: err.message || 'Integration with Shodan failed'} 
   }
 }
@@ -22,6 +23,7 @@ const getIpReputation = async (ip) => {
 }
 
 const isTor = async (ip) => {
+  console.log(TorList)
   const torNode = await TorList.findOne({ip})
   return !!torNode
 }
@@ -54,14 +56,16 @@ const isTorAddress = new RequestWrapper(
 const analyzeIp = new RequestWrapper(
   check('ip', 'ip is required').isIP()
 )
-  .hasMongoId('logId')
   .hasId('projectId')
   .setHandler(async (req, res) => {
-    const {ip} = req.query
-    const {data: shodanData} = await getIpLocationData(ip)
-    const {data: abuseIpData} = await getIpReputation(ip)
-    const isTor = await isTor(ip)
-    res.status(200).json({shodanData, abuseIpData, isTor})
+    const {ip} = req.body
+    console.log('1')
+    const shodanData = await getIpLocationData(ip)
+    console.log('2')
+    const abuseIpData = await getIpReputation(ip)
+    console.log('3')
+    const isTorData = await isTor(ip)
+    res.status(200).json({shodanData, abuseIpData, isTorData})
   }).wrap()
 
 module.exports = {
