@@ -56,6 +56,8 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
     userId: RemoteUserID,
     userName: SubjectUserName,
     eventId: EventID,
+    sourceIp: SourceAddress,
+    destinationIp: DestAddress
   }
   return new Line({
     log,
