@@ -5,6 +5,7 @@ db.createCollection('vulnerabilities')
 db.createCollection('ips')
 db.createCollection('torLists')
 
+// torlist
 db.torLists.insertMany(
 [
   {
@@ -7190,7 +7191,7 @@ db.torLists.insertMany(
 ])
 
 
-//vulnerabilities
+// vulnerabilities
 db.vulnerabilities.insertMany([
   {
     isCustom: false, level: "high",
@@ -9322,12 +9323,12 @@ db.logs.insertMany([
     differentEvents: []
   },
 ])
+const logs = db.logs.find({}).toArray()
 
 //lines
-
 db.lines.insertMany([
   {
-    log: db.logs.find({})[0]._id,
+    log: logs[0]._id,
     index: 1,
     vulnerabilites: [],
     detail: {
@@ -9342,7 +9343,7 @@ db.lines.insertMany([
     timestamp: new Date()
   },
   {
-    log: db.logs.find({})[0]._id,
+    log: logs[0]._id,
     index: 2,
     vulnerabilites: [],
     detail: {
@@ -9357,7 +9358,7 @@ db.lines.insertMany([
     timestamp: new Date()
   },
   {
-    log: db.logs.find({})[1]._id,
+    log: logs[1]._id,
     index: 1,
     vulnerabilites: [],
     detail: {
@@ -9372,7 +9373,7 @@ db.lines.insertMany([
     timestamp: new Date()
   },
   {
-    log: db.logs.find({})[1]._id,
+    log: logs[1]._id,
     index: 2,
     vulnerabilites: [],
     detail: {
@@ -9387,7 +9388,7 @@ db.lines.insertMany([
     timestamp: new Date()
   },
   {
-    log: db.logs.find({})[3]._id,
+    log: logs[2]._id,
     index: 1,
     vulnerabilites: [],
     detail: {
@@ -9402,7 +9403,7 @@ db.lines.insertMany([
     timestamp: new Date()
   },
   {
-    log: db.logs.find({})[2]._id,
+    log: logs[2]._id,
     index: 1,
     vulnerabilites: [],
     detail: {
@@ -9418,13 +9419,14 @@ db.lines.insertMany([
   },
 ])
 
-//timelines
+// timelines
+const lines = db.lines.find({}).toArray()
 db.timelines.insertMany([
   {
     title: 'timelineTest1',
     description: 'a test timeline',
     projectId: 1,
-    logs: [db.logs.find({})[0]._id],
+    logs: [logs[0]._id],
     lines: [
       {
         index: 1,
@@ -9434,7 +9436,7 @@ db.timelines.insertMany([
           detail3: 'detail3',
         },
         raw: 'raw timelineline',
-        line:db.lines.find({})[0]._id,
+        line:lines[0]._id,
         tags: [
           'tag1','tag2'
         ],
@@ -9448,7 +9450,7 @@ db.timelines.insertMany([
           detail3: 'detail3',
         },
         raw: 'raw timelineline',
-        line:db.lines.find({})[1]._id,
+        line: lines[1]._id,
         tags: [
           'tag1','tag2'
         ],
@@ -9458,3 +9460,4 @@ db.timelines.insertMany([
     updatedAt: new Date(),
     createdAt: new Date()
   }])
+console.log('-------------------\n Migrations ok \n -------------------')
