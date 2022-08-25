@@ -92,19 +92,25 @@ const get = new RequestWrapper()
     if (query.state) {
       mongooseQuery.state = query.state
     }
-    const logs = await Log.aggregate([{
-      $facet: {
-        paginatedResult: [
-          { $match: mongooseQuery },
-          { $skip: offset },
-          { $limit: limit }
-        ],
-        totalCount: [
-          { $match: mongooseQuery },
-          { $count: 'totalCount' }
-        ]
-      }
-    }])
+    const logs = await Log.aggregate([
+      {
+        $sort: {
+          createdAt: -1
+        }
+      },
+      {
+        $facet: {
+          paginatedResult: [
+            { $match: mongooseQuery },
+            { $skip: offset },
+            { $limit: limit }
+          ],
+          totalCount: [
+            { $match: mongooseQuery },
+            { $count: 'totalCount' }
+          ]
+        }
+      }])
     resp.status(200).json(adaptMongoosePage(logs))
   }).wrap()
 

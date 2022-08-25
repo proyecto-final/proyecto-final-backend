@@ -30,6 +30,10 @@ components:
         type: integer
         default: 10
   schemas:
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
     LogRequest:
       type: object
       properties:
@@ -216,3 +220,24 @@ paths:
             application/json:
               schema: 
                $ref: '#/components/schemas/Ip'
+    get:
+      summary: Gets last analyzed IPs
+      tags: [IP CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          description: IPs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Ip'

@@ -1,5 +1,7 @@
 const axios = require('axios')
 const RequestWrapper = require('../../shared/utils/requestWrapper')
+const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const { check } = require('express-validator')
 const { mongoose } = require('mongoose')
 const TorList = require('../../shared/models/torList')(mongoose)
@@ -56,7 +58,7 @@ const isTorAddress = new RequestWrapper(
   res.status(200).json({isTor: await isTor(ip)})
 }).wrap()
 
-const getIpInformationFromIntegrations = async ip => {
+const getIpInformationFromIntegrations = async (ip, projectId) => {
   const {data: shodanData} = await getIpLocationData(ip)
   const {data: abuseIpData} = await getIpReputation(ip)
   const isTorData = await isTor(ip)
@@ -72,7 +74,8 @@ const getIpInformationFromIntegrations = async ip => {
     reports: reports.slice(0, 19),
     totalReports,
     lastReportedAt,
-    reputation: abuseConfidenceScore
+    reputation: abuseConfidenceScore,
+    projectId
   })
 
 }
@@ -82,15 +85,61 @@ const analyzeIp = new RequestWrapper(
 )
   .hasId('projectId')
   .setHandler(async (req, res) => {
-    const {ip} = req.body
-    const ipInformation = await getIpInformationFromIntegrations(ip)
-    ipInformation.projectId = req.params.projectId
-    res.status(200).json(ipInformation)
+    const {ip: rawIp} = req.body
+    const projectId =getIntValue(req.params.projectId)
+    const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const existingIp = await Ip.findOne({
+      raw: rawIp,
+      projectId,
+      createdAt: {
+        $gte: lastDay,
+      }
+    })
+    if (existingIp) {
+      return res.status(200).json(existingIp)
+    } 
+    const ip = await getIpInformationFromIntegrations(rawIp, projectId)
+    await ip.save()
+    res.status(200).json(ip)
   }).wrap()
 
+const get = new RequestWrapper()
+  .handlePagination()
+  .hasId('projectId')
+  .setHandler(async (req, res) => {
+    const { query } = req
+    const offset = getIntValue(query.offset)
+    const limit = getIntValue(query.limit)
+    const projectId =getIntValue(req.params.projectId)
+    const mongooseQuery = {
+      projectId
+    }
+    const ips = await Ip.aggregate([
+      {
+        $sort: {
+          createdAt: -1
+        }
+      },
+      {
+        $facet: {
+          paginatedResult: [
+            { $match: mongooseQuery },
+            { $skip: offset },
+            { $limit: limit }
+          ],
+          totalCount: [
+            { $match: mongooseQuery },
+            { $count: 'totalCount' }
+          ]
+        }
+      }])
+    res.status(200).json(adaptMongoosePage(ips))
+  }).wrap()
+  
 module.exports = {
   getLocationInfo,
   isTorAddress,
   getReputationInfo,
-  analyzeIp
+  analyzeIp,
+  get
 }
