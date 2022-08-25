@@ -36,46 +36,8 @@ module.exports = mongoose => {
       required: true
     },
     ip: {
-        raw: {
-        type: String,
-        required: false
-      },
-      reputation: {
-        type: Number,
-        required: false
-      },
-      isTor:{
-        type: Boolean,
-        required: false
-      },
-      country: {
-        type: String,
-        required: false
-      },
-      city: {
-        type: String,
-        required: false
-      },
-      ASN: {
-        type: String,
-        required: false
-      },
-      ISP: {
-        type: String,
-        required: false
-      },
-      VPN: {
-        type: Boolean,
-        default: false
-      },
-      createdAt:{
-        type: Date,
-        default: Date.now
-        },
-      updatedAt:{
-        type: Date,
-        default: Date.now
-        },
+      type: Schema.Types.ObjectId,
+      ref: 'ip'
     }
   })
   Line.methods.toJSON = function () {
