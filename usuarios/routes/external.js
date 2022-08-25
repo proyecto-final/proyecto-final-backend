@@ -38,6 +38,8 @@ router.get('/project/:projectId/ip-analysis/tor', [],userCrudPermission)
 router.get('/project/:projectId/ip-analysis/abuseIP', [], userCrudPermission)
 router.post('/project/:projectId/ip-analysis', [], userCrudPermission)
 router.get('/project/:projectId/ip-analysis/log/:logId', [], userCrudPermission)
+router.get('/project/:projectId/ip-analysis',[], userCrudPermission)
+router.post('/project/:projectId/ip-analysis/log/:logId/line/:lineId',[], userCrudPermission)
 
 
 module.exports = router
