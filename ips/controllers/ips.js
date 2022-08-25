@@ -60,7 +60,7 @@ const getIpInformationFromIntegrations = async ip => {
   const {data: shodanData} = await getIpLocationData(ip)
   const {data: abuseIpData} = await getIpReputation(ip)
   const isTorData = await isTor(ip)
-  const {city, country_name, asn } = shodanData
+  const {city, country_name, asn, ports } = shodanData
   const { isp, reports, lastReportedAt, abuseConfidenceScore, countryName, totalReports } = abuseIpData.data
   return new Ip({
     raw: ip,
@@ -72,7 +72,8 @@ const getIpInformationFromIntegrations = async ip => {
     reports: reports.slice(0, 19),
     totalReports,
     lastReportedAt,
-    reputation: abuseConfidenceScore
+    reputation: abuseConfidenceScore,
+    ports
   })
 
 }

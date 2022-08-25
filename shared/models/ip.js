@@ -15,6 +15,11 @@ module.exports = mongoose => {
       required: true,
       default: () => []
     },
+    ports: {
+      type: Array,
+      required: true,
+      default: () => []
+    },
     isTor:{
       type: Boolean,
       required: true
