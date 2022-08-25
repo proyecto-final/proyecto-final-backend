@@ -37,18 +37,20 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
   const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID, SubjectUserName} = 
         getAttribute(defaultLine, 'Event.EventData') || {}
-  let ipData = ''
+  let trailingData = ''
   if (SourceAddress) {
-    ipData += ` - From: ${SourceAddress}:${SourcePort}`
+    trailingData += ` - From: ${SourceAddress}:${SourcePort}`
   }
   if (DestAddress) {
-    ipData += ` - To: ${DestAddress}:${DestPort}`
+    trailingData += ` - To: ${DestAddress}:${DestPort}`
   }
-  let applicationString = ''
   if (Application) {
-    applicationString = ` - ${Application}`
+    trailingData += ` - App: ${Application}`
   }
-  const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
+  if (SubjectUserName) {
+    trailingData += ` - User: ${SubjectUserName}`
+  }
+  const rawLine = `${timestamp} - ${EventID} - ${Channel}${trailingData}`
   const otherAttributes = {
     application: Application,
     applicationId: ProcessID,
