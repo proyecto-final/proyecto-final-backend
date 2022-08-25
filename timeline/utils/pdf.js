@@ -26,7 +26,7 @@ const writeLogLineIntoPDF = (line, doc) => {
 
 const getVulnerabilitesNames = (vulnerabilites) => {
   const namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
-  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites).join(',')
+  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities detected'] : namedVulnerabilites).join(',')
 }
 
 const createPDFStringContent = async(timeline, logs, logLines, doc) => {
