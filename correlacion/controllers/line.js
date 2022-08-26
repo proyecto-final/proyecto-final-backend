@@ -52,6 +52,14 @@ const get = new RequestWrapper()
         }
       },
       {
+        '$lookup': {
+          'from': 'ips',
+          'localField': 'ip',
+          'foreignField': '_id',
+          'as': 'ip'
+        }
+      },
+      {
         $facet: {
           paginatedResult: [
             { $match: mongooseQuery },
@@ -64,7 +72,11 @@ const get = new RequestWrapper()
           ]
         }
       }])
-    resp.status(200).json(adaptMongoosePage(lines))
+    const linesWithPlainIps = lines.map(line => ({
+      ...line,
+      ip: line.ip? line.ip[0] : null
+    }))
+    resp.status(200).json(adaptMongoosePage(linesWithPlainIps))
   }).wrap()
 
 const update = new RequestWrapper()

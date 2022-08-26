@@ -30,6 +30,10 @@ components:
         type: integer
         default: 10
   schemas:
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
     LogRequest:
       type: object
       properties:
@@ -218,6 +222,67 @@ paths:
       responses:
         200:
           description: Lines page
+          content:
+            application/json:
+              schema: 
+               $ref: '#/components/schemas/Ip'
+    get:
+      summary: Gets last analyzed IPs
+      tags: [IP CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          description: IPs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Ip'
+  /api/project/{projectId}/ip-analysis/log/{logId}/line/{lineId}:
+    post:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      - name: logId
+        in: path
+        description: log line
+        required: true
+        schema:
+          type: string
+      - name: lineId
+        in: path
+        description: line id where to save the analysis
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip:
+                  type: string
+                  description: ip
+      responses:
+        200:
+          description: Ip
           content:
             application/json:
               schema: 

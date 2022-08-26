@@ -1,9 +1,13 @@
 const axios = require('axios')
 const RequestWrapper = require('../../shared/utils/requestWrapper')
+const { getIntValue } = require('./../../shared/utils/dataHelpers')
+const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const { check } = require('express-validator')
 const { mongoose } = require('mongoose')
 const TorList = require('../../shared/models/torList')(mongoose)
 const Ip = require('../../shared/models/ip')(mongoose)
+const Line = require('./../../shared/models/line')(mongoose)
+const Log = require('./../../shared/models/log')(mongoose)
 const SHODAN_API_KEY = process.env.SHODAN_API_KEY
 const ABUSEIP_API_KEY = process.env.ABUSEIP_API_KEY
 
@@ -56,7 +60,18 @@ const isTorAddress = new RequestWrapper(
   res.status(200).json({isTor: await isTor(ip)})
 }).wrap()
 
-const getIpInformationFromIntegrations = async ip => {
+const getIpInformationFromIntegrations = async (ip, projectId) => {
+  const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000)
+  const existingIp = await Ip.findOne({
+    raw: ip,
+    projectId,
+    createdAt: {
+      $gte: lastDay,
+    }
+  })
+  if (existingIp) {
+    return existingIp
+  }
   const {data: shodanData} = await getIpLocationData(ip)
   const {data: abuseIpData} = await getIpReputation(ip)
   const isTorData = await isTor(ip)
@@ -73,7 +88,8 @@ const getIpInformationFromIntegrations = async ip => {
     totalReports,
     lastReportedAt,
     reputation: abuseConfidenceScore,
-    ports
+    ports,
+    projectId
   })
 
 }
@@ -83,15 +99,88 @@ const analyzeIp = new RequestWrapper(
 )
   .hasId('projectId')
   .setHandler(async (req, res) => {
-    const {ip} = req.body
-    const ipInformation = await getIpInformationFromIntegrations(ip)
-    ipInformation.projectId = req.params.projectId
-    res.status(200).json(ipInformation)
+    const {ip: rawIp} = req.body
+    const projectId =getIntValue(req.params.projectId)
+    const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const existingIp = await Ip.findOne({
+      raw: rawIp,
+      projectId,
+      createdAt: {
+        $gte: lastDay,
+      }
+    })
+    if (existingIp) {
+      return res.status(200).json(existingIp)
+    } 
+    const ip = await getIpInformationFromIntegrations(rawIp, projectId)
+    await ip.save()
+    res.status(200).json(ip)
   }).wrap()
 
+const analyzeLineIp  = new RequestWrapper(
+  check('ip', 'ip is required').isIP()
+)
+  .hasId('projectId')
+  .hasMongoId('logId')
+  .hasMongoId('lineId')
+  .setHandler(async (req, res) => {
+    const {ip: rawIp} = req.body
+    const projectId =getIntValue(req.params.projectId)
+    const lineId = req.params.lineId
+    const logOwner = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
+    if (!logOwner) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    const line = await Line.findOne({ _id: lineId, 
+      log: logOwner._id })
+    if (!line) {
+      throw {code: 404, msg: 'Line not found'}
+    }
+    const ip = await getIpInformationFromIntegrations(rawIp, projectId)
+    await ip.save()
+    line.ip = ip
+    await line.save()
+    res.status(200).json(ip)
+  }).wrap()
+
+const get = new RequestWrapper()
+  .handlePagination()
+  .hasId('projectId')
+  .setHandler(async (req, res) => {
+    const { query } = req
+    const offset = getIntValue(query.offset)
+    const limit = getIntValue(query.limit)
+    const projectId =getIntValue(req.params.projectId)
+    const mongooseQuery = {
+      projectId
+    }
+    const ips = await Ip.aggregate([
+      {
+        $sort: {
+          createdAt: -1
+        }
+      },
+      {
+        $facet: {
+          paginatedResult: [
+            { $match: mongooseQuery },
+            { $skip: offset },
+            { $limit: limit }
+          ],
+          totalCount: [
+            { $match: mongooseQuery },
+            { $count: 'totalCount' }
+          ]
+        }
+      }])
+    res.status(200).json(adaptMongoosePage(ips))
+  }).wrap()
+  
 module.exports = {
   getLocationInfo,
   isTorAddress,
   getReputationInfo,
-  analyzeIp
+  analyzeIp,
+  get,
+  analyzeLineIp
 }

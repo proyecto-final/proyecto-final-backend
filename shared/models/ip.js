@@ -10,6 +10,10 @@ module.exports = mongoose => {
       type: Number,
       required: true
     },
+    projectId: {
+      type: Number,
+      required: true
+    },
     reports: {
       type: Array,
       default: () => []
@@ -28,19 +32,19 @@ module.exports = mongoose => {
     },
     country: {
       type: String,
-      required: true
+      default: ''
     },
     city: {
       type: String,
-      required: true
+      default: ''
     },
     ASN: {
       type: String,
-      required: true
+      default: ''
     },
     ISP: {
       type: String,
-      required: true
+      default: ''
     },
     VPN: {
       type: Boolean,
