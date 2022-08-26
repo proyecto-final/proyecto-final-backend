@@ -35,20 +35,24 @@ const persistCommonLogLinesFrom = async (logFile) => {
 
 const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
-  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID, SubjectUserName} = 
+  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID, SubjectUserName, IpAddress, IpPort} = 
         getAttribute(defaultLine, 'Event.EventData') || {}
-  let ipData = ''
-  if (SourceAddress) {
-    ipData += ` - From: ${SourceAddress}:${SourcePort}`
+  let trailingData = ''
+  const sourceIp = SourceAddress || IpAddress
+  const sourcePort = SourcePort || IpPort
+  if (sourceIp) {
+    trailingData += ` - From: ${sourceIp}:${sourcePort}`
   }
   if (DestAddress) {
-    ipData += ` - To: ${DestAddress}:${DestPort}`
+    trailingData += ` - To: ${DestAddress}:${DestPort}`
   }
-  let applicationString = ''
   if (Application) {
-    applicationString = ` - ${Application}`
+    trailingData += ` - App: ${Application}`
   }
-  const rawLine = `${timestamp} - ${EventID} - ${Channel}${ipData}${applicationString}`
+  if (SubjectUserName) {
+    trailingData += ` - User: ${SubjectUserName}`
+  }
+  const rawLine = `${timestamp} - ${EventID} - ${Channel}${trailingData}`
   const otherAttributes = {
     application: Application,
     applicationId: ProcessID,
@@ -56,6 +60,8 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
     userId: RemoteUserID,
     userName: SubjectUserName,
     eventId: EventID,
+    sourceIp: sourceIp,
+    destinationIp: DestAddress
   }
   return new Line({
     log,

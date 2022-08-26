@@ -228,7 +228,7 @@ paths:
       - $ref: '#/components/parameters/limitParam'
       responses:
         200:
-          description: IP
+          description: IPs page
           content:
             application/json:
               schema:
@@ -281,4 +281,3 @@ paths:
             application/json:
               schema: 
                $ref: '#/components/schemas/Ip'
-    

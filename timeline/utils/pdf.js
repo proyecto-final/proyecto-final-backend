@@ -7,7 +7,7 @@ const writeBoldBody = (body, doc) => doc.font('Helvetica-Bold').fontSize(14).tex
 const writeLogIntoPDF = (log, doc) => {
   const {projectId, title, description, state, extension, createdAt, updatedAt} = log
   writeBoldBody(`log: ${title}`, doc)
-  writeBody(`log description: ${description}`, doc)
+  writeBody(`log description: ${description || 'no description available'}`, doc)
   writeBody(`log extension: ${extension}`, doc)
   writeBody(`state: ${state}`, doc)
   writeBody(`Project id: ${projectId}`, doc)
@@ -26,7 +26,7 @@ const writeLogLineIntoPDF = (line, doc) => {
 
 const getVulnerabilitesNames = (vulnerabilites) => {
   const namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
-  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities'] : namedVulnerabilites).join(',')
+  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities detected'] : namedVulnerabilites).join(',')
 }
 
 const createPDFStringContent = async(timeline, logs, logLines, doc) => {
@@ -38,8 +38,10 @@ const createPDFStringContent = async(timeline, logs, logLines, doc) => {
   lines.forEach(({timestamp, raw, vulnerabilites, tags}) => {
     writeBoldBody(timestamp, doc)
     writeBody(`${raw}`, doc)
-    writeBody(`Tags: ${tags.join(',')}.`, doc)
-    writeBody(`Event Vulnerabilites: ${getVulnerabilitesNames(vulnerabilites)}`, doc)
+    if (tags.length > 0) {
+      writeBody(`Tags: ${tags.join(',')}.`, doc)
+    }
+    writeBody(`Event Vulnerabilites: ${getVulnerabilitesNames(vulnerabilites)}.`, doc)
     addSpace(1, doc)
   })
   addSpace(2, doc)
