@@ -35,11 +35,13 @@ const persistCommonLogLinesFrom = async (logFile) => {
 
 const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
   const {EventID, Channel, Computer, RemoteUserID} = getAttribute(defaultLine, 'Event.System') || {}
-  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID, SubjectUserName} = 
+  const {DestAddress, DestPort, SourceAddress, SourcePort, Application, ProcessID, SubjectUserName, IpAddress, IpPort} = 
         getAttribute(defaultLine, 'Event.EventData') || {}
   let trailingData = ''
-  if (SourceAddress) {
-    trailingData += ` - From: ${SourceAddress}:${SourcePort}`
+  const sourceIp = SourceAddress || IpAddress
+  const sourcePort = SourcePort || IpPort
+  if (sourceIp) {
+    trailingData += ` - From: ${sourceIp}:${sourcePort}`
   }
   if (DestAddress) {
     trailingData += ` - To: ${DestAddress}:${DestPort}`
@@ -58,6 +60,8 @@ const createLine = (defaultLine, vulnerabilites, timestamp, log, index) => {
     userId: RemoteUserID,
     userName: SubjectUserName,
     eventId: EventID,
+    sourceIp: sourceIp,
+    destinationIp: DestAddress
   }
   return new Line({
     log,
