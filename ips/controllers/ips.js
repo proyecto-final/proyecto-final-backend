@@ -100,11 +100,21 @@ const analyzeIp = new RequestWrapper(
   .setHandler(async (req, res) => {
     const {ip: rawIp} = req.body
     const projectId =getIntValue(req.params.projectId)
+    const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const existingIp = await Ip.findOne({
+      raw: rawIp,
+      projectId,
+      createdAt: {
+        $gte: lastDay,
+      }
+    })
+    if (existingIp) {
+      return res.status(200).json(existingIp)
+    } 
     const ip = await getIpInformationFromIntegrations(rawIp, projectId)
     await ip.save()
     res.status(200).json(ip)
   }).wrap()
-
 
 const analyzeLineIp  = new RequestWrapper(
   check('ip', 'ip is required').isIP()
