@@ -66,6 +66,9 @@ components:
         reports:
           type: array
           description: IP reports
+        ports:
+          type: array
+          description: IP reports
         isTor:
           type: boolean
           description: is TOR
@@ -109,6 +112,9 @@ components:
         ASN: "ASN1"
         ISP: "ISP1"
         VPN: true
+        ports:
+          - 123
+          - 456
 
 tags:
   - name: IP CRUD
