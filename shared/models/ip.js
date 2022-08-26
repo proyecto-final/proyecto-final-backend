@@ -12,12 +12,10 @@ module.exports = mongoose => {
     },
     reports: {
       type: Array,
-      required: true,
       default: () => []
     },
     ports: {
       type: Array,
-      required: true,
       default: () => []
     },
     isTor:{
