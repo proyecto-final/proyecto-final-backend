@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const crypto = require('crypto')
 const Timeline = require('../../shared/models/timeline')(mongoose)
 const Log = require('../../shared/models/log')(mongoose)
+require('../../shared/models/ip')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 require('../../shared/models/vulnerability')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
@@ -45,12 +46,13 @@ const validateTimeline = (timeline) => {
 }
 
 const createLinesFrom = async (lines, logs) => {
-  const logLines = await Line.find({_id: {$in: lines}, log: {$in: logs}})
+  const logLines = await Line.find({_id: {$in: lines}, log: {$in: logs}}).populate('ip')
   if(logLines.length === 0){
     throw {code: 400, msg: 'Lines are not valid'}
   }
   const timelineLines = logLines.map(line => {
-    const {raw, detail, vulnerabilites,timestamp, log, notes } = line
+    const {raw, detail, vulnerabilites,timestamp, log, notes, ip } = line
+    const copiedIp = ip ? {...ip._doc} : null
     return {
       line,
       raw, 
@@ -59,7 +61,8 @@ const createLinesFrom = async (lines, logs) => {
       vulnerabilites, 
       log, 
       notes,
-      tags: []
+      tags: [],
+      ip: copiedIp
     }})
   return timelineLines
 }
@@ -159,6 +162,7 @@ const get = new RequestWrapper()
           ]
         }
       }])
+
     resp.status(200).json(adaptMongoosePage(timelines))
   }).wrap()
 

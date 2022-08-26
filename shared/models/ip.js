@@ -62,5 +62,5 @@ module.exports = mongoose => {
     const {__v, ...others} = this.toObject()
     return others
   }
-  return mongoose.models.ip || model('Ip', Ip)
+  return mongoose.models.ip || model('ip', Ip)
 }

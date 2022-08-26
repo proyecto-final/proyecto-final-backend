@@ -100,7 +100,7 @@ const analyzeIp = new RequestWrapper(
   .hasId('projectId')
   .setHandler(async (req, res) => {
     const {ip: rawIp} = req.body
-    const projectId =getIntValue(req.params.projectId)
+    const projectId = getIntValue(req.params.projectId)
     const lastDay = new Date(Date.now() - 24 * 60 * 60 * 1000)
     const existingIp = await Ip.findOne({
       raw: rawIp,
@@ -111,7 +111,7 @@ const analyzeIp = new RequestWrapper(
     })
     if (existingIp) {
       return res.status(200).json(existingIp)
-    } 
+    }
     const ip = await getIpInformationFromIntegrations(rawIp, projectId)
     await ip.save()
     res.status(200).json(ip)
@@ -125,7 +125,7 @@ const analyzeLineIp  = new RequestWrapper(
   .hasMongoId('lineId')
   .setHandler(async (req, res) => {
     const {ip: rawIp} = req.body
-    const projectId =getIntValue(req.params.projectId)
+    const projectId = getIntValue(req.params.projectId)
     const lineId = req.params.lineId
     const logOwner = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
     if (!logOwner) {
@@ -150,7 +150,7 @@ const get = new RequestWrapper()
     const { query } = req
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
-    const projectId =getIntValue(req.params.projectId)
+    const projectId = getIntValue(req.params.projectId)
     const mongooseQuery = {
       projectId
     }
