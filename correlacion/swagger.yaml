@@ -151,6 +151,64 @@ components:
         vulnerabilites:
           - _id: 62ee8f56647000687263cf76
           - _id: 62ee8f56647000687263cf76
+    Ip:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        raw:
+          type: string
+          description: IP raw value
+        reputation:
+          type: string
+          description: IP reputation
+        reports:
+          type: array
+          description: IP reports
+        isTor:
+          type: boolean
+          description: is TOR
+        totalReports:
+          type: number
+          description: number of reports
+        country:
+          type: string
+          description: ip country
+        city:
+          type: string
+          description: ip city
+        ASN:
+          type: string
+          description: IP ASN
+        ISP:
+          type: string
+          description: IP ISP
+        VPN:
+          type: boolean
+          description: is VPN
+        lastReportedAt:
+          type: string
+          description: status of the log
+      example:
+        _id: 62d776f235ca54db99e4765e
+        reputation: 0
+        lastReportedAt: 2020-01-01T00:00:00.000Z
+        reports:
+        - reportedAt: "2022-08-24T01:06:19+00:00"
+          comment: "SS5: Brutforce ssh Login"
+          categories:
+            - "Brutforce"
+            - "SSH"
+        projectId: 123456789
+        status: "processing"
+        isTor: true
+        country: "US"
+        totalReports: 10
+        city: "New York"
+        ASN: "ASN1"
+        ISP: "ISP1"
+        VPN: true
     Line:
       type: object
       properties:
@@ -175,6 +233,8 @@ components:
         notes:
           type: array
           description: user added notes
+        ip:
+          $ref: '#/components/schemas/Ip'
       example:
         _id: 62d776f235ca54db99e4765e
         log: 62e5ae6f36a29d448fc6bf0f
@@ -191,6 +251,25 @@ components:
         notes:
           - This is a note
           - This is another note
+        ip:
+          _id: 62d776f235ca54db99e4765e
+          reputation: 0
+          lastReportedAt: 2020-01-01T00:00:00.000Z
+          reports:
+          - reportedAt: "2022-08-24T01:06:19+00:00"
+            comment: "SS5: Brutforce ssh Login"
+            categories:
+              - "Brutforce"
+              - "SSH"
+          projectId: 123456789
+          status: "processing"
+          isTor: true
+          country: "US"
+          totalReports: 10
+          city: "New York"
+          ASN: "ASN1"
+          ISP: "ISP1"
+          VPN: true
 
 tags:
   - name: Logs CRUD
