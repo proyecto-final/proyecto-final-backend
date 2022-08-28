@@ -3,10 +3,10 @@ db.createCollection('lines')
 db.createCollection('timelines')
 db.createCollection('vulnerabilities')
 db.createCollection('ips')
-db.createCollection('torLists')
+db.createCollection('torlists')
 
 // torlist
-db.torLists.insertMany(
+db.torlists.insertMany(
 [
   {
     ip: '93.95.230.253',
@@ -9323,7 +9323,7 @@ db.logs.insertMany([
     differentEvents: []
   },
 ])
-const logs = db.logs.find({}).toArray()
+const logs = db.logs.find({})
 
 //lines
 db.lines.insertMany([
@@ -9420,7 +9420,7 @@ db.lines.insertMany([
 ])
 
 // timelines
-const lines = db.lines.find({}).toArray()
+const lines = db.lines.find({})
 db.timelines.insertMany([
   {
     title: 'timelineTest1',
@@ -9460,4 +9460,3 @@ db.timelines.insertMany([
     updatedAt: new Date(),
     createdAt: new Date()
   }])
-console.log('-------------------\n Migrations ok \n -------------------')
