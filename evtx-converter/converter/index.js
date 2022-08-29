@@ -47,8 +47,9 @@ const convertFile = async (req, resp) => {
     // File to string
     const files2send = await Promise.all(fileValidated.map(async ({ file, metadata }) => {
       const random = (Math.random() + 1).toString(36).substring(2)
-      const inputFileName = `./input/${random}-${file.name}`
-      const convertedName = `./output/${random}-${file.name}-converted.json`
+      const fileNameWithoutParentheses = file.name.replace(/\(.*?\)/g,'')
+      const inputFileName = `./input/${random}-${fileNameWithoutParentheses}`
+      const convertedName = `./output/${random}-${fileNameWithoutParentheses}-converted.json`
       await file.mv(inputFileName)
       if (file.name.endsWith('.evtx')) {
         if (process.env.PLATFORM === 'linux') {
