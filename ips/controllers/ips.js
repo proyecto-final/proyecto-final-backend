@@ -138,7 +138,10 @@ const analyzeLineIp  = new RequestWrapper(
     }
     const ip = await getIpInformationFromIntegrations(rawIp, projectId)
     await ip.save()
-    line.ip = ip
+    if(!line.ips || line.ips.length === 0){
+      line.ips = []
+    } 
+    line.ips.push(ip)
     await line.save()
     res.status(200).json(ip)
   }).wrap()
