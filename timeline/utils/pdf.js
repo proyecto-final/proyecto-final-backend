@@ -15,11 +15,12 @@ const writeLogIntoPDF = (log, doc) => {
   writeBody(`last update: ${updatedAt}`, doc)
 }
 const writeLogLineIntoPDF = (line, doc) => {
-  const {index, timestamp, raw, notes, vulnerabilites, detail} = line
+  const {index, timestamp, raw, notes, vulnerabilites,ips, detail} = line
   writeBoldBody(`${index} - ${timestamp}`, doc)
   writeBody(`Line: ${raw}`, doc)
   writeBody(`Notes: ${(notes.length === 0 ? ['No notes']: notes).join(',')}`, doc)
   writeBody(`Vulnerabilities found: ${getVulnerabilitesNames(vulnerabilites)}`, doc)
+  writeBody(`Ips found: ${getIps(ips)}`, doc)
   writeBody(`Details: ${Object.values(detail).join(',')}`, doc)
   addSpace(1, doc)
 }
@@ -27,6 +28,11 @@ const writeLogLineIntoPDF = (line, doc) => {
 const getVulnerabilitesNames = (vulnerabilites) => {
   const namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
   return (namedVulnerabilites.length === 0 ? ['No vulnerabilities detected'] : namedVulnerabilites).join(',')
+}
+
+const getIps = (ips) => {
+  const namedIps = ips.map(ip => ip.raw)
+  return (namedIps.length === 0 ? ['No ips detected'] : namedIps).join(',')
 }
 
 const createPDFStringContent = async(timeline, logs, logLines, doc) => {

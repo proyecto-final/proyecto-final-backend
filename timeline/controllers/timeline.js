@@ -19,7 +19,7 @@ const getReport = new RequestWrapper()
     const { timelineId, projectId } = req.params
     const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)}).populate('lines.vulnerabilites')
     const logs = await Log.find({_id: {$in: timeline?.logs}})
-    const logLines = await Line.find({log: {$in: logs}}).populate('vulnerabilites')
+    const logLines = await Line.find({log: {$in: logs}}).populate('vulnerabilites').populate('ips')
     if(!logs || logs.length === 0){
       throw {code: 404, msg: 'Log not found'}
     }
@@ -168,10 +168,14 @@ const get = new RequestWrapper()
 
 const getVulnerabilitesForLine = (timeline, line) => timeline.linesVulnerabilites
   .filter(vulnerability => line.vulnerabilites.map(id => id.toString()).includes(vulnerability._id.toString()))
-const getTimelineWithVulnerabilities = timelines => timelines.map(timeline => ({
+
+const getIpsForLine = (timeline, line) => timeline.linesIps.filter(ip => line.ips.map(id => id.toString()).includes(ip._id.toString()))
+
+const getTimelineWithVulnerabilities = timelines => timelines.map(timeline =>  ({
   ...timeline,
   lines: timeline.lines.map(line => ({
     ...line,
+    ips: getIpsForLine(timeline, line),
     vulnerabilites: getVulnerabilitesForLine(timeline, line)
   })
   )}))[0]
@@ -196,7 +200,7 @@ const getSpecific = new RequestWrapper()
             'from': 'ips',
             'localField': 'lines.ips',
             'foreignField': '_id',
-            'as': 'lines.ips'
+            'as': 'linesIps'
           }
         },
         {
