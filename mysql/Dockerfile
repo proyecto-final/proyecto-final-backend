@@ -1,5 +1,5 @@
 #Base image
-FROM mysql/mysql-server:latest
+FROM mysql/mysql-server:8.0.30
 
 EXPOSE 3306
 ENV MYSQL_ROOT_PASSWORD=root
