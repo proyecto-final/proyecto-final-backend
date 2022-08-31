@@ -192,6 +192,14 @@ const getSpecific = new RequestWrapper()
           }
         },
         {
+          '$lookup': {
+            'from': 'ips',
+            'localField': 'lines.ips',
+            'foreignField': '_id',
+            'as': 'lines.ips'
+          }
+        },
+        {
           $match: {
             _id: mongoose.Types.ObjectId(timelineId),
             projectId: getIntValue(projectId)
@@ -235,6 +243,14 @@ const getByToken = new RequestWrapper(
           'localField': 'lines.vulnerabilites',
           'foreignField': '_id',
           'as': 'linesVulnerabilites'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'ips',
+          'localField': 'lines.ips',
+          'foreignField': '_id',
+          'as': 'lines.ips'
         }
       },
       {
