@@ -51,8 +51,8 @@ const createLinesFrom = async (lines, logs) => {
     throw {code: 400, msg: 'Lines are not valid'}
   }
   const timelineLines = logLines.map(line => {
-    const {raw, detail, vulnerabilites,timestamp, log, notes, ip } = line
-    const copiedIp = ip ? {...ip._doc} : null
+    const {raw, detail, vulnerabilites,timestamp, log, notes, ips } = line
+    const copiedIps = ips && ips.length > 0 ? [...ips] : []
     return {
       line,
       raw, 
@@ -62,7 +62,7 @@ const createLinesFrom = async (lines, logs) => {
       log, 
       notes,
       tags: [],
-      ip: copiedIp
+      ips: copiedIps
     }})
   return timelineLines
 }
