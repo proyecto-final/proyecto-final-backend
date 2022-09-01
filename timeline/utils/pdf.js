@@ -1,3 +1,5 @@
+const vulnerability = require('../../shared/models/vulnerability')
+
 const writeTitle = (title, doc) => doc.font('Helvetica').fontSize(20).text(title, {align: 'center'})
 const addSpace = (number, doc) => doc.text('\n'.repeat(number), {align: 'center'})
 const writeBody = (body, doc) => doc.font('Helvetica').fontSize(14).text(body, {align: 'justify'})
@@ -25,15 +27,9 @@ const writeLogLineIntoPDF = (line, doc) => {
   addSpace(1, doc)
 }
 
-const getVulnerabilitesNames = (vulnerabilites) => {
-  const namedVulnerabilites = vulnerabilites.map(vulnerability => vulnerability.name)
-  return (namedVulnerabilites.length === 0 ? ['No vulnerabilities detected'] : namedVulnerabilites).join(',')
-}
+const getVulnerabilitesNames = (vulnerabilites) => vulnerabilites.length === 0 ? 'No vulnerabilities detected' : vulnerabilites.map(vulnerability => vulnerability.name).join(',')
 
-const getIps = (ips) => {
-  const namedIps = ips.map(ip => ip.raw)
-  return (namedIps.length === 0 ? ['No ips detected'] : namedIps).join(',')
-}
+const getIps = (existingIps) =>  existingIps.length === 0 ? 'No IPs scanned' : existingIps.map(ip => ip.raw).join(',')
 
 const createPDFStringContent = async(timeline, logs, logLines, doc) => {
   const {title, description, lines} = timeline
