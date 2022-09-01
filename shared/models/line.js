@@ -35,10 +35,10 @@ module.exports = mongoose => {
       type: Number,
       required: true
     },
-    ip: {
+    ips: [{
       type: Schema.Types.ObjectId,
       ref: 'ip'
-    }
+    }]
   })
   Line.methods.toJSON = function () {
     const {__v, ...others} = this.toObject()

@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
+require('./../../shared/models/ip')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 
 const get = new RequestWrapper()
@@ -54,9 +55,9 @@ const get = new RequestWrapper()
       {
         '$lookup': {
           'from': 'ips',
-          'localField': 'ip',
+          'localField': 'ips',
           'foreignField': '_id',
-          'as': 'ip'
+          'as': 'ips'
         }
       },
       {
@@ -72,11 +73,7 @@ const get = new RequestWrapper()
           ]
         }
       }])
-    const linesWithPlainIps = lines.map(line => ({
-      ...line,
-      ip: line.ip? line.ip[0] : null
-    }))
-    resp.status(200).json(adaptMongoosePage(linesWithPlainIps))
+    resp.status(200).json(adaptMongoosePage(lines))
   }).wrap()
 
 const update = new RequestWrapper()
@@ -90,7 +87,7 @@ const update = new RequestWrapper()
     if (!logOwner) {
       throw { code: 404, msg: 'Log not found' }
     }
-    const lineUpdated = await Line.findOne({ _id: lineId, log: logId,projectId: getIntValue(projectId) }).populate('vulnerabilites')
+    const lineUpdated = await Line.findOne({ _id: lineId, log: logId,projectId: getIntValue(projectId) }).populate('vulnerabilites').populate('ips')
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }

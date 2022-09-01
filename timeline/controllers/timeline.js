@@ -46,7 +46,7 @@ const validateTimeline = (timeline) => {
 }
 
 const createLinesFrom = async (lines, logs) => {
-  const logLines = await Line.find({_id: {$in: lines}, log: {$in: logs}}).populate('ip')
+  const logLines = await Line.find({_id: {$in: lines}, log: {$in: logs}}).populate('ips')
   if(logLines.length === 0){
     throw {code: 400, msg: 'Lines are not valid'}
   }
