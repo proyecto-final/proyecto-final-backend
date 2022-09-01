@@ -114,6 +114,17 @@ const get = new RequestWrapper()
     resp.status(200).json(adaptMongoosePage(logs))
   }).wrap()
 
+const getSpecific = new RequestWrapper()
+  .hasId('projectId')
+  .hasMongoId('logId')
+  .setHandler(async (req, resp) => {
+    const log = await Log.findOne({ _id: req.params.logId, projectId: getIntValue(req.params.projectId) })
+    if (!log) {
+      throw { code: 404, msg: 'Log not found' }
+    }
+    resp.status(200).json(log)
+  }).wrap()
+
 const update = new RequestWrapper()
   .hasId('projectId')
   .hasMongoId('logId')
@@ -134,4 +145,4 @@ const update = new RequestWrapper()
   }).wrap()
 
 
-module.exports = { create, get, update, destroy }
+module.exports = { create, get, getSpecific, update, destroy }
