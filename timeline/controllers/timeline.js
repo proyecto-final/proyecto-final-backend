@@ -254,7 +254,7 @@ const getByToken = new RequestWrapper(
           'from': 'ips',
           'localField': 'lines.ips',
           'foreignField': '_id',
-          'as': 'lines.ips'
+          'as': 'linesIps'
         }
       },
       {
