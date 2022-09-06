@@ -524,6 +524,13 @@ paths:
         schema:
           type: string
           default: ""
+      - name: vulnerabilites
+        in: query
+        description: "event ids separated by COMMA! like: \"1,2,3\"" 
+        required: false
+        schema:
+          type: string
+          default: ""
       responses:
         200:
           description: Lines page
