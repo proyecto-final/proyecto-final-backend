@@ -18,7 +18,7 @@ const writeLogIntoPDF = (log, doc) => {
 
 const getVulnerabilitesNames = (vulnerabilites) => vulnerabilites.length === 0 ? 'No vulnerabilities detected' : vulnerabilites.map(vulnerability => vulnerability.name).join(',')
 
-const createPDFStringContent = async(timeline, logs, logLines, doc) => {
+const createPDFStringContent = async(timeline, logs, doc) => {
   const {title, description, lines} = timeline
   writeTitle(title, doc)
   writeBody(description, doc)
@@ -34,8 +34,10 @@ const createPDFStringContent = async(timeline, logs, logLines, doc) => {
     addSpace(1, doc)
   })
   addSpace(2, doc)
-  writeSubTitle('Logs Metadata',doc)
-  logs.forEach(log => writeLogIntoPDF(log, doc))
+  if (logs.length > 0) {
+    writeSubTitle('Logs Metadata',doc)
+    logs.forEach(log => writeLogIntoPDF(log, doc))
+  }
 }
 
 module.exports = {createPDFStringContent}
