@@ -52,7 +52,7 @@ const getUsers = new ControllerHandler()
   .hasId('organizationId')
   .setSecurityValidations(permission.
     or(permission.isAdmin(), permission
-      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+      .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
   .setHandler(async(req, resp) => {
     const { query } = req
     const { organizationId } = req.params
@@ -196,7 +196,7 @@ const updateUser = new ControllerHandler()
   .hasId('userId')
   .setSecurityValidations(permission.isEnabled(), permission.
     or(permission.isAdmin(), permission
-      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+      .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
   .setHandler(async(req, resp) => {
     const { organizationId, userId} = req.params
     const { enabled, role } = req.body
@@ -219,7 +219,7 @@ const generateInvitationToken = new ControllerHandler()
   .hasId('organizationId')
   .setSecurityValidations(permission.isEnabled(), permission.
     or(permission.isAdmin(), permission
-      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+      .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
   .setHandler(async(req, resp) => {
     const { organizationId } = req.params
     const organization = await Organization.findOne({where: {id: organizationId}})

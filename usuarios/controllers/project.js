@@ -30,13 +30,14 @@ const findAllBy = (searchQuery, offset, limit) =>{
     group: ['project.id']
   })
 }
+const manageProjectPermission = permission.and(permission.isEnabled(), permission.
+  or(permission.isAdmin(), permission
+    .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
 
 const get = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric()
-).handlePagination()
-  .setSecurityValidations(permission.isEnabled(), permission.
-    or(permission.isAdmin(), permission
-      .and(permission.isOwner(), permission.hasAccessToOrganization())))
+).handlePagination(manageProjectPermission)
+  .setSecurityValidations()
   .setHandler(async(req, resp) => {
     const { query } = req
     const { organizationId } = req.params
@@ -66,9 +67,7 @@ const get = new ControllerHandler(
 
 const create = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric()
-).setSecurityValidations(permission.isEnabled(), permission.
-  or(permission.isAdmin(), permission
-    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+).setSecurityValidations(manageProjectPermission)
   .setHandler(async(req, resp) => {
     const { organizationId } = req.params
     const project = req.body
@@ -83,7 +82,7 @@ const update = new ControllerHandler(
   param('projectId', 'El id debe ser un numero valido').isNumeric()
 ).setSecurityValidations(permission.isEnabled(), permission.
   or(permission.isAdmin(), permission
-    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+    .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
   .setHandler(async(req, resp) => {
     const { organizationId, projectId } = req.params
     const project = req.body
@@ -106,9 +105,7 @@ const update = new ControllerHandler(
 const destroy = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric(),
   param('projectId', 'El id debe ser un numero valido').isNumeric()
-).setSecurityValidations(permission.isEnabled(), permission.
-  or(permission.isAdmin(), permission
-    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+).setSecurityValidations(manageProjectPermission)
   .setHandler(async(req, resp) => {
     const { organizationId, projectId } = req.params
     const deletedProjects = await Project.destroy({
@@ -127,7 +124,7 @@ const getSpecific = new ControllerHandler(
   param('projectId', 'El id debe ser un numero valido').isNumeric()
 ).setSecurityValidations(permission.isEnabled(), permission.
   or(permission.isAdmin(), permission
-    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+    .and(permission.isOwner(), permission.hasAccessToOrganization(), permission.isOrganizationActive())))
   .setHandler(async(req, resp) => {
     const { organizationId, projectId } = req.params
     const project = await Project.findOne({
@@ -150,9 +147,7 @@ const setUsers = new ControllerHandler(
   param('organizationId', 'El id debe ser un numero valido').isNumeric(),
   param('projectId', 'El id debe ser un numero valido').isNumeric(),
   body('users', 'Los usuarios deben ser un array').isArray()
-).setSecurityValidations(permission.isEnabled(), permission.
-  or(permission.isAdmin(), permission
-    .and(permission.isOwner(), permission.hasAccessToOrganization())))
+).setSecurityValidations(manageProjectPermission)
   .setHandler(async(req, resp) => {
     const { organizationId, projectId } = req.params
     const project = await Project.findOne({
