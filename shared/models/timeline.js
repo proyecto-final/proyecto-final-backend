@@ -41,10 +41,10 @@ module.exports = mongoose => {
         type: Schema.Types.ObjectId,
         ref: 'line'
       },
-      ip: {
-        type: Object,
-        default: null
-      },
+      ips: [{
+        type: Schema.Types.ObjectId,
+        ref: 'ip'
+      }],
       tags: {
         type: Array,
         default: () => []

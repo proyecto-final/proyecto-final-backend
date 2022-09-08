@@ -1,5 +1,5 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue, getDateValue, getBooleanValue, getIntArrayFromStringCsv } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue, getBooleanValue, getIntArrayFromStringCsv, getArrayFromStringCsv } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
@@ -14,6 +14,7 @@ const get = new RequestWrapper()
   .setHandler(async (req, resp) => {
     const { query } = req
     const events = getIntArrayFromStringCsv(query.events)
+    const vulnerabilites = getArrayFromStringCsv(query.vulnerabilites)
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
     const dateFrom = getDateValue(query.dateFrom)
@@ -43,7 +44,15 @@ const get = new RequestWrapper()
     if (events?.length > 0) {
       mongooseQuery['detail.eventId'] = {$in: events}
     }
+    const auxMatch = {}
+    if (vulnerabilites?.length > 0) {
+      // mongooseQuery.vulnerabilites = { $in: vulnerabilites.map(vulnerability => mongoose.Types.ObjectId(vulnerability))}
+      auxMatch.vulnerabilites = { $in: vulnerabilites.map(vulnerability =>  mongoose.Types.ObjectId(vulnerability))}
+    }
     const lines = await Line.aggregate([
+      {
+        $match: auxMatch
+      },
       {
         '$lookup': {
           'from': 'vulnerabilities',

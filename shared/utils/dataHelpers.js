@@ -23,10 +23,18 @@ const getDateValue = (value) => {
     return null
   }
 }
+const getArrayFromStringCsv = (value) => {
+  try {
+    return value.split(',')
+  } catch {
+    return []
+  }
+}
+
 
 const getIntArrayFromStringCsv = (value) => {
   try {
-    return value.split(',').map(item => parseInt(item))
+    return getArrayFromStringCsv(value).map((item) => parseInt(item))
   } catch {
     return []
   }
@@ -37,4 +45,4 @@ const getExtension = (file) => {
 }
 
 
-module.exports = {getBooleanValue, getIntValue, getDateValue, getExtension, getIntArrayFromStringCsv}
+module.exports = {getBooleanValue, getIntValue, getDateValue, getExtension, getIntArrayFromStringCsv, getArrayFromStringCsv}
