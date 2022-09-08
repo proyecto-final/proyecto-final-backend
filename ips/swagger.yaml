@@ -1,0 +1,289 @@
+
+
+openapi: 3.0.0
+info:
+  title: Sherlock IP Module API
+  description: Sherlock IP module interface
+  version: 0.1.9
+servers:
+  - url: http://localhost:3031/
+    description: development server
+  - url: http://localhost:3031/
+    description: Testing server
+
+components:
+  parameters:
+    offsetParam:
+      name: offset
+      in: query
+      description: offset of the list
+      schema:
+        type: integer
+        default: 0
+      required: false
+    limitParam:
+      name: limit
+      in: query
+      description: amount of items to be returned
+      required: false
+      schema:
+        type: integer
+        default: 10
+  schemas:
+    Count:
+      type: number
+      description: Number of results in the database
+      example: 10
+    LogRequest:
+      type: object
+      properties:
+        title: 
+          type: string
+          description: Log title
+        description:
+          type: string
+          description: Log description
+    Message:
+      type: object
+      properties:
+        msg: 
+          type: string
+          description: message
+      example:
+        msg: OK
+    Ip:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Log ID
+        raw:
+          type: string
+          description: IP raw value
+        reputation:
+          type: string
+          description: IP reputation
+        reports:
+          type: array
+          description: IP reports
+        ports:
+          type: array
+          description: IP reports
+        isTor:
+          type: boolean
+          description: is TOR
+        totalReports:
+          type: number
+          description: number of reports
+        country:
+          type: string
+          description: ip country
+        city:
+          type: string
+          description: ip city
+        ASN:
+          type: string
+          description: IP ASN
+        ISP:
+          type: string
+          description: IP ISP
+        VPN:
+          type: boolean
+          description: is VPN
+        lastReportedAt:
+          type: string
+          description: status of the log
+      example:
+        _id: 62d776f235ca54db99e4765e
+        reputation: 0
+        lastReportedAt: 2020-01-01T00:00:00.000Z
+        reports:
+        - reportedAt: "2022-08-24T01:06:19+00:00"
+          comment: "SS5: Brutforce ssh Login"
+          categories:
+            - "Brutforce"
+            - "SSH"
+        projectId: 123456789
+        status: "processing"
+        isTor: true
+        country: "US"
+        totalReports: 10
+        city: "New York"
+        ASN: "ASN1"
+        ISP: "ISP1"
+        VPN: true
+        ports:
+          - 123
+          - 456
+
+tags:
+  - name: IP CRUD
+    description: logs creation, modification and remove
+
+paths:
+  /api/project/{projectId}/ip-analysis/shodan:
+    get:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      - name: ip
+        in: query
+        description: ip
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: IP information
+          content:
+            application/json:
+              schema: 
+                type: Object
+                $ref: '#/components/schemas/Ip'
+  /api/project/{projectId}/ip-analysis/tor:
+    get:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      - name: ip
+        in: query
+        description: ip
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: IP information
+          content:
+            application/json:
+              schema: 
+                type: object
+  /api/project/{projectId}/ip-analysis/abuseIP:
+    get:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      - name: ip
+        in: query
+        description: ip
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: IP information
+          content:
+            application/json:
+              schema: 
+                type: object
+
+  /api/project/{projectId}/ip-analysis:
+    post:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip:
+                  type: string
+                  description: ip
+      responses:
+        200:
+          description: Lines page
+          content:
+            application/json:
+              schema: 
+               $ref: '#/components/schemas/Ip'
+    get:
+      summary: Gets last analyzed IPs
+      tags: [IP CRUD]
+      parameters:
+      - $ref: '#/components/parameters/offsetParam'
+      - $ref: '#/components/parameters/limitParam'
+      responses:
+        200:
+          description: IPs page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    $ref: '#/components/schemas/Count'
+                  rows:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Ip'
+  /api/project/{projectId}/ip-analysis/log/{logId}/line/{lineId}:
+    post:
+      summary: Analyses ips from logs
+      tags: [IP CRUD]
+      description: Analyses ips from logs  
+      parameters:
+      - name: projectId
+        in: path
+        description: project id
+        required: true
+        schema:
+          type: integer
+      - name: logId
+        in: path
+        description: log line
+        required: true
+        schema:
+          type: string
+      - name: lineId
+        in: path
+        description: line id where to save the analysis
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ip:
+                  type: string
+                  description: ip
+      responses:
+        200:
+          description: Ip
+          content:
+            application/json:
+              schema: 
+               $ref: '#/components/schemas/Ip'

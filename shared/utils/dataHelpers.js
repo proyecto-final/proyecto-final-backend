@@ -1,4 +1,3 @@
-
 const getBooleanValue = (value) => {
   if (value === 'true' || value === true) {
     return true
@@ -25,5 +24,17 @@ const getDateValue = (value) => {
   }
 }
 
+const getIntArrayFromStringCsv = (value) => {
+  try {
+    return value.split(',').map(item => parseInt(item))
+  } catch {
+    return []
+  }
+}
 
-module.exports = {getBooleanValue, getIntValue, getDateValue}
+const getExtension = (file) => {
+  return file.name.split('.').pop()
+}
+
+
+module.exports = {getBooleanValue, getIntValue, getDateValue, getExtension, getIntArrayFromStringCsv}

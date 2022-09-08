@@ -34,7 +34,11 @@ module.exports = mongoose => {
     index: {
       type: Number,
       required: true
-    }
+    },
+    ips: [{
+      type: Schema.Types.ObjectId,
+      ref: 'ip'
+    }]
   })
   Line.methods.toJSON = function () {
     const {__v, ...others} = this.toObject()

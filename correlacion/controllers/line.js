@@ -1,9 +1,10 @@
 const RequestWrapper = require('./../../shared/utils/requestWrapper')
-const { getIntValue, getDateValue, getBooleanValue } = require('./../../shared/utils/dataHelpers')
+const { getIntValue, getDateValue, getBooleanValue, getIntArrayFromStringCsv } = require('./../../shared/utils/dataHelpers')
 const mongoose = require('mongoose')
 const Log = require('./../../shared/models/log')(mongoose)
 const Line = require('./../../shared/models/line')(mongoose)
 const Vulnerability = require('./../../shared/models/vulnerability')(mongoose)
+require('./../../shared/models/ip')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 
 const get = new RequestWrapper()
@@ -12,6 +13,7 @@ const get = new RequestWrapper()
   .handlePagination()
   .setHandler(async (req, resp) => {
     const { query } = req
+    const events = getIntArrayFromStringCsv(query.events)
     const offset = getIntValue(query.offset)
     const limit = getIntValue(query.limit)
     const dateFrom = getDateValue(query.dateFrom)
@@ -27,7 +29,6 @@ const get = new RequestWrapper()
     if(isSelectedValue !== null){
       mongooseQuery.isSelected = isSelectedValue
     }
-
     if (query.raw) {
       mongooseQuery.raw = { '$regex': query.raw, '$options': 'i' }
     }
@@ -39,6 +40,9 @@ const get = new RequestWrapper()
       mongooseQuery.timestamp = mongooseQuery.timestamp ?
         { ...mongooseQuery.timestamp, $lte: dateToEndDay } : { $lte: dateToEndDay }
     }
+    if (events?.length > 0) {
+      mongooseQuery['detail.eventId'] = {$in: events}
+    }
     const lines = await Line.aggregate([
       {
         '$lookup': {
@@ -46,6 +50,14 @@ const get = new RequestWrapper()
           'localField': 'vulnerabilites',
           'foreignField': '_id',
           'as': 'vulnerabilites'
+        }
+      },
+      {
+        '$lookup': {
+          'from': 'ips',
+          'localField': 'ips',
+          'foreignField': '_id',
+          'as': 'ips'
         }
       },
       {
@@ -75,7 +87,7 @@ const update = new RequestWrapper()
     if (!logOwner) {
       throw { code: 404, msg: 'Log not found' }
     }
-    const lineUpdated = await Line.findOne({ _id: lineId, logId,projectId: getIntValue(projectId) })
+    const lineUpdated = await Line.findOne({ _id: lineId, log: logId,projectId: getIntValue(projectId) }).populate('vulnerabilites').populate('ips')
     if (!lineUpdated) {
       throw {code: 404, msg: 'Line not found'}
     }

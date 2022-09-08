@@ -75,11 +75,11 @@ components:
           type: array
           description: lines mongo ids
         log:
-          type: string
-          description: log mongo id
+          type: array
+          description: logs mongo id
       example:
         title: timeline1
-        log: 62e557770cda67a071353283 
+        logs: ["62e557770cda67a071353283"] 
         description: Some description
         lines: [{"id": "62e557770cda67a071353287", "tags":[]}, {"id":"62e557770cda67a071353288", "tags":[]}]
 tags:
@@ -99,11 +99,6 @@ paths:
         required: true
         schema:
           type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TimelineRequest'
       responses:
         '200':
           description: Timeline data response
@@ -146,7 +141,39 @@ paths:
                     items:
                       allOf:
                         - $ref: '#/components/schemas/TimelineResponse'
-  /api/project/{projectId}/timeline/:timelineId:
+
+  /api/project/{projectId}/timeline/{timelineId}/refresh:
+    post:
+        summary: Refresh a timeline
+        tags: [Timeline CRUD]
+        description: Refresh a timeline
+        parameters:
+        - name: projectId
+          in: path
+          description: "Project ID"
+          required: true
+          schema:
+            type: integer
+        - name: timelineId
+          in: path
+          description: "Timelime ID"
+          required: true
+          schema:
+            type: integer
+        requestBody:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimelineRequest'
+        responses:
+          '200':
+            description: Timeline data response
+            content:
+              application/json:
+                schema: 
+                  type: object
+                  $ref: '#/components/schemas/TimelineResponse'
+  /api/project/{projectId}/timeline/{timelineId}:
     patch:
       summary: Updates a timeline
       tags: [Timeline CRUD]
@@ -199,3 +226,88 @@ paths:
       responses:
         '200':
           description: Timeline elimination result response
+  /api/project/{projectId}/timeline/{timelineId}/generate-token:
+    post:
+      summary: Generates a timeline invitation link
+      tags: [Timeline CRUD]
+      description: Generates a timeline invitation link
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: token to be used in the link
+  /api/project/{nothing}/timeline/external/{token}:
+    get:
+      summary: Gets a timeline without being logged in
+      tags: [Timeline CRUD]
+      description: Gets a timeline without being logged in
+      parameters:
+      - name: nothing
+        in: path
+        description: Put any value here
+        required: true
+        schema:
+          type: integer
+      - name: token
+        in: path
+        description: "Token string to get the timeline"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline data response
+          content:
+            application/json:
+              schema: 
+                type: object
+                $ref: '#/components/schemas/TimelineResponse'
+  /api/project/{projectId}/timeline/{timelineId}/report:
+    get:
+      summary: Generate pdf summary from timeline
+      tags: [Timeline CRUD]
+      parameters:
+      - name: projectId
+        in: path
+        description: "Project ID"
+        required: true
+        schema:
+          type: integer
+      - name: logId
+        in: path
+        description: log id
+        required: true
+        schema: 
+          type: integer
+      - name: timelineId
+        in: path
+        description: "Timeline ID"
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Timeline pdf summary
+          content:
+            application/pdf:
+              schema:
+                format: binary

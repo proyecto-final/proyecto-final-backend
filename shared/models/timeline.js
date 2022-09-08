@@ -16,9 +16,13 @@ module.exports = mongoose => {
       type: Number,
       required: true
     },
-    log: {
+    logs: [{
       type: Schema.Types.ObjectId,
       ref: 'log'
+    }],
+    accessToken: {
+      type: String,
+      default: null
     },
     lines: [{
       detail: {
@@ -37,21 +41,25 @@ module.exports = mongoose => {
         type: Schema.Types.ObjectId,
         ref: 'line'
       },
+      ip: {
+        type: Object,
+        default: null
+      },
       tags: {
         type: Array,
         default: () => []
       },
-      vulnerabilites: {
-        type: Array,
-        default: () => []
-      }
+      vulnerabilites:  [ {
+        type: Schema.Types.ObjectId,
+        ref: 'vulnerability'
+      }],
     }]
   },
   {
     timestamps: true
   })
   Timeline.methods.toJSON = function () {
-    const {__v, ...others} = this.toObject()
+    const {__v, accessToken, ...others} = this.toObject()
     return others
   }
   return model('timeline', Timeline)
