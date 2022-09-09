@@ -68,6 +68,12 @@ const authenticate = new ControllerHandler()
     if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
     }
+    const organization = await Organization.findOne({
+      where: { id: user.organizationId }
+    })
+    if (!organization?.enabled) {
+      throw { msg: 'Organization is disabled', code: 403 }
+    }
     const token = generateToken(user.id)
     await user.update({ token, attemptsCount: 0 })
     resp.status(200).cookie('auth', token, {

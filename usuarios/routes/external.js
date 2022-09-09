@@ -2,11 +2,11 @@ const { Router } = require('express')
 const router = Router()
 const { permission } = require('../controllers/utils/userRequestWrapper')
 const ControllerHandler = require('../controllers/utils/userRequestWrapper')
-const { and, hasAccessToProject, isEnabled} = permission
+const { and, hasAccessToProject, isEnabled, isOrganizationActive} = permission
 
 
 const userCrudPermission = new ControllerHandler()
-  .setSecurityValidations(and(isEnabled(), hasAccessToProject())).wrap()
+  .setSecurityValidations(and(isEnabled(), hasAccessToProject(), isOrganizationActive())).wrap()
 const noPermission = new ControllerHandler().wrap()
 
 //CORRELATION
