@@ -19,13 +19,6 @@ const getReport = new RequestWrapper()
     const { timelineId, projectId } = req.params
     const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)}).populate('lines.vulnerabilites')
     const logs = await Log.find({_id: {$in: timeline?.logs}})
-    const logLines = await Line.find({log: {$in: logs}}).populate('vulnerabilites').populate('ips')
-    if(!logs || logs.length === 0){
-      throw {code: 404, msg: 'Log not found'}
-    }
-    if(!logLines){
-      throw {code: 404, msg: 'Lines not found'}
-    }
     if(!timeline){
       throw {code: 404, msg: 'Timeline not found'}
     }
@@ -33,7 +26,7 @@ const getReport = new RequestWrapper()
     const fileName = `report_${timeline._id}.pdf`
     res.setHeader('Content-disposition', `attachment; filename="${fileName}"`)
     res.setHeader('Content-type', 'application/pdf')
-    await createPDFStringContent(timeline, logs, logLines, doc)
+    await createPDFStringContent(timeline, logs, doc)
     doc.pipe(res)
     doc.end()
     return res.status(200)

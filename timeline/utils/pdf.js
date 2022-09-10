@@ -1,5 +1,4 @@
-const vulnerability = require('../../shared/models/vulnerability')
-
+require('../../shared/models/vulnerability')
 const writeTitle = (title, doc) => doc.font('Helvetica').fontSize(20).text(title, {align: 'center'})
 const addSpace = (number, doc) => doc.text('\n'.repeat(number), {align: 'center'})
 const writeBody = (body, doc) => doc.font('Helvetica').fontSize(14).text(body, {align: 'justify'})
@@ -16,22 +15,10 @@ const writeLogIntoPDF = (log, doc) => {
   writeBody(`creation time: ${createdAt}`, doc)
   writeBody(`last update: ${updatedAt}`, doc)
 }
-const writeLogLineIntoPDF = (line, doc) => {
-  const {index, timestamp, raw, notes, vulnerabilites,ips, detail} = line
-  writeBoldBody(`${index} - ${timestamp}`, doc)
-  writeBody(`Line: ${raw}`, doc)
-  writeBody(`Notes: ${(notes.length === 0 ? ['No notes']: notes).join(',')}`, doc)
-  writeBody(`Vulnerabilities found: ${getVulnerabilitesNames(vulnerabilites)}`, doc)
-  writeBody(`Ips found: ${getIps(ips)}`, doc)
-  writeBody(`Details: ${Object.values(detail).join(',')}`, doc)
-  addSpace(1, doc)
-}
 
 const getVulnerabilitesNames = (vulnerabilites) => vulnerabilites.length === 0 ? 'No vulnerabilities detected' : vulnerabilites.map(vulnerability => vulnerability.name).join(',')
 
-const getIps = (existingIps) =>  existingIps.length === 0 ? 'No IPs scanned' : existingIps.map(ip => ip.raw).join(',')
-
-const createPDFStringContent = async(timeline, logs, logLines, doc) => {
+const createPDFStringContent = async(timeline, logs, doc) => {
   const {title, description, lines} = timeline
   writeTitle(title, doc)
   writeBody(description, doc)
@@ -47,11 +34,10 @@ const createPDFStringContent = async(timeline, logs, logLines, doc) => {
     addSpace(1, doc)
   })
   addSpace(2, doc)
-  writeSubTitle('Log Metadata',doc)
-  logs.forEach(log => writeLogIntoPDF(log, doc))
-  addSpace(2, doc)
-  writeSubTitle('Log Lines', doc)
-  logLines.forEach(line => writeLogLineIntoPDF(line, doc))
+  if (logs.length > 0) {
+    writeSubTitle('Logs Metadata',doc)
+    logs.forEach(log => writeLogIntoPDF(log, doc))
+  }
 }
 
 module.exports = {createPDFStringContent}
