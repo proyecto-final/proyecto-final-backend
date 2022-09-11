@@ -26,6 +26,7 @@ env:
   INSTANCE_TYPE_AWS: ${{secrets.INSTANCE_TYPE_AWS}}
   INSTANCE_STRATEGY_AWS: ${{secrets.INSTANCE_STRATEGY_AWS}}
   SECURITY_GROUP_ID: ${{secrets.SECURITY_GROUP_ID}}
+  CORRELATION_API_KEY: ${{secrets.CORRELATION_API_KEY}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -130,7 +131,7 @@ jobs:
           mkdir evtx-converter/temp
           cp -r shared evtx-converter/temp/shared
           aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-          docker build --build-arg CORRELATION_URI=${{env.CORRELATION_URI}} -t $AWS_REPOSITORY:evtx-converter evtx-converter
+          docker build --build-arg CORRELATION_URI=${{env.CORRELATION_URI}} --build-arg API_KEY=${{env.CORRELATION_API_KEY}} -t $AWS_REPOSITORY:evtx-converter evtx-converter
           docker tag $AWS_REPOSITORY:evtx-converter $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:evtx-converter
           docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:evtx-converter
           echo "::set-output name=image::$AWS_ECR_REPOSITORY_URI:evtx-converter"
