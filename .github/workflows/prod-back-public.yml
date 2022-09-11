@@ -46,10 +46,10 @@ jobs:
         id: create-cluster-and-services
         run: |
           ecs-cli up --cluster $CLUSTER_NAME --instance-type $INSTANCE_TYPE_AWS --capability-iam --size 4 --vpc $VPC_AWS --subnets $SUBNET_AWS --force --keypair $KEY_PAIR_AWS --security-group $SECURITY_GROUP_ID
-          aws ecs create-service --cluster $CLUSTER_NAME --service-name $SECOND_SERVICE_NAME --task-definition $SECOND_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS 
-          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FIRST_SERVICE_NAME --task-definition $FIRST_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS 
-          aws ecs create-service --cluster $CLUSTER_NAME --service-name $THIRD_SERVICE_NAME --task-definition $THIRD_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS 
-          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FOURTH_SERVICE_NAME --task-definition $FOURTH_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS 
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $SECOND_SERVICE_NAME --task-definition $SECOND_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy $INSTANCE_STRATEGY_AWS 
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FIRST_SERVICE_NAME --task-definition $FIRST_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy $INSTANCE_STRATEGY_AWS 
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $THIRD_SERVICE_NAME --task-definition $THIRD_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy $INSTANCE_STRATEGY_AWS 
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FOURTH_SERVICE_NAME --task-definition $FOURTH_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy $INSTANCE_STRATEGY_AWS 
       - name: Deploy to prod (user module)
         id: build-image-user
         run: |
