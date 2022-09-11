@@ -37,6 +37,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/checkout@master
+      - uses: marocchino/setup-ecs-cli@v1
+        with:
+          version: "v1.18.0"
       - name: Generating resources
         id: create-cluster-and-services
         run: |
