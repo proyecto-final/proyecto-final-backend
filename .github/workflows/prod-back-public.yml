@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - chore/sc-491/automatizar-pipelines
 env:
   AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
   AWS_REPOSITORY: ${{ secrets.AWS_DEFAULT_ECR }}
@@ -19,6 +20,11 @@ env:
   THIRD_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_THIRD_SERVICE}}
   FOURTH_SERVICE_NAME: ${{secrets.AWS_DEFAULT_ECS_FOURTH_SERVICE}}
   CORRELATION_URI: ${{secrets.CORRELATION_URI}}
+  VPC_AWS: ${{secrets.VPC_AWS}}
+  SUBNET_AWS: ${{secrets.SUBNET_AWS}}
+  KEY_PAIR_AWS: ${{secrets.KEY_PAIR_AWS}}
+  INSTANCE_TYPE_AWS: ${{secrets.INSTANCE_TYPE_AWS}}
+  INSTANCE_STRATEGY_AWS: ${{secrets.INSTANCE_STRATEGY_AWS}}
  
 jobs:
   build-and-deploy-prod-docker-images:
@@ -31,6 +37,14 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+      - name: Generating resources
+        id: create-cluster-and-services
+        run: |
+          ecs-cli up --cluster $CLUSTER_NAME --instance-type $INSTANCE_TYPE_AWS --capability-iam --size 4 --vpc $VPC_AWS --subnets $SUBNET_AWS --force --keypair $KEY_PAIR_AWS
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $SECOND_SERVICE_NAME --task-definition $SECOND_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS --minimumHealthyPercent 0 --maximumpercent 100
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FIRST_SERVICE_NAME --task-definition $FIRST_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS --minimumHealthyPercent 0 --maximumpercent 100
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $THIRD_SERVICE_NAME --task-definition $THIRD_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS --minimumHealthyPercent 0 --maximumpercent 100
+          aws ecs create-service --cluster $CLUSTER_NAME --service-name $FOURTH_SERVICE_NAME --task-definition $FOURTH_TASK_DEFINITION --desired-count 1 --launch-type EC2 --scheduling-strategy INSTANCE_STRATEGY_AWS --minimumHealthyPercent 0 --maximumpercent 100
       - name: Deploy to prod (user module)
         id: build-image-user
         run: |
@@ -83,17 +97,6 @@ jobs:
           service: ${{ env.SECOND_SERVICE_NAME }} 
           cluster:  ${{ env.CLUSTER_NAME }}
           wait-for-service-stability: true
-      
-      ####SEARCH DEPLOY
-      - name: Deploy to prod (search module)
-        id: build-image-search
-        run: |
-          mkdir busqueda/temp
-          cp -r shared busqueda/temp/shared
-          aws ecr-public get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ECR_REPOSITORY_URI
-          docker build --build-arg MONGODB_URI=${{env.MONGO_CONNECTION}} -t $AWS_REPOSITORY:busqueda busqueda
-          docker tag $AWS_REPOSITORY:busqueda $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
-          docker push $AWS_ECR_REPOSITORY_URI/$AWS_REPOSITORY:busqueda
       - name: Deploy to prod (ips module)
         id: build-image-ips
         run: |
