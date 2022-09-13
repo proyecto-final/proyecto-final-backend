@@ -6,6 +6,8 @@ const { permission } = require('../controllers/utils/userRequestWrapper')
 const ControllerHandler = require('../controllers/utils/userRequestWrapper')
 const Organization = require('../models').organization
 const {generateToken} = require('../controllers/utils')
+const speakeasy = require('speakeasy')
+
 // Business
 const TOKEN_LIFETIME_IN_MILISECONDS = 60 * 60 * 24 * 7 * 1000
 
@@ -129,10 +131,12 @@ const create = new ControllerHandler().notEmptyValues(['username','password','em
     if(!organization){
       throw {code: 403, msg: 'Token inválido'}
     }
+    const tempSecret = speakeasy.generateSecret()
     const organizationId = organization.id
     const user = await new User({username, password, name, email, organizationId})
     await user.save()
-    resp.status(200).json(user)
+    resp.status(200).json({...user , secret: tempSecret.otpauth_url}) // Attr for QR code
   }).wrap()
+
 
 module.exports = {authenticate, logout, update, getSpecific, create}
