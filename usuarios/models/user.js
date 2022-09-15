@@ -64,6 +64,11 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
+    },
+    mfaSecret: {
+      type: DataTypes.STRING(512),
+      allowNull: true,
+      unique: true
     }
   })
 
