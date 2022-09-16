@@ -123,14 +123,14 @@ const getSpecific = new ControllerHandler()
 
 const create = new ControllerHandler().notEmptyValues(['username','password','email','token','name'])
   .setHandler(async(req, resp) => {
-    const {username, password, name, email, token} = req.body
+    const {username, password, name, email, token, mfaSecret} = req.body
     checkPassword(password)
     const organization = await Organization.findOne({where: {invitationToken: token}})
     if(!organization){
       throw {code: 403, msg: 'Token inválido'}
     }
     const organizationId = organization.id
-    const user = await new User({username, password, name, email, organizationId})
+    const user = await new User({username, password, name, email, organizationId, mfaSecret})
     await user.save()
     resp.status(200).json(user)
   }).wrap()
