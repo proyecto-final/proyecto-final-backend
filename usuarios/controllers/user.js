@@ -137,13 +137,14 @@ const create = new ControllerHandler().notEmptyValues(['username','password','em
 
 const verifyMfa = new ControllerHandler()
   .setHandler(async(req, resp) => {
+    const { body } = req
     const user = await findUserOrThrowBy({
-      username: req.user
+      username: body.user
     }, true)
     const verified = speakeasy.totp.verify({
       secret: user.mfaSecret,
       encoding: 'base32',
-      token: req.userCode
+      token: body.userCode
     })
     if (!verified) {
       throw { msg: 'Código inválido, ingreselo nuevamente', code: 403 }
