@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const User = require('../models').user
 
 module.exports = async function (req, res, next) {
-  const allowedPaths = ['/api/user/authenticate', '/api-docs', '/api/organization/validate-invitation-token', '/api/organization/user', '/timeline/external']
+  const allowedPaths = ['/api/user/authenticate', '/api/user/mfa', '/api-docs', '/api/organization/validate-invitation-token', '/api/organization/user', '/timeline/external']
   if (allowedPaths.some(path => req.path.includes(path))) {
     return next()
   }

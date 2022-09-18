@@ -74,14 +74,8 @@ const authenticate = new ControllerHandler()
     if (!organization?.enabled) {
       throw { msg: 'Organization is disabled', code: 403 }
     }
-    const token = generateToken(user.id)
-    await user.update({ token, attemptsCount: 0 })
-    resp.status(200).cookie('auth', token, {
-      httpOnly: true,
-      maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
-      secure: process.env.ENVIRONMENT==='PROD',
-      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : undefined
-    }).json(user)
+    await user.update({ attemptsCount: 0 })
+    resp.status(200).json(user)
   }).wrap()
 
 const logout = new ControllerHandler()
@@ -149,7 +143,14 @@ const verifyMfa = new ControllerHandler()
     if (!verified) {
       throw { msg: 'Código inválido, ingreselo nuevamente', code: 403 }
     }
-    resp.status(200).json({verified: true})
+    const token = generateToken(user.id)
+    await user.update({ token })
+    resp.status(200).cookie('auth', token, {
+      httpOnly: true,
+      maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
+      secure: process.env.ENVIRONMENT==='PROD',
+      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : undefined
+    }).json(user)
   }).wrap()
 
 module.exports = {authenticate, logout, update, getSpecific, create, verifyMfa}
