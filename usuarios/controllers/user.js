@@ -1,6 +1,6 @@
 const User = require('../models').user
 const Project = require('../models').project
-
+const speakeasy = require('speakeasy')
 const crypto = require('crypto')
 const { permission } = require('../controllers/utils/userRequestWrapper')
 const ControllerHandler = require('../controllers/utils/userRequestWrapper')
@@ -135,4 +135,21 @@ const create = new ControllerHandler().notEmptyValues(['username','password','em
     resp.status(200).json(user)
   }).wrap()
 
-module.exports = {authenticate, logout, update, getSpecific, create}
+const verifyMfa = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const { body } = req
+    const user = await findUserOrThrowBy({
+      username: body.username
+    }, true)
+    const verified = speakeasy.totp.verify({
+      secret: user.mfaSecret,
+      encoding: 'base32',
+      token: req.userCode
+    })
+    if (!verified) {
+      throw { msg: 'Código inválido, ingreselo nuevamente', code: 403 }
+    }
+    resp.status(200).json({verified: true})
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create, verifyMfa}
