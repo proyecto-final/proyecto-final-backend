@@ -26,7 +26,7 @@ const dummyHandle = async (req, resp) => {
 // routes
 // users
 router.post('/user/authenticate', User.authenticate)
-router.post('/user/verifyMfa', User.verifyMfa)
+router.post('/user/mfa', User.verifyMfa)
 router.post('/user/authorize', dummyHandle)
 router.post('/user/logout', User.logout)
 router.patch('/user', User.update)
