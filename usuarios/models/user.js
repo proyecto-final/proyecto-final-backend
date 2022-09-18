@@ -88,6 +88,7 @@ module.exports = (sequelize) => {
     const values = Object.assign({}, this.get())
     delete values.token
     delete values.password
+    delete values.mfaSecret
     return values
   }
   return User
