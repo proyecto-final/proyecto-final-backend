@@ -153,9 +153,8 @@ const verifyMfa = new ControllerHandler()
     if (!verified) {
       throw { msg: 'Código inválido, ingreselo nuevamente', code: 403 }
     }
-
     const token = generateToken(user.id)
-    await user.update({ token })
+    await user.update({ token, preAuthToken: null })
     resp.status(200).cookie('auth', token, {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
