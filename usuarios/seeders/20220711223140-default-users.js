@@ -11,7 +11,7 @@ module.exports = {
       name: 'pepe',
       role: 'Owner',
       enabled: true,
-      mfaSecret: '77456e3c4028395e76637a70734c2a47312e567023285d443c5d41554d745e42',
+      mfaSecret: '715b6c70416375546954674b4a6d492c39423c635842344c2554734844723f61',
       createdAt: new Date(),
       updatedAt: new Date(),
       isAdmin: true,
