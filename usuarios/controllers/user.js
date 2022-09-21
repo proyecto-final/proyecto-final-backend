@@ -147,7 +147,7 @@ const verifyMfa = new ControllerHandler()
     }, true)
     const verified = speakeasy.totp.verify({
       secret: user.mfaSecret,
-      encoding: 'base32',
+      encoding: 'hex',
       token: body.userCode
     })
     if (!verified) {
