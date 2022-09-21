@@ -217,33 +217,23 @@ jobs:
     - name: Deploy to prod (evtx converter module)
       id: build-image-evtx-converter
       run: |
-        #Update user routes
         USER_IP=$(ecs-cli ps --cluster test | grep -i -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:3030")
         aws apigateway update-integration --rest-api-id AG_ID --resource-id sfex21 --http-method ANY --patch-operations path=/uri,value=http://$USER_IP/api/organization
         aws apigateway update-integration --rest-api-id AG_ID --resource-id a7pm1i --http-method ANY --patch-operations path=/uri,value=http://$USER_IP/api/organization/{proxy}
         aws apigateway update-integration --rest-api-id AG_ID --resource-id jvkcrn --http-method ANY --patch-operations path=/uri,value=http://$USER_IP/api/user
         aws apigateway update-integration --rest-api-id AG_ID --resource-id v2bm0o --http-method ANY --patch-operations path=/uri,value=http://$USER_IP/api/user/{proxy}
-        #Update timeline routes
         TIMELINE_IP=$(ecs-cli ps --cluster test | grep -i -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:3034")
         aws apigateway update-integration --rest-api-id AG_ID --resource-id ubdr93 --http-method ANY --patch-operations path=/uri,value=http://$TIMELINE_IP/api/project/{projectId}/timeline
         aws apigateway update-integration --rest-api-id AG_ID --resource-id y4560p --http-method ANY --patch-operations path=/uri,value=http://$TIMELINE_IP/api/project/{projectId}/timeline/{proxy}
-
-        #Update ips routes
         IPS_IP=$(ecs-cli ps --cluster test | grep -i -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:3031")
         aws apigateway update-integration --rest-api-id AG_ID --resource-id vey6a8 --http-method ANY --patch-operations path=/uri,value=http://$IPS_IP/api/project/{projectId}/ip-analysis
         aws apigateway update-integration --rest-api-id AG_ID --resource-id f158z7 --http-method ANY --patch-operations path=/uri,value=http://$IPS_IP/api/project/{projectId}/ip-analysis/{proxy}
-
-        #Update correlation routes
         CORRELATION_IP=$(ecs-cli ps --cluster test | grep -i -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:3032")
         aws apigateway update-integration --rest-api-id AG_ID --resource-id 5d879s --http-method ANY --patch-operations path=/uri,value=http://$CORRELATION_IP/api/{proxy}
         aws apigateway update-integration --rest-api-id AG_ID --resource-id whole3 --http-method GET --patch-operations path=/uri,value=http://$CORRELATION_IP/api/project/{projectId}/correlate/log
         aws apigateway update-integration --rest-api-id AG_ID --resource-id a81yvh --http-method ANY --patch-operations path=/uri,value=http://$CORRELATION_IP/api/project/{projectId}/correlate/log/{proxy}
         aws apigateway update-integration --rest-api-id AG_ID --resource-id etiom6 --http-method ANY --patch-operations path=/uri,value=http://$CORRELATION_IP/api/project/{projectId}/correlate/vulnerability
-
-        #Update evtx-converter routes
         EVTX_CONVERT_IP=$(ecs-cli ps --cluster test | grep -i -o "[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*:3036")
         aws apigateway update-integration --rest-api-id AG_ID --resource-id whole3 --http-method POST --patch-operations path=/uri,value=http://$EVTX_CONVERT_IP/api/project/{projectId}/correlate/log
-
-        #update lambda validator
         LAMBDA_IP=$(echo $USER_IP | cut -d':' -f1) 
         aws lambda update-function-configuration --function-name user --environment Variables={VALIDATOR_HOST=$LAMBDA_IP}
