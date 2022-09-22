@@ -64,7 +64,17 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 0
-    }
+    },
+    mfaSecret: {
+      type: DataTypes.STRING(512),
+      allowNull: true,
+      unique: true
+    },
+    preAuthToken: {
+      type: DataTypes.STRING(512),
+      allowNull: true,
+      unique: true
+    },
   })
 
   User.beforeCreate((user) => {
@@ -83,6 +93,8 @@ module.exports = (sequelize) => {
     const values = Object.assign({}, this.get())
     delete values.token
     delete values.password
+    delete values.mfaSecret
+    delete values.preAuthToken
     return values
   }
   return User
