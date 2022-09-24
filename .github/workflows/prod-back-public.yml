@@ -241,7 +241,7 @@ jobs:
           CORRELATION_MODULE_IP=$(echo $CORRELATION_IP | cut -d':' -f1) 
           TIMELINE_MODULE_IP=$(echo $TIMELINE_IP | cut -d':' -f1) 
           IPS_MODULE_IP=$(echo $IPS_IP | cut -d':' -f1) 
-          aws lambda update-function-configuration --function-name lambdaAuthSherlock --environment Variables="{VALIDATOR_HOST=$LAMBDA_IP, VALIDATOR_PORT=3030}"
+          aws lambda update-function-configuration --function-name lambdaAuthSherlock --environment Variables="{VALIDATOR_HOST=$USER_MODULE_IP, VALIDATOR_PORT=3030}"
           curl --user "$MONGO_KEY" --digest --include \
           --header "Accept: application/json" \
           --header "Content-Type: application/json" \
@@ -251,17 +251,38 @@ jobs:
               {
                 "ipAddress" : $USER_MODULE_IP,
                 "comment" : "USER MODULE ADDRESS"
-              },
-              {
-                "ipAddress" : $CORRELATION_MODULE_IP,
-                "comment" : "CORRELATION MODULE ADDRESS"
-              },
-              {
-                "ipAddress" : $TIMELINE_MODULE_IP,
-                "comment" : "TIMELINE MODULE ADDRESS"
-              },
+              }
+            ]'
+          curl --user "$MONGO_KEY" --digest --include \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --request POST "https://cloud.mongodb.com/api/atlas/v1.0/groups/$MONGO_GROUP_ID/accessList?pretty=true" \
+          --data '
+            [
               {
                 "ipAddress" : $IPS_MODULE_IP,
                 "comment" : "IPS MODULE ADDRESS"
+              }
+            ]'
+          curl --user "$MONGO_KEY" --digest --include \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --request POST "https://cloud.mongodb.com/api/atlas/v1.0/groups/$MONGO_GROUP_ID/accessList?pretty=true" \
+          --data '
+            [
+              {
+                "ipAddress" : $TIMELINE_MODULE_IP,
+                "comment" : "TIMELINE MODULE ADDRESS"
+              }
+            ]'
+          curl --user "$MONGO_KEY" --digest --include \
+          --header "Accept: application/json" \
+          --header "Content-Type: application/json" \
+          --request POST "https://cloud.mongodb.com/api/atlas/v1.0/groups/$MONGO_GROUP_ID/accessList?pretty=true" \
+          --data '
+            [
+              {
+                "ipAddress" : $CORRELATION_MODULE_IP,
+                "comment" : "CORRELATION MODULE ADDRESS"
               }
             ]'
