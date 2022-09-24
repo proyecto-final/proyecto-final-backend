@@ -29,18 +29,22 @@ app.listen(process.env.PORT, () => {
 })
 
 
+const connect2Mongo = () => {
+  mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedtopology: true
+  }).then(() => {
+    console.log('Connected to MongoDB')
+  }).catch(err => {
+    console.log(err)
+    setTimeout(() => {
+      console.log('Database not ready yet. Trying to re-connect')
+      connect2Mongo()
+    }, 3000) //wait 3 seconds before reconnect
+  })
+}
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedtopology: true
-}).then(() => {
-  console.log('Connected to MongoDB')
-}).catch(err => {
-  console.log(err)
-})
-
-
-
+connect2Mongo()
 const swaggerDocument = YAML.load('./swagger.yaml')
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 

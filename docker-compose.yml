@@ -50,18 +50,6 @@ services:
     depends_on:
       - mongo
 
-  busqueda:
-    profiles: [ "all", "busqueda" ]
-    platform: linux
-    build:
-      context: ./busqueda
-      args:
-        - MONGODB_URI=mongodb://sherlock:root@mongo:27017
-    ports:
-      - "3033:3033"
-    depends_on:
-      - mongo
-
   timeline:
     profiles: [ "all", "timeline" ]
     platform: linux
@@ -93,5 +81,4 @@ services:
       - usuarios
       - ips
       - correlacion
-      - busqueda
       - timeline

@@ -1,6 +1,7 @@
 FROM  nikolaik/python-nodejs
 
 ARG CORRELATION_URI
+ARG API_KEY
 
 COPY evtx_dump-v0.7.2-x86_64-unknown-linux-gnu /bin/evtx_dump
 
@@ -30,6 +31,7 @@ RUN mkdir input
 RUN mkdir output
 
 ENV HOST_CORRELATION=$CORRELATION_URI
+ENV API_KEY=$API_KEY
 ENV PLATFORM=linux
 
 EXPOSE 3036
