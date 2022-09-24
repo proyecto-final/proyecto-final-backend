@@ -241,7 +241,7 @@ jobs:
           CORRELATION_MODULE_IP=$(echo $CORRELATION_IP | cut -d':' -f1) 
           TIMELINE_MODULE_IP=$(echo $TIMELINE_IP | cut -d':' -f1) 
           IPS_MODULE_IP=$(echo $IPS_IP | cut -d':' -f1) 
-          aws lambda update-function-configuration --function-name lambdaAuthSherlock --environment Variables={VALIDATOR_HOST=$LAMBDA_IP, VALIDATOR_PORT=3030}
+          aws lambda update-function-configuration --function-name lambdaAuthSherlock --environment Variables={VALIDATOR_HOST=$LAMBDA_IP, VALIDATOR_PORT="3030"}
           curl --user "$MONGO_KEY" --digest --include \
           --header "Accept: application/json" \
           --header "Content-Type: application/json" \
