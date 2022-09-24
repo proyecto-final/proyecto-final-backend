@@ -249,7 +249,7 @@ jobs:
           --data '
             [
               {
-                "ipAddress" : "$IPS_MODULE_IP",
+                "ipAddress" : "'"${IPS_MODULE_IP}"'",
                 "comment" : "IPS MODULE ADDRESS"
               }
             ]'
@@ -260,7 +260,7 @@ jobs:
           --data '
             [
               {
-                "ipAddress" : "$TIMELINE_MODULE_IP",
+                "ipAddress" : "'"$TIMELINE_MODULE_IP"'",
                 "comment" : "TIMELINE MODULE ADDRESS"
               }
             ]'
@@ -271,7 +271,7 @@ jobs:
           --data '
             [
               {
-                "ipAddress" : "$CORRELATION_MODULE_IP",
+                "ipAddress" : "'"$CORRELATION_MODULE_IP"'",
                 "comment" : "CORRELATION MODULE ADDRESS"
               }
             ]'
