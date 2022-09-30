@@ -72,7 +72,8 @@ const convertFile = async (req, resp) => {
     formData.append('metadata', JSON.stringify(fileValidated.map(({ metadata }) => metadata)))
     const config = {
       headers: {
-        'content-type': 'multipart/form-data'
+        'content-type': 'multipart/form-data',
+        'x-api-key': process.env.API_KEY //This is for using production API gateway instead of changing ip in each deploy
       }
     }
     axios.post(url, formData, config).then(response => {

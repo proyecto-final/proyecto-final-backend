@@ -1,6 +1,7 @@
 const User = require('../models').user
 const Project = require('../models').project
-
+const speakeasy = require('speakeasy')
+const jwt = require('jsonwebtoken')
 const crypto = require('crypto')
 const { permission } = require('../controllers/utils/userRequestWrapper')
 const ControllerHandler = require('../controllers/utils/userRequestWrapper')
@@ -68,9 +69,15 @@ const authenticate = new ControllerHandler()
     if (!user.enabled) {
       throw { msg: 'User is disabled', code: 403 }
     }
-    const token = generateToken(user.id)
-    await user.update({ token, attemptsCount: 0 })
-    resp.status(200).cookie('auth', token, {
+    const organization = await Organization.findOne({
+      where: { id: user.organizationId }
+    })
+    if (!organization?.enabled) {
+      throw { msg: 'Organization is disabled', code: 403 }
+    }
+    const preAuthToken = generateToken(user.id)
+    await user.update({ preAuthToken: preAuthToken, attemptsCount: 0 })
+    resp.status(200).cookie('preauth', preAuthToken, {
       httpOnly: true,
       maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
       secure: process.env.ENVIRONMENT==='PROD',
@@ -117,16 +124,43 @@ const getSpecific = new ControllerHandler()
 
 const create = new ControllerHandler().notEmptyValues(['username','password','email','token','name'])
   .setHandler(async(req, resp) => {
-    const {username, password, name, email, token} = req.body
+    const {username, password, name, email, token, mfaSecret} = req.body
     checkPassword(password)
     const organization = await Organization.findOne({where: {invitationToken: token}})
     if(!organization){
       throw {code: 403, msg: 'Token inválido'}
     }
     const organizationId = organization.id
-    const user = await new User({username, password, name, email, organizationId})
+    const user = await new User({username, password, name, email, organizationId, mfaSecret})
     await user.save()
     resp.status(200).json(user)
   }).wrap()
 
-module.exports = {authenticate, logout, update, getSpecific, create}
+const verifyMfa = new ControllerHandler()
+  .setHandler(async(req, resp) => {
+    const { body } = req
+    const preAuthToken = req.cookies?.preauth
+    jwt.verify(preAuthToken, process.env.JWT_SECRET)
+    const user = await findUserOrThrowBy({
+      username: body.user,
+      preAuthToken: preAuthToken
+    }, true)
+    const verified = speakeasy.totp.verify({
+      secret: user.mfaSecret,
+      encoding: 'hex',
+      token: body.userCode
+    })
+    if (!verified) {
+      throw { msg: 'Código inválido, ingreselo nuevamente', code: 403 }
+    }
+    const token = generateToken(user.id)
+    await user.update({ token, preAuthToken: null })
+    resp.status(200).cookie('auth', token, {
+      httpOnly: true,
+      maxAge: TOKEN_LIFETIME_IN_MILISECONDS,
+      secure: process.env.ENVIRONMENT==='PROD',
+      sameSite: process.env.ENVIRONMENT==='PROD' ? 'none' : undefined
+    }).json(user)
+  }).wrap()
+
+module.exports = {authenticate, logout, update, getSpecific, create, verifyMfa}

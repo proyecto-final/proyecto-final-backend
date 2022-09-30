@@ -10,7 +10,6 @@
   - `proyecto-final-backend_mongo_1`, port: `27017`
   - `proyecto-final-backend_timeline_1`, port: `3034`
   - `proyecto-final-backend_ips_1`, port: `3031`
-  - `proyecto-final-backend_busqueda_1`, port: `3033`
   - `proyecto-final-backend_correlacion_1`, port: `3032`
   - `proyecto-final-backend_usuario_1`, port: `3030`
   - `proyecto-final-backend_fake-gateway_1`, port: `3035`
@@ -40,7 +39,6 @@
 - You should have the following modules running on `localhost`:
   - `timeline`, port: `3034`
   - `ips`, port: `3031`
-  - `busqueda`, port: `3033`
   - `correlacion`, port: `3032`
   - `usuario`, port: `3030`
   - `fake-gateway`, port: `3035`
@@ -63,6 +61,5 @@
 
 - timeline: `<machineip>:3034/api-docs`
 - ips: `<machineip>:3031/api-docs`
-- busqueda: `<machineip>:3033/api-docs`
 - correlacion: `<machineip>:3032/api-docs`
 - usuario: `<machineip>:3030/api-docs`

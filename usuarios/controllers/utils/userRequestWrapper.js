@@ -1,5 +1,6 @@
 const User = require('../../models').user
 const Project = require('../../models').project
+const Organization = require('../../models').organization
 const RequestWrapper = require('../../../shared/utils/requestWrapper')
 
 class UserRequestWrapper extends RequestWrapper {
@@ -67,7 +68,14 @@ const permission = {
       const user =  await getAndCacheUser(req)
       return user.organizationId == organizationId
     }
-  },  
+  },
+  isOrganizationActive (){
+    return async (req) => {
+      const user =  await getAndCacheUser(req)
+      const organization = await Organization.findOne({ where: { id: user.organizationId } })
+      return !!organization.enabled
+    }
+  }, 
   isOwner (){
     return async (req) => {
       const user =  await getAndCacheUser(req)
