@@ -42,7 +42,7 @@ module.exports = (sequelize) => {
     },
     password:  {
       type: DataTypes.STRING,
-      validate: { len: [8,32] },
+      //does not require pass length validation because it is hashed and salted and the length is always the same 64 characters
       allowNull: false
     },
     token: {
