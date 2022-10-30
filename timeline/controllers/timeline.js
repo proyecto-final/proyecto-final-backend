@@ -8,6 +8,7 @@ const Log = require('../../shared/models/log')(mongoose)
 require('../../shared/models/ip')(mongoose)
 const Line = require('../../shared/models/line')(mongoose)
 require('../../shared/models/vulnerability')(mongoose)
+require('../../shared/models/ip')(mongoose)
 const {adaptMongoosePage} = require('./../../shared/utils/pagination')
 const PDFDocument = require('pdfkit')
 const {createPDFStringContent} = require('../utils/pdf')
@@ -17,7 +18,7 @@ const getReport = new RequestWrapper()
   .hasId('projectId')
   .setHandler(async (req, res) => {
     const { timelineId, projectId } = req.params
-    const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)}).populate('lines.vulnerabilites')
+    const timeline = await Timeline.findOne({_id: timelineId, projectId: getIntValue(projectId)}).populate('lines.vulnerabilites').populate('lines.ips')
     const logs = await Log.find({_id: {$in: timeline?.logs}})
     if(!timeline){
       throw {code: 404, msg: 'Timeline not found'}
