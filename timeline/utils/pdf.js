@@ -16,10 +16,30 @@ const writeLogIntoPDF = (log, doc) => {
   writeBody(`last update: ${updatedAt}`, doc)
 }
 
+const writeIpIntoPDF = (ip, doc) => {
+  const {projectId, raw, reputation, country, city, isTor, totalReports, VPN, ISP, lastReportedAt, ports, reports} = ip
+  writeBoldBody(`ip: ${raw}`, doc)
+  writeBody(`Reputation: ${reputation}`, doc)
+  writeBody(`Is tor node: ${isTor}`, doc)
+  writeBody(`Contry: ${country}`, doc)
+  writeBody(`City: ${city}`, doc)
+  writeBody(`Project id: ${projectId}`, doc)
+  writeBody(`ISP: ${ISP}`, doc)
+  writeBody(`Uses VPN: ${VPN}`, doc)
+  writeBody(`Total reports: ${totalReports}`, doc)
+  writeBody(`last reported: ${lastReportedAt}`, doc)
+  if(ports.length > 0){
+    writeBody(`ports: ${ports.join(',')}`, doc)
+  }
+  if(reports.length > 0){
+    writeBody(`reports: ${reports.join(',')}`, doc)
+  }
+}
+
 const getVulnerabilitesNames = (vulnerabilites) => vulnerabilites.length === 0 ? 'No vulnerabilities detected' : vulnerabilites.map(vulnerability => vulnerability.name).join(',')
 
 const createPDFStringContent = async(timeline, logs, doc) => {
-  const {title, description, lines} = timeline
+  const {title, description, lines, ips} = timeline
   writeTitle(title, doc)
   writeBody(description, doc)
   addSpace(2, doc)
@@ -37,6 +57,10 @@ const createPDFStringContent = async(timeline, logs, doc) => {
   if (logs.length > 0) {
     writeSubTitle('Logs Metadata',doc)
     logs.forEach(log => writeLogIntoPDF(log, doc))
+  }
+  if (ips.length > 0) {
+    writeSubTitle('Ips Analized',doc)
+    ips.forEach(ip => writeIpIntoPDF(ip, doc))
   }
 }
 
